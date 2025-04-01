@@ -1,0 +1,37 @@
+package com.ecommerce.models.product;
+
+import com.testpurpose.model.user.Customer;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductReview {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
+
+    @Column(columnDefinition = "TEXT")
+    private String review;
+
+    @Column(nullable = false)
+    private int rating;
+
+    @Column(nullable = false)
+    private boolean isEdited;
+}
