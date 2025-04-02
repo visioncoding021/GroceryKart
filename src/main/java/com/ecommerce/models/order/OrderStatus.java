@@ -25,10 +25,10 @@ public class OrderStatus {
     private OrderProduct orderProduct;
 
     @Column(nullable = false)
-    private String fromStatus;
+    private OrderStatus fromStatus;
 
     @Column(nullable = false)
-    private String toStatus;
+    private OrderStatus toStatus;
 
     @Column(nullable = false)
     private LocalDateTime statusChangeDate;

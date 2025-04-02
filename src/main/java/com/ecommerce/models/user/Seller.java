@@ -17,7 +17,7 @@ import lombok.Setter;
 public class Seller extends User {
 
     @Column(nullable = false)
-    private String gst;
+    private String gstNumber;
 
     @Column(nullable = false)
     private String companyContact;

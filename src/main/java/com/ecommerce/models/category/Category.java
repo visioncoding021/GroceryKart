@@ -1,7 +1,8 @@
 package com.ecommerce.models.category;
 
+import com.ecommerce.models.product.Product;
+import com.ecommerce.utils.audit.AuditDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.testpurpose.model.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Category {
+public class Category extends AuditDetails {
     @Id
     private Long id;
 
@@ -27,15 +28,15 @@ public class Category {
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parent")
     @JsonIgnore
     private List<Category> subCategories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category")
     @JsonIgnore
     private List<CategoryMetadataFieldValues> categoryMetadataFieldValues = new ArrayList<>();
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category")
     @JsonIgnore
     private List<Product> products = new ArrayList<>();
 

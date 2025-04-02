@@ -1,7 +1,7 @@
 package com.ecommerce.models.order;
 
+import com.ecommerce.models.product.ProductVariation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.testpurpose.model.product.ProductVariation;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,7 +34,7 @@ public class OrderProduct {
     @Column(nullable = false)
     private Double price;
 
-    @OneToOne(mappedBy = "orderProduct", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "orderProduct", fetch = FetchType.LAZY)
     @JsonIgnore
     private OrderStatus orderStatus;
 

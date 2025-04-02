@@ -1,5 +1,6 @@
 package com.ecommerce.models.category;
 
+import com.ecommerce.utils.audit.AuditDetails;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryMetadataField {
+public class CategoryMetadataField extends AuditDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

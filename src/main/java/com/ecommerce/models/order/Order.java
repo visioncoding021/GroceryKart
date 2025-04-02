@@ -1,12 +1,14 @@
 package com.ecommerce.models.order;
 
-import com.testpurpose.model.user.Customer;
+import com.ecommerce.models.user.Customer;
+import com.ecommerce.utils.audit.AuditDetails;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -28,8 +30,7 @@ public class Order {
     private Customer customer;
 
     @Column(name = "date_created", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateCreated;
+    private LocalDateTime dateCreated;
 
     @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
@@ -52,7 +53,7 @@ public class Order {
     @Column(name = "customer_address_label", nullable = false)
     private String customerAddressLabel;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<OrderProduct> orderProducts;
 
 }

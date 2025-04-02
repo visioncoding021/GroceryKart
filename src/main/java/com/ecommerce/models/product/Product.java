@@ -1,7 +1,9 @@
 package com.ecommerce.models.product;
 
-import com.testpurpose.model.category.Category;
-import com.testpurpose.model.user.Seller;
+import com.ecommerce.models.category.Category;
+import com.ecommerce.models.user.Seller;
+import com.ecommerce.utils.audit.AuditDetails;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +17,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product {
+public class Product extends AuditDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -35,24 +37,26 @@ public class Product {
     private Category category;
 
     @Column(nullable = false)
-    private boolean isCancellable;
+    private boolean isCancellable = false;
 
     @Column(nullable = false)
-    private boolean isReturnable;
+    private boolean isReturnable = false;
 
     @Column(nullable = false)
     private String brand;
 
     @Column(nullable = false)
-    private boolean isActive;
+    private boolean isActive = false;
 
     @Column(nullable = false)
-    private boolean isDeleted;
+    private boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
+    @OneToMany(mappedBy = "product")
+    @JsonIgnore
     private List<ProductVariation> productVariations;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product")
+    @JsonIgnore
     private List<ProductReview> productReviews;
 
 }

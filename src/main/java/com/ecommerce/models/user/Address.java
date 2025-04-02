@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Address {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @ManyToOne
@@ -33,7 +33,7 @@ public class Address {
     private String addressLine;
 
     @Column(nullable = false)
-    private String zipCode;
+    private int zipCode;
 
     @Column(nullable = false)
     private String label;

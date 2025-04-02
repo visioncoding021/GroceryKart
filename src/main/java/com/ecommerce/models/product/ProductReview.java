@@ -1,6 +1,7 @@
 package com.ecommerce.models.product;
 
-import com.testpurpose.model.user.Customer;
+import com.ecommerce.models.user.Customer;
+import com.ecommerce.utils.audit.AuditDetails;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -15,14 +16,14 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
 @SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ?")
 @Where(clause = "is_deleted = false")
 public class User {
     @Id
-    @TableGenerator(name = "user_gen", table = "id_gen", pkColumnName = "gen_name", valueColumnName = "gen_val", allocationSize = 10)
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "user_gen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(nullable = false,unique = true)
@@ -39,21 +40,27 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private boolean isDeleted;
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
-    private boolean isActive;
+    @Column(nullable = false)
+    private boolean isActive = false;
 
-    private boolean isExpired;
+    @Column(nullable = false)
+    private boolean isExpired = false;
 
-    private boolean isLocked;
+    @Column(nullable = false)
+    private boolean isLocked = false;
 
-    private int invalidAttemptCount;
+    @Column(nullable = false)
+    private int invalidAttemptCount=0;
 
     private LocalDateTime passwordUpdateDate;
 
-    public User(){
-        isActive = true;
-    }
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
@@ -63,6 +70,17 @@ public class User {
     public List<Role> getRoles() {
         if (roles==null) roles = new ArrayList<>();
         return roles;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
 }

@@ -15,5 +15,4 @@ import lombok.Setter;
 public class Customer extends User {
     @Column(nullable = false)
     private String contact;
-    
 }

@@ -1,7 +1,7 @@
 package com.ecommerce.models.cart;
 
-import com.testpurpose.model.product.ProductVariation;
-import com.testpurpose.model.user.Customer;
+import com.ecommerce.models.product.ProductVariation;
+import com.ecommerce.models.user.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

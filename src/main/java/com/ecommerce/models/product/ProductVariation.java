@@ -1,13 +1,16 @@
 package com.ecommerce.models.product;
 
 
+import com.ecommerce.models.order.OrderProduct;
+import com.ecommerce.utils.audit.AuditDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.testpurpose.model.order.OrderProduct;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Map;
 
 @Entity
 @Table(name = "product_variation")
@@ -15,7 +18,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductVariation {
+public class ProductVariation extends AuditDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -34,10 +37,11 @@ public class ProductVariation {
     @Column(nullable = false)
     private String primaryImageUrl;
 
-    @Column(columnDefinition = "TEXT")
-    private String metadata;
+    @Column(columnDefinition = "JSON")
+    @Convert(converter = JsonConverter.class)
+    private Map<String, String> metadata;
 
-    @OneToMany(mappedBy = "productVariation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "productVariation")
     @JsonIgnore
     private OrderProduct orderProduct;
 
