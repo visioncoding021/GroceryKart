@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,7 +22,7 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ?")
 @Where(clause = "is_deleted = false")
-public class User {
+public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -62,15 +63,13 @@ public class User {
 
     private LocalDateTime updatedAt;
 
-    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    @JsonIgnore
-    private List<Role> roles;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "role_id",nullable = false)
+    private Role role;
 
-    public List<Role> getRoles() {
-        if (roles==null) roles = new ArrayList<>();
-        return roles;
-    }
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Address> address = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

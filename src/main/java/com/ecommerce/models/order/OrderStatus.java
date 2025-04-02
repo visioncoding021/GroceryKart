@@ -1,5 +1,6 @@
 package com.ecommerce.models.order;
 
+import com.ecommerce.enums.OrderStatusType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,10 +26,10 @@ public class OrderStatus {
     private OrderProduct orderProduct;
 
     @Column(nullable = false)
-    private OrderStatus fromStatus;
+    private OrderStatusType fromStatus;
 
     @Column(nullable = false)
-    private OrderStatus toStatus;
+    private OrderStatusType toStatus;
 
     @Column(nullable = false)
     private LocalDateTime statusChangeDate;

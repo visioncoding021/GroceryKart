@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
+@Table(name = "roles")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class Role {
     @Column(nullable = false,unique = true)
     private String authority;
 
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<User> users;
 

@@ -10,10 +10,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
-@Table(name = "product_variation")
+@Table(name = "product_variations")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -43,6 +45,6 @@ public class ProductVariation extends AuditDetails {
 
     @OneToMany(mappedBy = "productVariation")
     @JsonIgnore
-    private OrderProduct orderProduct;
+    private Set<OrderProduct> orderProduct;
 
 }

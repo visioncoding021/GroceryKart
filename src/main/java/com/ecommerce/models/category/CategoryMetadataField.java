@@ -7,8 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Set;
+
 @Entity
-@Table(name = "category_metadata_field")
+@Table(name = "category_metadata_fields")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,4 +24,7 @@ public class CategoryMetadataField extends AuditDetails {
 
     @Column(nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "categoryMetadataField")
+    private Set<CategoryMetadataFieldValues> categoryMetadataFieldValues;
 }

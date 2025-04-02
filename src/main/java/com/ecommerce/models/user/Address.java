@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "addresses")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -37,4 +38,5 @@ public class Address {
 
     @Column(nullable = false)
     private String label;
+
 }

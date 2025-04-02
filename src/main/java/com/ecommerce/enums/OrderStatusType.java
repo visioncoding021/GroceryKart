@@ -1,9 +1,13 @@
-package com.ecommerce.models.order;
+package com.ecommerce.enums;
+
+import com.ecommerce.models.order.OrderStatus;
+import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public enum Status {
+@Getter
+public enum OrderStatusType {
     ORDER_PLACED,
     CANCELLED,
     ORDER_REJECTED,
@@ -54,13 +58,9 @@ public enum Status {
         REFUND_COMPLETED.validTransitions.add(CLOSED);
     }
 
-    private final Set<Status> validTransitions = new HashSet<>();
+    private final Set<OrderStatusType> validTransitions = new HashSet<>();
 
-    public Set<Status> getValidTransitions() {
-        return validTransitions;
-    }
-
-    public boolean canTransitionTo(OrderStatus targetStatus) {
+    public boolean canTransitionTo(OrderStatusType targetStatus) {
         return validTransitions.contains(targetStatus);
     }
 

@@ -1,15 +1,13 @@
 package com.ecommerce.models.user;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "sellers")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,10 +22,5 @@ public class Seller extends User {
 
     @Column(nullable = false)
     private String companyName;
-
-    @OneToOne
-    @JoinColumn(name = "address_id")
-    @Column(nullable = false)
-    private Address address;
 
 }
