@@ -1,8 +1,10 @@
 package com.ecommerce.service.email_service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
@@ -13,6 +15,9 @@ public class EmailService {
 
     @Value("${spring.mail.username}")
     private String fromEmail;
+
+    @Autowired
+
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -28,5 +33,11 @@ public class EmailService {
         helper.setFrom(fromEmail);
 
         mailSender.send(message);
+    }
+
+    @Async
+    public void sendActivationEmail(String to, String subject, String text, String token) throws MessagingException {
+        String activationLink = "http://localhost:8080/api/activate?token=" + token;
+        sendEmail(to, subject, text + "\n\n" + "Click the link to activate your account: " + activationLink);
     }
 }

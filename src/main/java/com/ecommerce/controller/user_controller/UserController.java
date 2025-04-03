@@ -3,6 +3,7 @@ package com.ecommerce.controller.user_controller;
 import com.ecommerce.dto.request_dto.CustomerRequestDTO;
 import com.ecommerce.dto.request_dto.SellerRequestDTO;
 import com.ecommerce.models.user.Customer;
+import com.ecommerce.models.user.Seller;
 import com.ecommerce.service.user_service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -13,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
@@ -30,8 +31,15 @@ public class UserController {
     }
 
     @PostMapping("/register/seller")
-    public String registerSeller(@Valid @RequestBody SellerRequestDTO sellerRequestDTO) {
-        return "Seller registered successfully";
+    public ResponseEntity<Seller> registerSeller(@Valid @RequestBody SellerRequestDTO sellerRequestDTO) throws MessagingException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerSeller(sellerRequestDTO));
+    }
+
+    @PutMapping("/activate")
+    public ResponseEntity<String> activateUser(@RequestParam String token) throws MessagingException {
+        if(!userService.activateUser(token))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
+        return ResponseEntity.status(HttpStatus.OK).body("User activated successfully");
     }
 
 }
