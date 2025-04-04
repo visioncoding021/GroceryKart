@@ -1,12 +1,12 @@
 package com.ecommerce.utils.service_utils;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDTO;
-import com.ecommerce.dto.request_dto.SellerRequestDTO;
+import com.ecommerce.models.user.Address;
 import com.ecommerce.models.user.User;
-import com.ecommerce.utils.jwt_utils.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 public final class UserUtils {
 
@@ -22,8 +22,15 @@ public final class UserUtils {
     }
 
     public static void setPasswordEncoder(User user){
-        if(user.getPassword() != null && !user.getPassword().isEmpty()){
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+    }
+
+    public static void setUserAddress(Address address, User user) {
+        address.setUser(user);
+        List<Address> listOfAddress = user.getAddress();
+        if(!listOfAddress.contains(address)) {
+            listOfAddress.add(address);
+            user.setAddress(listOfAddress);
         }
     }
 

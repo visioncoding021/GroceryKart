@@ -1,6 +1,7 @@
 package com.ecommerce.controller.user_controller;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDTO;
+import com.ecommerce.dto.request_dto.ForgotPasswordDTO;
 import com.ecommerce.dto.request_dto.SellerRequestDTO;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
@@ -14,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 public class UserController {
 
     @Autowired
@@ -35,11 +36,29 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerSeller(sellerRequestDTO));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
+        String token = null;
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(token);
+    }
+
+
     @PutMapping("/activate")
     public ResponseEntity<String> activateUser(@RequestParam String token) throws MessagingException {
-        if(!userService.activateUser(token))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
-        return ResponseEntity.status(HttpStatus.OK).body("User activated successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(userService.activateUser(token));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) throws MessagingException {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.forgotPassword(email));
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String token , @RequestBody ForgotPasswordDTO forgotPasswordDTO) throws MessagingException {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.resetPassword(token,forgotPasswordDTO));
     }
 
 }

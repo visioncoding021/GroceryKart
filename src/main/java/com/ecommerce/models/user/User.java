@@ -75,6 +75,7 @@ public abstract class User {
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.passwordUpdateDate = LocalDateTime.now();
     }
 
     @PreUpdate

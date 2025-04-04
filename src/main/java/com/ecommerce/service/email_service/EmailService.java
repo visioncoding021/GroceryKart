@@ -40,4 +40,10 @@ public class EmailService {
         String activationLink = "http://localhost:8080/api/activate?token=" + token;
         sendEmail(to, subject, text + "\n\n" + "Click the link to activate your account: " + activationLink);
     }
+
+    @Async
+    public void sendResetPasswordEmail(String to, String subject, String text, String token) throws MessagingException {
+        String resetLink = "http://localhost:8080/api/auth/reset-password?token=" + token;
+        sendEmail(to, subject, text + "\n\n" + "Click the link to reset your password: " + resetLink);
+    }
 }
