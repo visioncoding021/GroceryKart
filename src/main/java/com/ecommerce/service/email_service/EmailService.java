@@ -37,7 +37,7 @@ public class EmailService {
 
     @Async
     public void sendActivationEmail(String to, String subject, String text, String token) throws MessagingException {
-        String activationLink = "http://localhost:8080/api/activate?token=" + token;
+        String activationLink = "http://localhost:8080/api/auth/activate?token=" + token;
         sendEmail(to, subject, text + "\n\n" + "Click the link to activate your account: " + activationLink);
     }
 

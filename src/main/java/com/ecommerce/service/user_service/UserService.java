@@ -3,8 +3,10 @@ package com.ecommerce.service.user_service;
 import com.ecommerce.dto.request_dto.CustomerRequestDTO;
 import com.ecommerce.dto.request_dto.ForgotPasswordDTO;
 import com.ecommerce.dto.request_dto.SellerRequestDTO;
+import com.ecommerce.dto.response_dto.LoginTokenDTO;
 import com.ecommerce.models.user.*;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,9 @@ public class UserService {
 
     @Autowired
     private ForgotResetPasswordService forgotPasswordService;
+
+    @Autowired
+    private LoginLogoutService loginLogoutService;
 
 
     public Customer registerCustomer(CustomerRequestDTO customerRequestDTO) throws MessagingException {
@@ -41,5 +46,8 @@ public class UserService {
         return forgotPasswordService.resetPassword(token,forgotPasswordDTO.getPassword(),forgotPasswordDTO.getConfirmPassword());
     }
 
+    public String loginUser(String email, String password, HttpServletResponse response) {
+        return loginLogoutService.loginUser(email,password,response);
+    }
 
 }

@@ -48,7 +48,7 @@ public class ActivationTokenService {
 
 
         if (!JwtUtil.isTokenValid(token)) {
-            String activationToken = JwtUtil.generateToken(user,"activationToken",10800);
+            String activationToken = JwtUtil.generateToken(user,"activationToken",10800000);
             emailService.sendActivationEmail("ininsde15@gmail.com", "Account Activation Failed",
                     "Your account activation link is either expired. Please register again.",activationToken);
             return "Your account activation link is either expired. Please register again.";

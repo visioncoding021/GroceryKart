@@ -1,5 +1,6 @@
 package com.ecommerce.controller.user_controller;
 
+import com.ecommerce.dto.request_dto.AuthRequestDTO;
 import com.ecommerce.dto.request_dto.CustomerRequestDTO;
 import com.ecommerce.dto.request_dto.ForgotPasswordDTO;
 import com.ecommerce.dto.request_dto.SellerRequestDTO;
@@ -7,6 +8,7 @@ import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
 import com.ecommerce.service.user_service.UserService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,14 +39,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
-        String token = null;
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(token);
+    public ResponseEntity<String> login(@Valid @RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response) {
+        return ResponseEntity.ok().body(userService.loginUser(authRequestDTO.getEmail(), authRequestDTO.getPassword(),response));
     }
-
 
     @PutMapping("/activate")
     public ResponseEntity<String> activateUser(@RequestParam String token) throws MessagingException {

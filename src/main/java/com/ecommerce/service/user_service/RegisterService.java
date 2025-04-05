@@ -2,7 +2,7 @@ package com.ecommerce.service.user_service;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDTO;
 import com.ecommerce.dto.request_dto.SellerRequestDTO;
-import com.ecommerce.exception.UserAlreadyRegistered;
+import com.ecommerce.exception.user.UserAlreadyRegistered;
 import com.ecommerce.models.user.*;
 import com.ecommerce.repository.user_repos.*;
 import com.ecommerce.service.email_service.EmailService;
@@ -45,12 +45,11 @@ public class RegisterService {
         if (userRepository.existsByEmail(customerRequestDTO.getEmail())) {
             User user = userRepository.findByEmail(customerRequestDTO.getEmail()).get();
             if (!user.isActive()) {
-                String activationToken = JwtUtil.generateToken(user,"activationToken",10800);
+                String activationToken = JwtUtil.generateToken(user,"activationToken",10800000);
                 emailService.sendActivationEmail("ininsde15@gmail.com", "Already registeredAccount Activation",
                         "Please activate your account by clicking the link below.", activationToken);
-            } else {
-                throw new UserAlreadyRegistered();
             }
+            throw new UserAlreadyRegistered();
         }
 
         if(!UserUtils.isPasswordMatching(customerRequestDTO.getPassword(), customerRequestDTO.getConfirmPassword())) {
@@ -70,7 +69,7 @@ public class RegisterService {
             customer = customerRepository.save(customer);
         }
 
-        String activationToken = JwtUtil.generateToken(customer,"activationToken",10800);
+        String activationToken = JwtUtil.generateToken(customer,"activationToken",10800000);
 
         emailService.sendActivationEmail("ininsde15@gmail.com", "Account Activation",
                 "Please activate your account by clicking the link below.", activationToken);

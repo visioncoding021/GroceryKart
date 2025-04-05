@@ -1,6 +1,6 @@
 package com.ecommerce.service.user_service;
 
-import com.ecommerce.exception.UserNotFoundException;
+import com.ecommerce.exception.user.UserNotFoundException;
 import com.ecommerce.models.user.User;
 import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.service.email_service.EmailService;
