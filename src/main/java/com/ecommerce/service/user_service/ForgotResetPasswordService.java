@@ -1,7 +1,9 @@
 package com.ecommerce.service.user_service;
 
 import com.ecommerce.exception.user.UserNotFoundException;
+import com.ecommerce.models.user.Token;
 import com.ecommerce.models.user.User;
+import com.ecommerce.repository.user_repos.TokenRepository;
 import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.service.email_service.EmailService;
 import com.ecommerce.utils.jwt_utils.JwtUtil;
@@ -23,6 +25,9 @@ public class ForgotResetPasswordService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
     public String sendResetPasswordEmail(String email) throws MessagingException {
 
         if (!userRepository.existsByEmail(email))
@@ -35,6 +40,9 @@ public class ForgotResetPasswordService {
         }
 
         String resetToken = JwtUtil.generateToken(user,"resetPassword",900000);
+        Token userToken = user.getToken();
+        userToken.setResetPassword(JwtUtil.extractIssuedAt(resetToken));
+        tokenRepository.save(userToken);
         emailService.sendResetPasswordEmail("ininsde15@gmail.com", "Reset Password",
                     "Please reset your password by clicking the link below.", resetToken);
 
@@ -49,14 +57,11 @@ public class ForgotResetPasswordService {
         Map<String,Object> claims = JwtUtil.extractAllClaims(token);
         String email = JwtUtil.extractEmail(token);
         String type = (String) claims.get("type");
+        Long tokenIssuedAt = JwtUtil.extractIssuedAt(token);
 
         User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
-
-        if (user.getPasswordUpdateDate().isAfter(JwtUtil.extractIssuedAt(token))) {
-            throw new IllegalArgumentException("Invalid password token");
-        }
-
-        if(!Objects.equals(type, "resetPassword"))
+        Token userToken = user.getToken();
+        if(!Objects.equals(type, "resetPassword") && !userToken.getResetPassword().equals(tokenIssuedAt))
             throw new IllegalArgumentException("Invalid token type");
 
         if (!UserUtils.isPasswordMatching(password, confirmPassword)) {

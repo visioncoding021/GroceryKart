@@ -34,7 +34,7 @@ public class Cart {
     private ProductVariation productVariation;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(nullable = false)
     private boolean isWishlist = false;

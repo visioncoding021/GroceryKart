@@ -42,19 +42,19 @@ public abstract class User {
     private String password;
 
     @Column(nullable = false)
-    private boolean isDeleted = false;
+    private Boolean isDeleted = false;
 
     @Column(nullable = false)
-    private boolean isActive = false;
+    private Boolean isActive = false;
 
     @Column(nullable = false)
-    private boolean isExpired = false;
+    private Boolean isExpired = false;
 
     @Column(nullable = false)
-    private boolean isLocked = false;
+    private Boolean isLocked = false;
 
     @Column(nullable = false)
-    private int invalidAttemptCount=0;
+    private Integer invalidAttemptCount=0;
 
     private LocalDateTime passwordUpdateDate;
 
@@ -70,6 +70,10 @@ public abstract class User {
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<Address> address = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "token_id", referencedColumnName = "id")
+    private Token token;
 
     @PrePersist
     public void prePersist() {

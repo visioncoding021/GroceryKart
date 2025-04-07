@@ -29,7 +29,7 @@ public class OrderProduct {
     private ProductVariation productVariation;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(nullable = false)
     private Double price;

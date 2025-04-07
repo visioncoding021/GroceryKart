@@ -6,6 +6,7 @@ import com.ecommerce.dto.request_dto.ForgotPasswordDTO;
 import com.ecommerce.dto.request_dto.SellerRequestDTO;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
+import com.ecommerce.service.user_service.TokenService;
 import com.ecommerce.service.user_service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +24,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+
+
     @GetMapping("/test")
     public String test() {
         return "User Controller is working";
@@ -30,7 +33,8 @@ public class UserController {
 
     @PostMapping(value = {"/register","/register/customer"})
     public ResponseEntity<Customer> registerUser(@Valid @RequestBody CustomerRequestDTO customerRequestDTO) throws MessagingException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerCustomer(customerRequestDTO));
+        Customer customer = userService.registerCustomer(customerRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(customer);
     }
 
     @PostMapping("/register/seller")

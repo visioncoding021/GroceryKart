@@ -18,6 +18,9 @@ public final class UserUtils {
     }
 
     public static boolean isAddressValid(CustomerRequestDTO customerDTO) {
+        if (customerDTO.getAddressLine() == null || customerDTO.getCity() == null || customerDTO.getState() == null || customerDTO.getCountry() == null || customerDTO.getZipCode() == null) {
+            return false;
+        }
         return  !customerDTO.getAddressLine().isEmpty() && !customerDTO.getCity().isEmpty() && !customerDTO.getState().isEmpty() && !customerDTO.getCountry().isEmpty() && !customerDTO.getZipCode().isEmpty();
     }
 

@@ -34,7 +34,7 @@ public class Address {
     private String addressLine;
 
     @Column(nullable = false)
-    private int zipCode;
+    private Integer zipCode;
 
     @Column(nullable = false)
     private String label;

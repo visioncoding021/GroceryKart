@@ -2,30 +2,28 @@ package com.ecommerce.models.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Entity
-@Table(name = "roles")
+@Table(name = "tokens")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class Role {
+public class Token {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(nullable = false,unique = true)
-    private String authority;
+    private Long activation=null;
+    private Long access=null;
+    private Long refresh=null;
+    private Long resetPassword=null;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "token",cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<User> users;
+    private User user;
 
 }

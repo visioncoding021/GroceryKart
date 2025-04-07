@@ -20,7 +20,7 @@ public class UserService {
     private ActivationTokenService activationTokenService;
 
     @Autowired
-    private ForgotResetPasswordService forgotPasswordService;
+    private ForgotResetPasswordService forgotResetPasswordService;
 
     @Autowired
     private LoginLogoutService loginLogoutService;
@@ -39,11 +39,11 @@ public class UserService {
     }
 
     public String forgotPassword(String email) throws MessagingException {
-        return forgotPasswordService.sendResetPasswordEmail(email);
+        return forgotResetPasswordService.sendResetPasswordEmail(email);
     }
 
     public String resetPassword(String token,ForgotPasswordDTO forgotPasswordDTO) throws MessagingException {
-        return forgotPasswordService.resetPassword(token,forgotPasswordDTO.getPassword(),forgotPasswordDTO.getConfirmPassword());
+        return forgotResetPasswordService.resetPassword(token,forgotPasswordDTO.getPassword(),forgotPasswordDTO.getConfirmPassword());
     }
 
     public String loginUser(String email, String password, HttpServletResponse response) {

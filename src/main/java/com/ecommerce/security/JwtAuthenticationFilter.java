@@ -1,23 +1,24 @@
 package com.ecommerce.security;
 
+import com.ecommerce.exception.user.UserNotFoundException;
+import com.ecommerce.models.user.Token;
 import com.ecommerce.models.user.User;
+import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.utils.jwt_utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -28,12 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsServiceImp userDetailsService;
 
-    private AuthenticationManager authenticationManager;
-
     @Autowired
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
+    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -44,16 +41,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (jwt != null) {
             String email = JwtUtil.extractEmail(jwt);
-
+            User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+            Token userToken = user.getToken();
+            Long activationIssuedAt = userToken.getActivation();
+            if (!activationIssuedAt.equals(JwtUtil.extractIssuedAt(jwt)) && !Objects.equals(JwtUtil.extractType(jwt), "access")) {
+                throw new IllegalArgumentException("Invalid token");
+            }
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                 if (JwtUtil.isTokenValid(jwt)) {
                     UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-                            userDetails.getUsername(), null); // Password not needed here, already authenticated
-
-                    Authentication authResult = authenticationManager.authenticate(authRequest);
-                    SecurityContextHolder.getContext().setAuthentication(authResult);
+                            userDetails.getUsername(), userDetails.getPassword(),userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authRequest);
                 }
             }
         }
@@ -65,6 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
+
             return authHeader.substring(7);
         }
         return null;

@@ -1,6 +1,8 @@
 package com.ecommerce.service.user_service;
 
+import com.ecommerce.models.user.Token;
 import com.ecommerce.models.user.User;
+import com.ecommerce.repository.user_repos.TokenRepository;
 import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.service.email_service.EmailService;
 import com.ecommerce.utils.jwt_utils.JwtUtil;
@@ -19,6 +21,12 @@ public class ActivationTokenService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
+    private TokenService tokenService;
+
     public String activateUser(String token) throws MessagingException {
         Map<String,Object> claims = JwtUtil.extractAllClaims(token);
         String email = JwtUtil.extractEmail(token);
@@ -26,7 +34,7 @@ public class ActivationTokenService {
 
         System.out.println(email+" "+type);
 
-        if(!type.equals("activationToken")) {
+        if(!type.equals("activation")) {
             throw new IllegalArgumentException("Invalid token ");
         }
 
@@ -40,21 +48,28 @@ public class ActivationTokenService {
             return "You are not registered user with this email. Please register again.";
         }
 
-        if (user.isActive()) {
+        if (user.getIsActive()) {
             emailService.sendEmail("ininsde15@gmail.com", "Account Already Activated",
                     "Your account is already activated. You can login.");
             return "Your account is already activated. You can login.";
         }
 
+        Token userToken = user.getToken();
+        Long activationIssuedAt = userToken.getActivation();
+        System.out.println(activationIssuedAt+" "+JwtUtil.extractIssuedAt(token));
+
+        if (!activationIssuedAt.equals(JwtUtil.extractIssuedAt(token))){
+            throw new IllegalArgumentException("Invalid Expired token ");
+        }
 
         if (!JwtUtil.isTokenValid(token)) {
-            String activationToken = JwtUtil.generateToken(user,"activationToken",10800000);
-            emailService.sendActivationEmail("ininsde15@gmail.com", "Account Activation Failed",
-                    "Your account activation link is either expired. Please register again.",activationToken);
+            tokenService.saveActivationToken(user, "Account Activation Failed");
             return "Your account activation link is either expired. Please register again.";
         }
 
-        user.setActive(true);
+        user.setIsActive(true);
+        userToken.setActivation(null);
+        tokenRepository.save(userToken);
         userRepository.save(user);
 
         emailService.sendEmail("ininsde15@gmail.com", "Account Activated",

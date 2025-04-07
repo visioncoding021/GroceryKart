@@ -38,19 +38,19 @@ public class Product extends AuditDetails {
     private Category category;
 
     @Column(nullable = false)
-    private boolean isCancellable = false;
+    private Boolean isCancellable = false;
 
     @Column(nullable = false)
-    private boolean isReturnable = false;
+    private Boolean isReturnable = false;
 
     @Column(nullable = false)
     private String brand;
 
     @Column(nullable = false)
-    private boolean isActive = false;
+    private Boolean isActive = false;
 
     @Column(nullable = false)
-    private boolean isDeleted = false;
+    private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "product")
     @JsonIgnore

@@ -32,8 +32,8 @@ public class ProductReview {
     private String review;
 
     @Column(nullable = false)
-    private int rating;
+    private Integer rating;
 
     @Column(nullable = false)
-    private boolean isEdited;
+    private Boolean isEdited;
 }

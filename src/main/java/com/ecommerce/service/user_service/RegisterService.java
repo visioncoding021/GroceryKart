@@ -10,6 +10,7 @@ import com.ecommerce.utils.jwt_utils.JwtUtil;
 import com.ecommerce.utils.service_utils.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,18 +37,22 @@ public class RegisterService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
+    private TokenService tokenService;
 
     public Customer registerCustomer(CustomerRequestDTO customerRequestDTO) throws MessagingException {
 
         Address address;
-        Role role = roleRepository.findByAuthority("ROLE_CUSTOMER");
+        Role role = roleRepository.findByAuthority("ROLE_CUSTOMER").orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        Customer customer = objectMapper.convertValue(customerRequestDTO, Customer.class);
 
         if (userRepository.existsByEmail(customerRequestDTO.getEmail())) {
             User user = userRepository.findByEmail(customerRequestDTO.getEmail()).get();
-            if (!user.isActive()) {
-                String activationToken = JwtUtil.generateToken(user,"activationToken",10800000);
-                emailService.sendActivationEmail("ininsde15@gmail.com", "Already registeredAccount Activation",
-                        "Please activate your account by clicking the link below.", activationToken);
+            if (!user.getIsActive()) {
+                tokenService.saveActivationToken(user, "Account Activation Pending");
             }
             throw new UserAlreadyRegistered();
         }
@@ -56,23 +61,18 @@ public class RegisterService {
             throw new IllegalArgumentException("Passwords do not match");
         }
 
-        Customer customer = objectMapper.convertValue(customerRequestDTO, Customer.class);
 
         customer.setRole(role);
         UserUtils.setPasswordEncoder(customer);
-        customer = customerRepository.save(customer);
 
         if(UserUtils.isAddressValid(customerRequestDTO)){
             address = objectMapper.convertValue(customerRequestDTO,Address.class);
             UserUtils.setUserAddress(address, customer);
             addressRepository.save(address);
-            customer = customerRepository.save(customer);
         }
+        customer = customerRepository.save(customer);
 
-        String activationToken = JwtUtil.generateToken(customer,"activationToken",10800000);
-
-        emailService.sendActivationEmail("ininsde15@gmail.com", "Account Activation",
-                "Please activate your account by clicking the link below.", activationToken);
+        tokenService.saveActivationToken(customer, "Account Activation Link Sent");
 
         return customer;
     }
@@ -81,7 +81,7 @@ public class RegisterService {
     public Seller registerSeller(SellerRequestDTO sellerRequestDTO) throws MessagingException {
 
         Address address;
-        Role role = roleRepository.findByAuthority("ROLE_SELLER");
+        Role role = roleRepository.findByAuthority("ROLE_SELLER").orElseThrow(() -> new IllegalArgumentException("Role not found"));
 
         if (sellerRequestDTO.getEmail() == null || sellerRequestDTO.getEmail().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be null or empty");

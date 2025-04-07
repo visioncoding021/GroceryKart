@@ -3,6 +3,7 @@ package com.ecommerce.models.product;
 
 import com.ecommerce.models.order.OrderProduct;
 import com.ecommerce.utils.audit.AuditDetails;
+import com.ecommerce.utils.model_utils.JsonConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

@@ -25,16 +25,16 @@ public class UserDetailsServiceImp implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if(!user.isActive()) throw new UserIsInactiveException();
-        if (user.isLocked()) throw new UserIsLockedException();
+        if(!user.getIsActive()) throw new UserIsInactiveException();
+        if (user.getIsLocked()) throw new UserIsLockedException();
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                user.isActive(),
                 true,
                 true,
-                !user.isLocked(),
+                true,
+                true,
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getAuthority()))
         );
     }

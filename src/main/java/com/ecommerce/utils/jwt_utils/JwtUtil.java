@@ -1,8 +1,10 @@
 package com.ecommerce.utils.jwt_utils;
 
 import com.ecommerce.models.user.User;
+import com.ecommerce.repository.user_repos.TokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,9 @@ import java.util.Map;
 public final class JwtUtil {
 
     private static String secretKey;
+
+    @Autowired
+    private static TokenRepository tokenRepository;
 
     public JwtUtil(
             @Value("${jwt.secret}") String secretKey
@@ -55,7 +60,23 @@ public final class JwtUtil {
                 .getBody();
     }
 
-    public static LocalDateTime extractIssuedAt(String token) {
+    public static Long extractExpiration(String token) {
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+
+        return expiration.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+    }
+
+    public static Long extractIssuedAt(String token) {
         Date issuedAt = Jwts.parserBuilder()
                 .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
                 .build()
@@ -65,7 +86,19 @@ public final class JwtUtil {
 
         return issuedAt.toInstant()
                 .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+                .toLocalDateTime()
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+    }
+
+    public static String extractType(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("type", String.class);
     }
 
     public static boolean isTokenValid(String token) {
