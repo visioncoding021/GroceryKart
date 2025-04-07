@@ -1,5 +1,6 @@
 package com.ecommerce.security;
 
+import com.ecommerce.exception.user.UserIsInactiveException;
 import com.ecommerce.exception.user.UserNotFoundException;
 import com.ecommerce.models.user.Token;
 import com.ecommerce.models.user.User;
@@ -47,6 +48,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwt != null) {
             String email = JwtUtil.extractEmail(jwt);
             User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+
+            if(user.getIsLocked()){
+                throw new UserNotFoundException("User is locked");
+            }
+            if(!user.getIsActive()){
+                throw new UserIsInactiveException("User is inactive");
+            }
             Token userToken = user.getToken();
             Long accessIssuedAt = userToken.getAccess();
             if(accessIssuedAt!=null){

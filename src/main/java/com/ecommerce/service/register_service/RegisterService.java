@@ -1,4 +1,4 @@
-package com.ecommerce.service.user_service;
+package com.ecommerce.service.register_service;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDTO;
 import com.ecommerce.dto.request_dto.SellerRequestDTO;
@@ -6,11 +6,9 @@ import com.ecommerce.exception.user.UserAlreadyRegistered;
 import com.ecommerce.models.user.*;
 import com.ecommerce.repository.user_repos.*;
 import com.ecommerce.service.email_service.EmailService;
-import com.ecommerce.utils.jwt_utils.JwtUtil;
 import com.ecommerce.utils.service_utils.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

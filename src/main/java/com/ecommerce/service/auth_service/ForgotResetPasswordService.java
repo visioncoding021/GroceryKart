@@ -1,4 +1,4 @@
-package com.ecommerce.service.user_service;
+package com.ecommerce.service.auth_service;
 
 import com.ecommerce.exception.user.UserIsLockedException;
 import com.ecommerce.exception.user.UserNotFoundException;
@@ -31,24 +31,17 @@ public class ForgotResetPasswordService {
 
     public String sendResetPasswordEmail(String email) throws MessagingException {
 
-        if (!userRepository.existsByEmail(email))
-            throw new UserNotFoundException();
-
         User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
 
         if (user.getIsLocked()){
             throw new UserIsLockedException("You can't change password");
         }
 
-        if(user.getPasswordUpdateDate().isAfter(LocalDateTime.now().minusMinutes(25))) {
-            throw new IllegalArgumentException("Recently the password is updated. Please try again after 30 minutes");
-        }
-
         String resetToken = JwtUtil.generateToken(user,"resetPassword",900000);
         Token userToken = user.getToken();
         userToken.setResetPassword(JwtUtil.extractIssuedAt(resetToken));
         tokenRepository.save(userToken);
-        emailService.sendResetPasswordEmail("ininsde15@gmail.com", "Reset Password",
+        emailService.sendResetPasswordEmail("ininsde15@gmail.com", "Reset Password Request Sent",
                     "Please reset your password by clicking the link below.", resetToken);
 
         return "Reset password request sent successfully . Please check your mail";
@@ -75,6 +68,8 @@ public class ForgotResetPasswordService {
         UserUtils.setPasswordEncoder(user);
         user.setPasswordUpdateDate(LocalDateTime.now());
         userRepository.save(user);
+        userToken.setResetPassword(null);
+        tokenRepository.save(userToken);
         return "Password reset successfully";
     }
 }

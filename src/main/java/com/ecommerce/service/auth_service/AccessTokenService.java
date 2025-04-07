@@ -1,4 +1,4 @@
-package com.ecommerce.service.user_service;
+package com.ecommerce.service.auth_service;
 
 import com.ecommerce.exception.user.UserNotFoundException;
 import com.ecommerce.models.user.Token;
@@ -36,7 +36,6 @@ public class AccessTokenService {
             return "No Login Session Exist";
         }
         if(!refreshIssuedAt.equals(JwtUtil.extractIssuedAt(refreshToken))) {
-
             return "Refresh token is not valid";
         }
         String accessToken = JwtUtil.generateToken(user,"access",900000);

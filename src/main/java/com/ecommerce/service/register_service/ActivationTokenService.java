@@ -1,4 +1,4 @@
-package com.ecommerce.service.user_service;
+package com.ecommerce.service.register_service;
 
 import com.ecommerce.exception.user.UserNotFoundException;
 import com.ecommerce.models.user.Token;

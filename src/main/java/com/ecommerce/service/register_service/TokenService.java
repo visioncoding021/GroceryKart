@@ -1,14 +1,12 @@
-package com.ecommerce.service.user_service;
+package com.ecommerce.service.register_service;
 
 import com.ecommerce.models.user.Token;
 import com.ecommerce.models.user.User;
-import com.ecommerce.repository.user_repos.CustomerRepository;
 import com.ecommerce.repository.user_repos.TokenRepository;
 import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.service.email_service.EmailService;
 import com.ecommerce.utils.jwt_utils.JwtUtil;
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

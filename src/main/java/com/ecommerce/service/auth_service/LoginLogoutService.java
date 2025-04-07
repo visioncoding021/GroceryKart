@@ -1,4 +1,4 @@
-package com.ecommerce.service.user_service;
+package com.ecommerce.service.auth_service;
 
 import com.ecommerce.dto.response_dto.LoginTokenDTO;
 import com.ecommerce.exception.user.UserIsInactiveException;

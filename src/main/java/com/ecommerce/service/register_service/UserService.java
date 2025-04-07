@@ -1,10 +1,12 @@
-package com.ecommerce.service.user_service;
+package com.ecommerce.service.register_service;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDTO;
 import com.ecommerce.dto.request_dto.ForgotPasswordDTO;
 import com.ecommerce.dto.request_dto.SellerRequestDTO;
-import com.ecommerce.dto.response_dto.LoginTokenDTO;
 import com.ecommerce.models.user.*;
+import com.ecommerce.service.auth_service.AccessTokenService;
+import com.ecommerce.service.auth_service.ForgotResetPasswordService;
+import com.ecommerce.service.auth_service.LoginLogoutService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,6 +28,9 @@ public class UserService {
 
     @Autowired
     private LoginLogoutService loginLogoutService;
+
+    @Autowired
+    private AccessTokenService accessTokenService;
 
 
     public Customer registerCustomer(CustomerRequestDTO customerRequestDTO) throws MessagingException {
@@ -58,6 +63,10 @@ public class UserService {
 
     public String logoutUser(String accessToken, HttpServletRequest request, HttpServletResponse response) {
         return loginLogoutService.logoutUser(accessToken,request, response);
+    }
+
+    public String getAccessToken(HttpServletRequest request) {
+        return accessTokenService.getAccessToken(request);
     }
 
 }
