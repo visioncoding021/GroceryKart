@@ -4,6 +4,7 @@ import com.ecommerce.exception.user.UserAlreadyRegistered;
 import com.ecommerce.exception.user.UserIsInactiveException;
 import com.ecommerce.exception.user.UserIsLockedException;
 import com.ecommerce.exception.user.UserNotFoundException;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,6 +41,11 @@ public class UserExceptionHandling {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception exception) {
         return ResponseEntity.status(500).body("An unexpected error occurred: " + exception.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleBadRequest(BadRequestException exception) {
+        return ResponseEntity.status(400).body("Bad request: " + exception.getMessage());
     }
 
 }

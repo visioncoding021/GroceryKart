@@ -6,7 +6,9 @@ import com.ecommerce.dto.request_dto.SellerRequestDTO;
 import com.ecommerce.dto.response_dto.LoginTokenDTO;
 import com.ecommerce.models.user.*;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,8 +48,16 @@ public class UserService {
         return forgotResetPasswordService.resetPassword(token,forgotPasswordDTO.getPassword(),forgotPasswordDTO.getConfirmPassword());
     }
 
-    public String loginUser(String email, String password, HttpServletResponse response) {
-        return loginLogoutService.loginUser(email,password,response);
+    public String loginUser(String email, String password,HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+        return loginLogoutService.loginUser(email,password,request,response);
+    }
+
+    public String resendActivationLink(String email) throws MessagingException {
+        return activationTokenService.resendActivationLink(email);
+    }
+
+    public String logoutUser(String accessToken, HttpServletRequest request, HttpServletResponse response) {
+        return loginLogoutService.logoutUser(accessToken,request, response);
     }
 
 }

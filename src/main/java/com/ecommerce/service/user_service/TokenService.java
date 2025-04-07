@@ -24,7 +24,6 @@ public class TokenService {
     @Autowired
     private EmailService emailService;
 
-    @Transactional
     public void saveActivationToken(User user, String subject) throws MessagingException {
         String activationToken = JwtUtil.generateToken(user,"activation",10800000);
         Long activationIssuedAt = JwtUtil.extractIssuedAt(activationToken);
@@ -36,10 +35,8 @@ public class TokenService {
             userToken.setUser(user);
             user.setToken(userToken);
         }
-
         userToken.setActivation(activationIssuedAt);
-
-        System.out.println(tokenRepository.save(userToken));
+        tokenRepository.save(userToken);
 
         System.out.println(activationIssuedAt+" "+JwtUtil.extractIssuedAt(activationToken));
         emailService.sendActivationEmail("ininsde15@gmail.com", subject,

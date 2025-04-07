@@ -1,5 +1,6 @@
 package com.ecommerce.service.user_service;
 
+import com.ecommerce.exception.user.UserIsLockedException;
 import com.ecommerce.exception.user.UserNotFoundException;
 import com.ecommerce.models.user.Token;
 import com.ecommerce.models.user.User;
@@ -34,6 +35,10 @@ public class ForgotResetPasswordService {
             throw new UserNotFoundException();
 
         User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+
+        if (user.getIsLocked()){
+            throw new UserIsLockedException("You can't change password");
+        }
 
         if(user.getPasswordUpdateDate().isAfter(LocalDateTime.now().minusMinutes(25))) {
             throw new IllegalArgumentException("Recently the password is updated. Please try again after 30 minutes");

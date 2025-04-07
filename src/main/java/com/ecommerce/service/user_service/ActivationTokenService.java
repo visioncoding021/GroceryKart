@@ -1,5 +1,6 @@
 package com.ecommerce.service.user_service;
 
+import com.ecommerce.exception.user.UserNotFoundException;
 import com.ecommerce.models.user.Token;
 import com.ecommerce.models.user.User;
 import com.ecommerce.repository.user_repos.TokenRepository;
@@ -75,7 +76,17 @@ public class ActivationTokenService {
         emailService.sendEmail("ininsde15@gmail.com", "Account Activated",
                 "Your account has been activated successfully. Now you can login.");
 
-        return "User Activated Succesfully";
+        return "User Activated Successfully";
+    }
+
+    public String resendActivationLink(String email) throws MessagingException {
+        System.out.println(email);
+        User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        if (user.getIsActive()) {
+            return "Your account is already activated. You can login.";
+        }
+        tokenService.saveActivationToken(user, "Account Activation Re-Sent ");
+        return "Activation link sent to your email";
     }
 
 

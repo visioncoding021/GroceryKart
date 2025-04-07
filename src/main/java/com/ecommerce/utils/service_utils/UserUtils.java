@@ -37,4 +37,10 @@ public final class UserUtils {
         }
     }
 
+    public static boolean is24HoursExpired(long issuedAtTimestamp) {
+        long currentTimeMillis = System.currentTimeMillis();
+        long twentyFourHoursMillis = 24 * 60 * 60 * 1000; // 86400000 ms in 24 hours
+        return currentTimeMillis - issuedAtTimestamp >= twentyFourHoursMillis;
+    }
+
 }

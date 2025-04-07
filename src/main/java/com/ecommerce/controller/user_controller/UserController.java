@@ -9,8 +9,10 @@ import com.ecommerce.models.user.Seller;
 import com.ecommerce.service.user_service.TokenService;
 import com.ecommerce.service.user_service.UserService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -23,8 +25,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-
 
     @GetMapping("/test")
     public String test() {
@@ -43,8 +43,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response) {
-        return ResponseEntity.ok().body(userService.loginUser(authRequestDTO.getEmail(), authRequestDTO.getPassword(),response));
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDTO authRequestDTO,HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+        return ResponseEntity.ok().body(userService.loginUser(authRequestDTO.getEmail(), authRequestDTO.getPassword(),request,response));
+    }
+
+    @PostMapping("/resend-activation-token")
+    public ResponseEntity<String> resendActivationToken(@RequestParam String email) throws MessagingException {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.resendActivationLink(email));
     }
 
     @PutMapping("/activate")
@@ -60,6 +65,11 @@ public class UserController {
     @PutMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestParam String token , @RequestBody ForgotPasswordDTO forgotPasswordDTO) throws MessagingException {
         return ResponseEntity.status(HttpStatus.OK).body(userService.resetPassword(token,forgotPasswordDTO));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token, HttpServletRequest request,HttpServletResponse response) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.logoutUser(token,request,response));
     }
 
 }

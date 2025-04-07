@@ -61,9 +61,9 @@ public class RegisterService {
             throw new IllegalArgumentException("Passwords do not match");
         }
 
-
         customer.setRole(role);
         UserUtils.setPasswordEncoder(customer);
+        customer = customerRepository.save(customer);
 
         if(UserUtils.isAddressValid(customerRequestDTO)){
             address = objectMapper.convertValue(customerRequestDTO,Address.class);
@@ -71,7 +71,6 @@ public class RegisterService {
             addressRepository.save(address);
         }
         customer = customerRepository.save(customer);
-
         tokenService.saveActivationToken(customer, "Account Activation Link Sent");
 
         return customer;
