@@ -1,6 +1,5 @@
 package com.ecommerce.service.auth_service;
 
-import com.ecommerce.dto.response_dto.LoginTokenDTO;
 import com.ecommerce.exception.user.UserIsInactiveException;
 import com.ecommerce.exception.user.UserIsLockedException;
 import com.ecommerce.exception.user.UserNotFoundException;
@@ -25,9 +24,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LoginLogoutService {
-
-    @Autowired
-    private LoginTokenDTO loginTokenDTO;
 
     @Autowired
     private UserRepository userRepository;

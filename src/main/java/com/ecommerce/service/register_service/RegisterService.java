@@ -1,7 +1,7 @@
 package com.ecommerce.service.register_service;
 
-import com.ecommerce.dto.request_dto.CustomerRequestDTO;
-import com.ecommerce.dto.request_dto.SellerRequestDTO;
+import com.ecommerce.dto.request_dto.CustomerRequestDto;
+import com.ecommerce.dto.request_dto.SellerRequestDto;
 import com.ecommerce.exception.user.UserAlreadyRegistered;
 import com.ecommerce.models.user.*;
 import com.ecommerce.repository.user_repos.*;
@@ -41,7 +41,7 @@ public class RegisterService {
     @Autowired
     private TokenService tokenService;
 
-    public Customer registerCustomer(CustomerRequestDTO customerRequestDTO) throws MessagingException {
+    public Customer registerCustomer(CustomerRequestDto customerRequestDTO) throws MessagingException {
 
         Address address;
         Role role = roleRepository.findByAuthority("ROLE_CUSTOMER").orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -75,7 +75,7 @@ public class RegisterService {
     }
 
 
-    public Seller registerSeller(SellerRequestDTO sellerRequestDTO) throws MessagingException {
+    public Seller registerSeller(SellerRequestDto sellerRequestDTO) throws MessagingException {
 
         Address address;
         Role role = roleRepository.findByAuthority("ROLE_SELLER").orElseThrow(() -> new IllegalArgumentException("Role not found"));

@@ -6,12 +6,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class ForgotPasswordDTO {
+public class ForgotPasswordDto {
 
     @NotBlank(message = "New password is mandatory")
     @Size(min = 8, max = 15, message = "New password must be between 8 and 15 characters long")

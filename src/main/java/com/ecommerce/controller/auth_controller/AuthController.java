@@ -1,7 +1,7 @@
 package com.ecommerce.controller.auth_controller;
 
-import com.ecommerce.dto.request_dto.AuthRequestDTO;
-import com.ecommerce.dto.request_dto.ForgotPasswordDTO;
+import com.ecommerce.dto.request_dto.AuthRequestDto;
+import com.ecommerce.dto.request_dto.ForgotPasswordDto;
 import com.ecommerce.service.register_service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDTO authRequestDTO, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDto authRequestDTO, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
         return ResponseEntity.ok().body(userService.loginUser(authRequestDTO.getEmail(), authRequestDTO.getPassword(),request,response));
     }
 
@@ -41,7 +41,7 @@ public class AuthController {
     }
 
     @PutMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam String token , @RequestBody ForgotPasswordDTO forgotPasswordDTO) throws MessagingException {
+    public ResponseEntity<String> resetPassword(@RequestParam String token , @RequestBody ForgotPasswordDto forgotPasswordDTO) throws MessagingException {
         return ResponseEntity.status(HttpStatus.OK).body(userService.resetPassword(token,forgotPasswordDTO));
     }
 }

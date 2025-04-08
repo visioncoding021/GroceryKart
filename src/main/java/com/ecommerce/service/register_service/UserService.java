@@ -1,8 +1,8 @@
 package com.ecommerce.service.register_service;
 
-import com.ecommerce.dto.request_dto.CustomerRequestDTO;
-import com.ecommerce.dto.request_dto.ForgotPasswordDTO;
-import com.ecommerce.dto.request_dto.SellerRequestDTO;
+import com.ecommerce.dto.request_dto.CustomerRequestDto;
+import com.ecommerce.dto.request_dto.ForgotPasswordDto;
+import com.ecommerce.dto.request_dto.SellerRequestDto;
 import com.ecommerce.models.user.*;
 import com.ecommerce.service.auth_service.AccessTokenService;
 import com.ecommerce.service.auth_service.ForgotResetPasswordService;
@@ -33,11 +33,11 @@ public class UserService {
     private AccessTokenService accessTokenService;
 
 
-    public Customer registerCustomer(CustomerRequestDTO customerRequestDTO) throws MessagingException {
+    public Customer registerCustomer(CustomerRequestDto customerRequestDTO) throws MessagingException {
         return registerService.registerCustomer(customerRequestDTO);
     }
 
-    public Seller registerSeller(SellerRequestDTO sellerRequestDTO) throws MessagingException {
+    public Seller registerSeller(SellerRequestDto sellerRequestDTO) throws MessagingException {
         return registerService.registerSeller(sellerRequestDTO);
     }
 
@@ -49,7 +49,7 @@ public class UserService {
         return forgotResetPasswordService.sendResetPasswordEmail(email);
     }
 
-    public String resetPassword(String token,ForgotPasswordDTO forgotPasswordDTO) throws MessagingException {
+    public String resetPassword(String token, ForgotPasswordDto forgotPasswordDTO) throws MessagingException {
         return forgotResetPasswordService.resetPassword(token,forgotPasswordDTO.getPassword(),forgotPasswordDTO.getConfirmPassword());
     }
 

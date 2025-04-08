@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserRequestDTO {
+public class UserRequestDto {
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is mandatory")
     private String email;

@@ -1,8 +1,11 @@
 package com.ecommerce.utils.service_utils;
 
-import com.ecommerce.dto.request_dto.CustomerRequestDTO;
+import com.ecommerce.dto.request_dto.CustomerRequestDto;
+import com.ecommerce.dto.response_dto.PaginatedResponseDto;
 import com.ecommerce.models.user.Address;
+import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.User;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -17,7 +20,7 @@ public final class UserUtils {
         return password.equals(confirmPassword);
     }
 
-    public static boolean isAddressValid(CustomerRequestDTO customerDTO) {
+    public static boolean isAddressValid(CustomerRequestDto customerDTO) {
         if (customerDTO.getAddressLine() == null || customerDTO.getCity() == null || customerDTO.getState() == null || customerDTO.getCountry() == null || customerDTO.getZipCode() == null) {
             return false;
         }
@@ -43,4 +46,16 @@ public final class UserUtils {
         return currentTimeMillis - issuedAtTimestamp >= twentyFourHoursMillis;
     }
 
+
+    public static PaginatedResponseDto<List<Customer>> getCustomerPaginatedResponse(Page<Customer> customers) {
+        return new PaginatedResponseDto<>(
+                200,
+                "Customer List",
+                customers.getContent(),
+                customers.getTotalElements(),
+                customers.getTotalPages(),
+                customers.getSize(),
+                customers.getNumber()
+        );
+    }
 }

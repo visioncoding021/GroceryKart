@@ -1,7 +1,7 @@
 package com.ecommerce.controller.register_controller;
 
-import com.ecommerce.dto.request_dto.CustomerRequestDTO;
-import com.ecommerce.dto.request_dto.SellerRequestDTO;
+import com.ecommerce.dto.request_dto.CustomerRequestDto;
+import com.ecommerce.dto.request_dto.SellerRequestDto;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
 import com.ecommerce.service.register_service.UserService;
@@ -20,13 +20,13 @@ public class RegisterController {
     private UserService userService;
 
     @PostMapping(value = {"/register","/register/customer"})
-    public ResponseEntity<Customer> registerUser(@Valid @RequestBody CustomerRequestDTO customerRequestDTO) throws MessagingException {
+    public ResponseEntity<Customer> registerUser(@Valid @RequestBody CustomerRequestDto customerRequestDTO) throws MessagingException {
         Customer customer = userService.registerCustomer(customerRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(customer);
     }
 
     @PostMapping("/register/seller")
-    public ResponseEntity<Seller> registerSeller(@Valid @RequestBody SellerRequestDTO sellerRequestDTO) throws MessagingException {
+    public ResponseEntity<Seller> registerSeller(@Valid @RequestBody SellerRequestDto sellerRequestDTO) throws MessagingException {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerSeller(sellerRequestDTO));
     }
 
