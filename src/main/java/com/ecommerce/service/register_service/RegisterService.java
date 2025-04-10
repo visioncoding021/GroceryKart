@@ -10,6 +10,7 @@ import com.ecommerce.service.email_service.EmailService;
 import com.ecommerce.utils.service_utils.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,7 +79,7 @@ public class RegisterService {
         return customer;
     }
 
-
+    @Transactional
     public Seller registerSeller(SellerRequestDto sellerRequestDTO) throws MessagingException {
 
         Address address;
@@ -96,17 +97,15 @@ public class RegisterService {
         if(!errorList.isEmpty()) throw new SellerValidationException(errorList);
 
         Seller seller = objectMapper.convertValue(sellerRequestDTO, Seller.class);
-
+        seller.setPassword(sellerRequestDTO.getPassword());
         seller.setRole(role);
         UserUtils.setPasswordEncoder(seller);
         seller = sellerRepository.save(seller);
-
 
         address = objectMapper.convertValue(sellerRequestDTO.getCompanyAddress(), Address.class);
         UserUtils.setUserAddress(address, seller);
         addressRepository.save(address);
         seller = sellerRepository.save(seller);
-
 
         emailService.sendEmail("ininsde15@gmail.com", "Account Pending Approval",
                 "Your seller account has been created and is pending approval.");

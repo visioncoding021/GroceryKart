@@ -13,6 +13,7 @@ import lombok.Setter;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "product_variations")
@@ -23,8 +24,8 @@ import java.util.Set;
 public class ProductVariation extends AuditDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)

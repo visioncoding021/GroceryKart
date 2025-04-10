@@ -3,6 +3,8 @@ package com.ecommerce.controller.register_controller;
 import com.ecommerce.dto.request_dto.CustomerRequestDto;
 import com.ecommerce.dto.request_dto.SellerRequestDto;
 import com.ecommerce.dto.response_dto.ApiResponseDto;
+import com.ecommerce.dto.response_dto.CustomerResponseDto;
+import com.ecommerce.dto.response_dto.MessageResponseDto;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
 import com.ecommerce.service.register_service.UserService;
@@ -43,22 +45,20 @@ public class RegisterController {
     }
 
     @PostMapping("/resend-activation-token")
-    public ResponseEntity<ApiResponseDto> resendActivationToken(@RequestParam String email) throws MessagingException {
+    public ResponseEntity<MessageResponseDto> resendActivationToken(@RequestParam String email) throws MessagingException {
         String message = userService.resendActivationLink(email);
-        ApiResponseDto response = new ApiResponseDto(
+        MessageResponseDto response = new MessageResponseDto(
                 HttpStatus.OK.value(),
-                "Activation token resent successfully",
                 message
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/activate")
-    public ResponseEntity<ApiResponseDto> activateUser(@RequestParam String token) throws MessagingException {
+    @PatchMapping("/activate")
+    public ResponseEntity<MessageResponseDto> activateUser(@RequestParam String token) throws MessagingException {
         String message = userService.activateUser(token);
-        ApiResponseDto response = new ApiResponseDto(
+        MessageResponseDto response = new MessageResponseDto(
                 HttpStatus.OK.value(),
-                "User activated successfully",
                 message
         );
         return new ResponseEntity<>(response, HttpStatus.OK);

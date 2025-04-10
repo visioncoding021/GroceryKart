@@ -13,11 +13,27 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Scanner;
 
 @Configuration
-public class AdminCreation {
+public class AdminAndRoleCreation {
 
     @Bean
     CommandLineRunner createAdmin(UserRepository userRepository,RoleRepository roleRepository, PasswordEncoder passwordEncoder){
         return args-> {
+
+            if(roleRepository.findAll().isEmpty()) {
+                Role roleAdmin = new Role();
+                roleAdmin.setAuthority("ROLE_ADMIN");
+
+                Role roleCustomer = new Role();
+                roleCustomer.setAuthority("ROLE_CUSTOMER");
+
+                Role roleSeller = new Role();
+                roleSeller.setAuthority("ROLE_SELLER");
+
+                roleRepository.save(roleAdmin);
+                roleRepository.save(roleCustomer);
+                roleRepository.save(roleSeller);
+            }
+
             Role role = roleRepository.findByAuthority("ROLE_ADMIN").orElseThrow(() -> new RuntimeException("Role not found"));
             if (!userRepository.existsByRole(role)) {
                 Scanner scanner = new Scanner(System.in);

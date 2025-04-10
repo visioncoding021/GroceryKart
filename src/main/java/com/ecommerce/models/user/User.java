@@ -12,6 +12,7 @@ import org.hibernate.annotations.Where;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -24,8 +25,8 @@ import java.util.List;
 @Where(clause = "is_deleted = false")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false,unique = true)
     private String email;
@@ -39,6 +40,7 @@ public class User {
     private String lastName;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(nullable = false)
@@ -73,6 +75,7 @@ public class User {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "token_id", referencedColumnName = "id")
+    @JsonIgnore
     private Token token;
 
     @PrePersist

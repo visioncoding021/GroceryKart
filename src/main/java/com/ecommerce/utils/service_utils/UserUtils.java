@@ -8,13 +8,7 @@ import com.ecommerce.models.user.Address;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
 import com.ecommerce.models.user.User;
-import com.ecommerce.repository.user_repos.TokenRepository;
-import com.ecommerce.repository.user_repos.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,11 +59,12 @@ public final class UserUtils {
         for(Customer customer : customerList) {
             CustomerResponseDto customerResponseDto = new CustomerResponseDto();
             BeanUtils.copyProperties(customer, customerResponseDto);
+            customerResponseDto.setFullName(customer.getFirstName()+" "+customer.getMiddleName()+" "+customer.getLastName());
             customerResponseDtoList.add(customerResponseDto);
         }
         return new PaginatedResponseDto<>(
                 200,
-                "Customer List",
+                "All registered Customer List",
                 customerResponseDtoList,
                 customers.getTotalElements(),
                 customers.getTotalPages(),
@@ -84,11 +79,12 @@ public final class UserUtils {
         for(Seller seller : customerList) {
             SellerResponseDto sellerResponseDto = new SellerResponseDto();
             BeanUtils.copyProperties(seller, sellerResponseDto);
+            sellerResponseDto.setFullName(seller.getFirstName()+" "+seller.getMiddleName()+" "+seller.getLastName());
             sellerResponseDtoList.add(sellerResponseDto);
         }
         return new PaginatedResponseDto<>(
                 200,
-                "Sellers List",
+                "All registered Sellers List",
                 sellerResponseDtoList,
                 sellers.getTotalElements(),
                 sellers.getTotalPages(),

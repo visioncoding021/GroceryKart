@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "category_metadata_fields")
@@ -19,8 +20,8 @@ import java.util.Set;
 public class CategoryMetadataField extends AuditDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;

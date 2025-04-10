@@ -3,6 +3,7 @@ package com.ecommerce.controller.auth_controller;
 import com.ecommerce.dto.request_dto.AuthRequestDto;
 import com.ecommerce.dto.request_dto.ForgotPasswordDto;
 import com.ecommerce.dto.response_dto.ApiResponseDto;
+import com.ecommerce.dto.response_dto.MessageResponseDto;
 import com.ecommerce.service.register_service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,34 +45,31 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponseDto> logout(@RequestHeader("Authorization") String token, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<MessageResponseDto> logout(@RequestHeader("Authorization") String token, HttpServletRequest request, HttpServletResponse response) {
         String result = userService.logoutUser(token, request, response);
-        ApiResponseDto responseDto = new ApiResponseDto(
+        MessageResponseDto responseDto = new MessageResponseDto(
                 HttpStatus.OK.value(),
-                "Logout successful",
                 result
         );
         return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponseDto> forgotPassword(@RequestParam String email) throws MessagingException {
+    public ResponseEntity<MessageResponseDto> forgotPassword(@RequestParam String email) throws MessagingException {
         String message = userService.forgotPassword(email);
-        ApiResponseDto responseDto = new ApiResponseDto(
+        MessageResponseDto responseDto = new MessageResponseDto(
                 HttpStatus.OK.value(),
-                "Password reset email sent",
                 message
         );
         return ResponseEntity.ok(responseDto);
     }
 
-    @PutMapping("/reset-password")
-    public ResponseEntity<ApiResponseDto> resetPassword(@RequestParam String token, @RequestBody ForgotPasswordDto forgotPasswordDTO) throws MessagingException {
+    @PatchMapping("/reset-password")
+    public ResponseEntity<MessageResponseDto> resetPassword(@RequestParam String token, @RequestBody ForgotPasswordDto forgotPasswordDTO) throws MessagingException {
         String message = userService.resetPassword(token, forgotPasswordDTO);
-        ApiResponseDto responseDto = new ApiResponseDto(
+        MessageResponseDto responseDto = new MessageResponseDto(
                 HttpStatus.OK.value(),
-                "Password has been reset successfully",
-                null
+                message
         );
         return ResponseEntity.ok(responseDto);
     }

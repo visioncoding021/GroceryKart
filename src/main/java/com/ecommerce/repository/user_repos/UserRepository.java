@@ -5,9 +5,11 @@ import com.ecommerce.models.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     public Optional<User> findByEmail(String email);
     public boolean existsByEmail(String email);
     public boolean existsByRole(Role role);
+    public Optional<User> findById(UUID id);
 }
