@@ -1,4 +1,4 @@
-package com.ecommerce.controller.user_controller;
+package com.ecommerce.controller.seller_controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

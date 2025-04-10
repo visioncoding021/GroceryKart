@@ -1,11 +1,12 @@
 package com.ecommerce.controller.admin_controller;
 
 import com.ecommerce.dto.request_dto.UserListRequestDto;
-import com.ecommerce.dto.response_dto.CustomerResponseDto;
-import com.ecommerce.dto.response_dto.MessageResponseDto;
-import com.ecommerce.dto.response_dto.PaginatedResponseDto;
-import com.ecommerce.dto.response_dto.SellerResponseDto;
+import com.ecommerce.dto.response_dto.user_dto.AllCustomersResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
+import com.ecommerce.dto.response_dto.user_dto.AllSellersResponseDto;
 import com.ecommerce.service.admin_service.AdminService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class AdminController {
     private AdminService adminService;
 
     @GetMapping("/customers")
-    public ResponseEntity<PaginatedResponseDto<List<CustomerResponseDto>>> getCustomers(
+    public ResponseEntity<PaginatedResponseDto<List<AllCustomersResponseDto>>> getCustomers(
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             @RequestParam(value = "pageOffset", defaultValue = "0") int pageOffset,
             @RequestParam(value = "sort", defaultValue = "id") String sort,
@@ -38,7 +39,7 @@ public class AdminController {
 
 
     @GetMapping("/sellers")
-    public ResponseEntity<PaginatedResponseDto<List<SellerResponseDto>>> getSellers(
+    public ResponseEntity<PaginatedResponseDto<List<AllSellersResponseDto>>> getSellers(
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             @RequestParam(value = "pageOffset", defaultValue = "0") int pageOffset,
             @RequestParam(value = "sort", defaultValue = "id") String sort,
@@ -54,12 +55,12 @@ public class AdminController {
     }
 
     @PatchMapping("/activate")
-    public MessageResponseDto activateUser(@RequestParam UUID id) {
+    public MessageResponseDto activateUser(@RequestParam UUID id) throws BadRequestException {
         return new MessageResponseDto(200,adminService.activateUser(id));
     }
 
     @PatchMapping("/deactivate")
-    public MessageResponseDto deactivateUser(@RequestParam UUID id){
+    public MessageResponseDto deactivateUser(@RequestParam UUID id) throws BadRequestException {
         return new MessageResponseDto(200, adminService.deactivateUser(id));
     }
 }

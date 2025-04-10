@@ -107,6 +107,14 @@ public class RegisterService {
         addressRepository.save(address);
         seller = sellerRepository.save(seller);
 
+        Token userToken = seller.getToken();
+        if (userToken == null) {
+            userToken = new Token();
+            userToken.setUser(seller);
+            seller.setToken(userToken);
+        }
+        tokenRepository.save(userToken);
+
         emailService.sendEmail("ininsde15@gmail.com", "Account Pending Approval",
                 "Your seller account has been created and is pending approval.");
         return seller;

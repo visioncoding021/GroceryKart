@@ -19,7 +19,7 @@ public class SellerRequestDto extends UserRequestDto {
     private String companyContact;
 
     @NotNull(message = "Company address is mandatory")
-    private SellerAddressDto companyAddress;
+    private AddressRequestDto companyAddress;
 
     @NotBlank(message = "Company name is mandatory")
     @Pattern(regexp = "^[a-zA-Z\\s-]+$", message = "Company name must contain only letters, spaces, or hyphens")

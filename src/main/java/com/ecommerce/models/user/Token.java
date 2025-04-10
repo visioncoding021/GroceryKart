@@ -24,7 +24,7 @@ public class Token {
     private Long refresh=null;
     private Long resetPassword=null;
 
-    @OneToOne(mappedBy = "token",cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "token")
     @JsonIgnore
     private User user;
 

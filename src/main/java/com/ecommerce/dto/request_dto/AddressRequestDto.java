@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SellerAddressDto {
+public class AddressRequestDto {
     @NotBlank(message = "City is mandatory")
     @Pattern(regexp = "^[a-zA-Z\\s-]+$", message = "City must contain only letters, spaces, or hyphens")
     private String city;

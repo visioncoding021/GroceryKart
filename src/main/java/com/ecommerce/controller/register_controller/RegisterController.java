@@ -2,9 +2,8 @@ package com.ecommerce.controller.register_controller;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDto;
 import com.ecommerce.dto.request_dto.SellerRequestDto;
-import com.ecommerce.dto.response_dto.ApiResponseDto;
-import com.ecommerce.dto.response_dto.CustomerResponseDto;
-import com.ecommerce.dto.response_dto.MessageResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
 import com.ecommerce.service.register_service.UserService;
@@ -23,9 +22,9 @@ public class RegisterController {
     private UserService userService;
 
     @PostMapping(value = {"/register", "/register/customer"})
-    public ResponseEntity<ApiResponseDto> registerUser(@Valid @RequestBody CustomerRequestDto customerRequestDTO) throws MessagingException {
+    public ResponseEntity<ApiResponseDto<Customer>> registerUser(@Valid @RequestBody CustomerRequestDto customerRequestDTO) throws MessagingException {
         Customer customer = userService.registerCustomer(customerRequestDTO);
-        ApiResponseDto response = new ApiResponseDto(
+        ApiResponseDto<Customer> response = new ApiResponseDto<Customer>(
                 HttpStatus.CREATED.value(),
                 "Customer registered successfully",
                 customer
@@ -34,9 +33,9 @@ public class RegisterController {
     }
 
     @PostMapping("/register/seller")
-    public ResponseEntity<ApiResponseDto> registerSeller(@Valid @RequestBody SellerRequestDto sellerRequestDTO) throws MessagingException {
+    public ResponseEntity<ApiResponseDto<Seller>> registerSeller(@Valid @RequestBody SellerRequestDto sellerRequestDTO) throws MessagingException {
         Seller seller = userService.registerSeller(sellerRequestDTO);
-        ApiResponseDto response = new ApiResponseDto(
+        ApiResponseDto<Seller> response = new ApiResponseDto<Seller>(
                 HttpStatus.CREATED.value(),
                 "Seller registered successfully and email has send to the seller",
                 seller

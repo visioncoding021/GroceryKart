@@ -1,6 +1,6 @@
 package com.ecommerce.exception_handling;
 
-import com.ecommerce.dto.response_dto.ErrorResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.ErrorResponseDto;
 import com.ecommerce.exception.seller.SellerValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

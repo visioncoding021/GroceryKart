@@ -1,22 +1,17 @@
 package com.ecommerce.utils.jwt_utils;
 
-import com.ecommerce.dto.response_dto.PaginatedResponseDto;
-import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.User;
 import com.ecommerce.repository.user_repos.TokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -62,6 +57,15 @@ public final class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public static String extractRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("roles", String.class);
     }
 
     public static Long extractExpiration(String token) {
@@ -112,6 +116,13 @@ public final class JwtUtil {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public static String getAccessTokenFromHeader(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return null;
     }
 
 }

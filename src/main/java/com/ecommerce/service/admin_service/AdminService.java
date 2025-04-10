@@ -1,9 +1,9 @@
 package com.ecommerce.service.admin_service;
 
 import com.ecommerce.dto.request_dto.UserListRequestDto;
-import com.ecommerce.dto.response_dto.CustomerResponseDto;
-import com.ecommerce.dto.response_dto.PaginatedResponseDto;
-import com.ecommerce.dto.response_dto.SellerResponseDto;
+import com.ecommerce.dto.response_dto.user_dto.AllCustomersResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
+import com.ecommerce.dto.response_dto.user_dto.AllSellersResponseDto;
 import com.ecommerce.exception.user.UserNotFoundException;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Role;
@@ -13,6 +13,7 @@ import com.ecommerce.repository.user_repos.CustomerRepository;
 import com.ecommerce.repository.user_repos.SellerRepository;
 import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.utils.service_utils.UserUtils;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,7 +38,7 @@ public class AdminService {
     @Autowired
     private UserUtils userUtils;
 
-    public PaginatedResponseDto<List<CustomerResponseDto>> getAllCustomers(UserListRequestDto customerListRequestDto) {
+    public PaginatedResponseDto<List<AllCustomersResponseDto>> getAllCustomers(UserListRequestDto customerListRequestDto) {
         int pageSize = customerListRequestDto.getPageSize();
         int pageOffset = customerListRequestDto.getPageOffset();
         String emailFilter = customerListRequestDto.getEmailFilter();
@@ -52,7 +53,7 @@ public class AdminService {
         return UserUtils.getCustomerPaginatedResponse(customerRepository.findAll(pageRequest));
     }
 
-    public PaginatedResponseDto<List<SellerResponseDto>> getAllSellers(UserListRequestDto sellerListRequestDto) {
+    public PaginatedResponseDto<List<AllSellersResponseDto>> getAllSellers(UserListRequestDto sellerListRequestDto) {
         int pageSize = sellerListRequestDto.getPageSize();
         int pageOffset = sellerListRequestDto.getPageOffset();
         String emailFilter = sellerListRequestDto.getEmailFilter();
@@ -67,22 +68,22 @@ public class AdminService {
     }
 
 
-    public String activateUser(UUID userId) {
+    public String activateUser(UUID userId) throws BadRequestException {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Role role = user.getRole();
         String authority = role.getAuthority().replace("ROLE_", "").toLowerCase();
 
-        if(authority.equals("ROLE_ADMIN".toLowerCase())) return "Admin cant be updated";
+        if(authority.equals("ROLE_ADMIN".toLowerCase())) throw new UnsupportedOperationException("Admin cant be updated");
 
         if(user.getIsActive()){
-            return authority+" with id "+userId+" is already active";
+            throw new BadRequestException(authority+" with id "+userId+" is already active");
         }
         user.setIsActive(true);
         userRepository.save(user);
         return authority+" with id "+userId+" is now active";
     }
 
-    public String deactivateUser(UUID userId) {
+    public String deactivateUser(UUID userId) throws BadRequestException {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Role role = user.getRole();
         String authority = role.getAuthority().replace("ROLE_", "").toLowerCase();
@@ -90,7 +91,7 @@ public class AdminService {
         if(authority.equals("ROLE_ADMIN".toLowerCase())) return "Admin cant be updated";
 
         if(!user.getIsActive()){
-            return authority+" with id "+userId+" is already deactivated";
+            throw new BadRequestException(authority+" with id "+userId+" is already active");
         }
         user.setIsActive(false);
         userRepository.save(user);

@@ -48,18 +48,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        System.out.println("First Goes To filter");
         String jwt = resolveToken(request);
 
         if (jwt != null) {
             String email = JwtUtil.extractEmail(jwt);
             User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
 
-            if(user.getIsLocked()){
-                throw new UserNotFoundException("User is locked");
+            if(user.getIsLocked() || user.getIsDeleted() || user.getIsExpired()){
+                throw new UserNotFoundException("User is locked or deleted or expired");
             }
             if(!user.getIsActive()){
                 throw new UserIsInactiveException("User is inactive");
             }
+
             Token userToken = user.getToken();
             Long accessIssuedAt = userToken.getAccess();
             if(accessIssuedAt!=null){
@@ -79,7 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         }
-
+        System.out.println("Filter Ends Here");
         filterChain.doFilter(request, response);
     }
 
@@ -104,11 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }else return null;
 
         String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-
-            return authHeader.substring(7);
-        }
-        return null;
+        return JwtUtil.getAccessTokenFromHeader(authHeader);
     }
 
 

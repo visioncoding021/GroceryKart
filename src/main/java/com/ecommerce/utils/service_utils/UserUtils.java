@@ -1,9 +1,9 @@
 package com.ecommerce.utils.service_utils;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDto;
-import com.ecommerce.dto.response_dto.CustomerResponseDto;
-import com.ecommerce.dto.response_dto.PaginatedResponseDto;
-import com.ecommerce.dto.response_dto.SellerResponseDto;
+import com.ecommerce.dto.response_dto.user_dto.AllCustomersResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
+import com.ecommerce.dto.response_dto.user_dto.AllSellersResponseDto;
 import com.ecommerce.models.user.Address;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
@@ -53,11 +53,11 @@ public final class UserUtils {
     }
 
 
-    public static PaginatedResponseDto<List<CustomerResponseDto>> getCustomerPaginatedResponse(Page<Customer> customers) {
+    public static PaginatedResponseDto<List<AllCustomersResponseDto>> getCustomerPaginatedResponse(Page<Customer> customers) {
         List<Customer> customerList = customers.getContent();
-        List<CustomerResponseDto> customerResponseDtoList = new ArrayList<>();
+        List<AllCustomersResponseDto> customerResponseDtoList = new ArrayList<>();
         for(Customer customer : customerList) {
-            CustomerResponseDto customerResponseDto = new CustomerResponseDto();
+            AllCustomersResponseDto customerResponseDto = new AllCustomersResponseDto();
             BeanUtils.copyProperties(customer, customerResponseDto);
             customerResponseDto.setFullName(customer.getFirstName()+" "+customer.getMiddleName()+" "+customer.getLastName());
             customerResponseDtoList.add(customerResponseDto);
@@ -73,11 +73,11 @@ public final class UserUtils {
         );
     }
 
-    public static PaginatedResponseDto<List<SellerResponseDto>> getSellerPaginatedResponse(Page<Seller> sellers) {
+    public static PaginatedResponseDto<List<AllSellersResponseDto>> getSellerPaginatedResponse(Page<Seller> sellers) {
         List<Seller> customerList = sellers.getContent();
-        List<SellerResponseDto> sellerResponseDtoList  = new ArrayList<>();
+        List<AllSellersResponseDto> sellerResponseDtoList  = new ArrayList<>();
         for(Seller seller : customerList) {
-            SellerResponseDto sellerResponseDto = new SellerResponseDto();
+            AllSellersResponseDto sellerResponseDto = new AllSellersResponseDto();
             BeanUtils.copyProperties(seller, sellerResponseDto);
             sellerResponseDto.setFullName(seller.getFirstName()+" "+seller.getMiddleName()+" "+seller.getLastName());
             sellerResponseDtoList.add(sellerResponseDto);

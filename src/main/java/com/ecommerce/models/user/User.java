@@ -73,7 +73,7 @@ public class User {
     @JsonIgnore
     private List<Address> address = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "token_id", referencedColumnName = "id")
     @JsonIgnore
     private Token token;

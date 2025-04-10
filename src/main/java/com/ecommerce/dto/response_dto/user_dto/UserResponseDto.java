@@ -1,4 +1,4 @@
-package com.ecommerce.dto.response_dto;
+package com.ecommerce.dto.response_dto.user_dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,19 +10,29 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class SellerResponseDto {
+@NoArgsConstructor
+public class UserResponseDto {
     private UUID id;
     private String email;
     private String fullName;
-    private String companyName;
-    private String companyContact;
-    private String gstNumber;
     private boolean isActive;
     private boolean isExpired;
     private boolean isLocked;
     private boolean isDeleted;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public boolean getIsExpired() {
+        return isExpired;
+    }
+
+    public boolean getIsLocked() {
+        return isLocked;
+    }
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
 }

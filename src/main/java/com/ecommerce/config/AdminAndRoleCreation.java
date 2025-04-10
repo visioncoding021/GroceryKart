@@ -4,19 +4,21 @@ import com.ecommerce.models.user.Role;
 import com.ecommerce.models.user.Token;
 import com.ecommerce.models.user.User;
 import com.ecommerce.repository.user_repos.RoleRepository;
+import com.ecommerce.repository.user_repos.TokenRepository;
 import com.ecommerce.repository.user_repos.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Scanner;
 
 @Configuration
 public class AdminAndRoleCreation {
 
     @Bean
-    CommandLineRunner createAdmin(UserRepository userRepository,RoleRepository roleRepository, PasswordEncoder passwordEncoder){
+    CommandLineRunner createAdmin(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, TokenRepository tokenRepository) {
         return args-> {
 
             if(roleRepository.findAll().isEmpty()) {

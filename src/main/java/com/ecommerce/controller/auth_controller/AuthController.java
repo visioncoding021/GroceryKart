@@ -2,8 +2,8 @@ package com.ecommerce.controller.auth_controller;
 
 import com.ecommerce.dto.request_dto.AuthRequestDto;
 import com.ecommerce.dto.request_dto.ForgotPasswordDto;
-import com.ecommerce.dto.response_dto.ApiResponseDto;
-import com.ecommerce.dto.response_dto.MessageResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.service.register_service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,9 +23,9 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponseDto> login(@Valid @RequestBody AuthRequestDto authRequestDTO, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+    public ResponseEntity<ApiResponseDto<String>> login(@Valid @RequestBody AuthRequestDto authRequestDTO, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
         Object token = userService.loginUser(authRequestDTO.getEmail(), authRequestDTO.getPassword(), request, response);
-        ApiResponseDto responseDto = new ApiResponseDto(
+        ApiResponseDto<String> responseDto = new ApiResponseDto<String>(
                 HttpStatus.OK.value(),
                 "Login successful with access token provided ",
                 token
@@ -34,9 +34,9 @@ public class AuthController {
     }
 
     @PostMapping("/get-access-token")
-    public ResponseEntity<ApiResponseDto> getAccessToken(@RequestHeader("Authorization") String refreshToken, HttpServletRequest request) {
+    public ResponseEntity<ApiResponseDto<String>> getAccessToken(@RequestHeader("Authorization") String refreshToken, HttpServletRequest request) {
         String accessToken = userService.getAccessToken(request);
-        ApiResponseDto responseDto = new ApiResponseDto(
+        ApiResponseDto<String> responseDto = new ApiResponseDto<String>(
                 HttpStatus.OK.value(),
                 "Access token generated successfully",
                 accessToken
