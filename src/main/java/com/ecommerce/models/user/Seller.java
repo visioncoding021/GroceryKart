@@ -14,13 +14,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Seller extends User {
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String gstNumber;
 
     @Column(nullable = false)
     private String companyContact;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String companyName;
 
 }

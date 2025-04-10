@@ -2,6 +2,7 @@ package com.ecommerce.service.register_service;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDto;
 import com.ecommerce.dto.request_dto.SellerRequestDto;
+import com.ecommerce.exception.seller.SellerValidationException;
 import com.ecommerce.exception.user.UserAlreadyRegistered;
 import com.ecommerce.models.user.*;
 import com.ecommerce.repository.user_repos.*;
@@ -11,6 +12,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class RegisterService {
@@ -80,13 +84,16 @@ public class RegisterService {
         Address address;
         Role role = roleRepository.findByAuthority("ROLE_SELLER").orElseThrow(() -> new IllegalArgumentException("Role not found"));
 
-        if (sellerRequestDTO.getEmail() == null || sellerRequestDTO.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty");
-        }
-
         if (!UserUtils.isPasswordMatching(sellerRequestDTO.getPassword(), sellerRequestDTO.getConfirmPassword())) {
             throw new IllegalArgumentException("Passwords do not match");
         }
+
+        List<String> errorList = new ArrayList<>();
+        if(userRepository.existsByEmail(sellerRequestDTO.getEmail())) errorList.add("Email already registered");
+        if(sellerRepository.existsByCompanyNameIgnoreCase(sellerRequestDTO.getCompanyName()))  errorList.add("Company name already exists");
+        if(sellerRepository.existsByCompanyContact(sellerRequestDTO.getCompanyContact()))  errorList.add("Company Contact already exists");
+        if(sellerRepository.existsByGstNumber(sellerRequestDTO.getGstNumber()))  errorList.add("Company Gst Number already registered");
+        if(!errorList.isEmpty()) throw new SellerValidationException(errorList);
 
         Seller seller = objectMapper.convertValue(sellerRequestDTO, Seller.class);
 
@@ -95,7 +102,7 @@ public class RegisterService {
         seller = sellerRepository.save(seller);
 
 
-        address = objectMapper.convertValue(sellerRequestDTO, Address.class);
+        address = objectMapper.convertValue(sellerRequestDTO.getCompanyAddress(), Address.class);
         UserUtils.setUserAddress(address, seller);
         addressRepository.save(address);
         seller = sellerRepository.save(seller);

@@ -2,6 +2,7 @@ package com.ecommerce.controller.auth_controller;
 
 import com.ecommerce.dto.request_dto.AuthRequestDto;
 import com.ecommerce.dto.request_dto.ForgotPasswordDto;
+import com.ecommerce.dto.response_dto.ApiResponseDto;
 import com.ecommerce.service.register_service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,27 +22,57 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDto authRequestDTO, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
-        return ResponseEntity.ok().body(userService.loginUser(authRequestDTO.getEmail(), authRequestDTO.getPassword(),request,response));
+    public ResponseEntity<ApiResponseDto> login(@Valid @RequestBody AuthRequestDto authRequestDTO, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+        Object token = userService.loginUser(authRequestDTO.getEmail(), authRequestDTO.getPassword(), request, response);
+        ApiResponseDto responseDto = new ApiResponseDto(
+                HttpStatus.OK.value(),
+                "Login successful with access token provided ",
+                token
+        );
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/get-access-token")
-    public ResponseEntity<String> getAccessToken(@RequestHeader("Authorization") String refreshToken, HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getAccessToken(request));
+    public ResponseEntity<ApiResponseDto> getAccessToken(@RequestHeader("Authorization") String refreshToken, HttpServletRequest request) {
+        String accessToken = userService.getAccessToken(request);
+        ApiResponseDto responseDto = new ApiResponseDto(
+                HttpStatus.OK.value(),
+                "Access token generated successfully",
+                accessToken
+        );
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token, HttpServletRequest request,HttpServletResponse response) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.logoutUser(token,request,response));
+    public ResponseEntity<ApiResponseDto> logout(@RequestHeader("Authorization") String token, HttpServletRequest request, HttpServletResponse response) {
+        String result = userService.logoutUser(token, request, response);
+        ApiResponseDto responseDto = new ApiResponseDto(
+                HttpStatus.OK.value(),
+                "Logout successful",
+                result
+        );
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) throws MessagingException {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.forgotPassword(email));
+    public ResponseEntity<ApiResponseDto> forgotPassword(@RequestParam String email) throws MessagingException {
+        String message = userService.forgotPassword(email);
+        ApiResponseDto responseDto = new ApiResponseDto(
+                HttpStatus.OK.value(),
+                "Password reset email sent",
+                message
+        );
+        return ResponseEntity.ok(responseDto);
     }
 
     @PutMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam String token , @RequestBody ForgotPasswordDto forgotPasswordDTO) throws MessagingException {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.resetPassword(token,forgotPasswordDTO));
+    public ResponseEntity<ApiResponseDto> resetPassword(@RequestParam String token, @RequestBody ForgotPasswordDto forgotPasswordDTO) throws MessagingException {
+        String message = userService.resetPassword(token, forgotPasswordDTO);
+        ApiResponseDto responseDto = new ApiResponseDto(
+                HttpStatus.OK.value(),
+                "Password has been reset successfully",
+                null
+        );
+        return ResponseEntity.ok(responseDto);
     }
 }

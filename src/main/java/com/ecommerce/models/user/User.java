@@ -22,7 +22,7 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ?")
 @Where(clause = "is_deleted = false")
-public abstract class User {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -63,7 +63,7 @@ public abstract class User {
 
     private LocalDateTime updatedAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id",nullable = false)
     private Role role;
 

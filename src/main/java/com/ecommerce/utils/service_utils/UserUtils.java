@@ -1,18 +1,30 @@
 package com.ecommerce.utils.service_utils;
 
 import com.ecommerce.dto.request_dto.CustomerRequestDto;
+import com.ecommerce.dto.response_dto.CustomerResponseDto;
 import com.ecommerce.dto.response_dto.PaginatedResponseDto;
+import com.ecommerce.dto.response_dto.SellerResponseDto;
 import com.ecommerce.models.user.Address;
 import com.ecommerce.models.user.Customer;
+import com.ecommerce.models.user.Seller;
 import com.ecommerce.models.user.User;
+import com.ecommerce.repository.user_repos.TokenRepository;
+import com.ecommerce.repository.user_repos.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public final class UserUtils {
-
 
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -47,15 +59,42 @@ public final class UserUtils {
     }
 
 
-    public static PaginatedResponseDto<List<Customer>> getCustomerPaginatedResponse(Page<Customer> customers) {
+    public static PaginatedResponseDto<List<CustomerResponseDto>> getCustomerPaginatedResponse(Page<Customer> customers) {
+        List<Customer> customerList = customers.getContent();
+        List<CustomerResponseDto> customerResponseDtoList = new ArrayList<>();
+        for(Customer customer : customerList) {
+            CustomerResponseDto customerResponseDto = new CustomerResponseDto();
+            BeanUtils.copyProperties(customer, customerResponseDto);
+            customerResponseDtoList.add(customerResponseDto);
+        }
         return new PaginatedResponseDto<>(
                 200,
                 "Customer List",
-                customers.getContent(),
+                customerResponseDtoList,
                 customers.getTotalElements(),
                 customers.getTotalPages(),
                 customers.getSize(),
                 customers.getNumber()
         );
     }
+
+    public static PaginatedResponseDto<List<SellerResponseDto>> getSellerPaginatedResponse(Page<Seller> sellers) {
+        List<Seller> customerList = sellers.getContent();
+        List<SellerResponseDto> sellerResponseDtoList  = new ArrayList<>();
+        for(Seller seller : customerList) {
+            SellerResponseDto sellerResponseDto = new SellerResponseDto();
+            BeanUtils.copyProperties(seller, sellerResponseDto);
+            sellerResponseDtoList.add(sellerResponseDto);
+        }
+        return new PaginatedResponseDto<>(
+                200,
+                "Sellers List",
+                sellerResponseDtoList,
+                sellers.getTotalElements(),
+                sellers.getTotalPages(),
+                sellers.getSize(),
+                sellers.getNumber()
+        );
+    }
+
 }

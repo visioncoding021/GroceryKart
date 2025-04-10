@@ -21,7 +21,7 @@ public class AccessTokenService {
 
     public String getAccessToken(HttpServletRequest request) {
         String refreshToken = request.getHeader("Cookie");
-        if(refreshToken==null) {
+        if(refreshToken==null || refreshToken.isEmpty() || !refreshToken.contains("refresh=")) {
             return "No refresh token found";
         }
         refreshToken = refreshToken.replace("refresh=", "");
@@ -35,9 +35,11 @@ public class AccessTokenService {
         if (refreshIssuedAt == null) {
             return "No Login Session Exist";
         }
+
         if(!refreshIssuedAt.equals(JwtUtil.extractIssuedAt(refreshToken))) {
             return "Refresh token is not valid";
         }
+
         String accessToken = JwtUtil.generateToken(user,"access",900000);
         userToken.setAccess(JwtUtil.extractIssuedAt(accessToken));
         tokenRepository.save(userToken);

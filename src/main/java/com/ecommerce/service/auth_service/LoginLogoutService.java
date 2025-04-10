@@ -39,13 +39,6 @@ public class LoginLogoutService {
 
     public String loginUser(String email, String password,HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
 
-        if(request.getHeader("Cookie") != null) {
-            String cookie = request.getHeader("Cookie");
-            if(cookie.contains("refresh")) {
-                throw new BadRequestException("Already Logged In");
-            }
-        }
-
         User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
 
         if (user.getIsLocked()) {
@@ -58,13 +51,6 @@ public class LoginLogoutService {
 
         if (user.getInvalidAttemptCount() >= 3) {
             throw new UserIsLockedException();
-        }
-
-        if(response.getHeader("Cookie") != null) {
-            String cookie = response.getHeader("Cookie");
-            if(cookie.contains("refresh")) {
-                throw new BadCredentialsException("Invalid credentials");
-            }
         }
 
 
@@ -104,7 +90,7 @@ public class LoginLogoutService {
 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        return "Access Token "+accessToken;
+        return accessToken;
     }
 
     public String logoutUser(String accessToken, HttpServletRequest request, HttpServletResponse response) {

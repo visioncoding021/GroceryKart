@@ -44,7 +44,7 @@ public class ForgotResetPasswordService {
         emailService.sendResetPasswordEmail("ininsde15@gmail.com", "Reset Password Request Sent",
                     "Please reset your password by clicking the link below.", resetToken);
 
-        return "Reset password request sent successfully . Please check your mail";
+        return "Reset password request sent successfully . Please check your mail for token ";
     }
 
     public String resetPassword(String token, String password , String confirmPassword) throws UserNotFoundException {

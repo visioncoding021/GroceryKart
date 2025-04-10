@@ -1,5 +1,6 @@
 package com.ecommerce.exception_handling;
 
+import com.ecommerce.dto.response_dto.ErrorResponseDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -9,32 +10,43 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import io.jsonwebtoken.security.SignatureException;
 
+import java.util.Collections;
+
 @RestControllerAdvice
 public class JwtExceptionHandler {
 
     @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<String> handleInvalidSignature(SignatureException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid JWT signature");
+    public ResponseEntity<ErrorResponseDto> handleInvalidSignature(SignatureException e) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED,"Invalid JWT signature");
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<String> handleExpiredToken(ExpiredJwtException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT token has expired");
+    public ResponseEntity<ErrorResponseDto> handleExpiredToken(ExpiredJwtException e) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED,"JWT token has expired");
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<String> handleInvalidToken(MalformedJwtException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid JWT token format");
+    public ResponseEntity<ErrorResponseDto> handleInvalidToken(MalformedJwtException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST,"Invalid JWT token format");
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)
-    public ResponseEntity<String> handleUnsupportedToken(UnsupportedJwtException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unsupported JWT token");
+    public ResponseEntity<ErrorResponseDto> handleUnsupportedToken(UnsupportedJwtException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST,"Unsupported JWT token");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleEmptyClaims(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    public ResponseEntity<ErrorResponseDto> handleEmptyClaims(IllegalArgumentException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST,e.getMessage());
+    }
+
+    private ResponseEntity<ErrorResponseDto> buildErrorResponse(HttpStatus status, String message) {
+        ErrorResponseDto error = new ErrorResponseDto(
+                status.value(),
+                message,
+                Collections.singletonList(message)
+        );
+        return new ResponseEntity<>(error, status);
     }
 }
 

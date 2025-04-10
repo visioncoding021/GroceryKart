@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerListRequestDto {
+public class UserListRequestDto {
     private int pageSize = 10;
     private int pageOffset = 0;
     private String sort = "id";
