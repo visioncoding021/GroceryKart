@@ -131,7 +131,7 @@ public class LoginLogoutService {
             }
             User user = userRepository.findByEmail(JwtUtil.extractEmail(authHeader)).orElseThrow(UserNotFoundException::new);
             Token userToken = user.getToken();
-            Long accessIssuedAt = userToken.getRefresh();
+            Long accessIssuedAt = userToken.getAccess();
             if (!accessIssuedAt.equals(JwtUtil.extractIssuedAt(authHeader))) {
                 throw new IllegalArgumentException("Invalid Access token");
             }

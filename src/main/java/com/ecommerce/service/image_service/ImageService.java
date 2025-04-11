@@ -6,15 +6,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ImageService {
 
-    public String uploadImage(String path, String id, MultipartFile file) throws IOException {
+    public String uploadImage(String path, UUID id, MultipartFile file) throws IOException {
 
         if(file.isEmpty()) {
             throw new FileNotFoundException("Image You are trying to upload is empty");
@@ -28,12 +25,17 @@ public class ImageService {
         if (originalFileName.isEmpty()) {
             throw new FileNotFoundException("Uploaded file does not have a valid filename");
         }
-        String fileName = id.concat(originalFileName.substring(originalFileName.lastIndexOf('.')));
+        String fileName = id.toString().concat(originalFileName.substring(originalFileName.lastIndexOf('.')));
         String filePath = path + File.separator + fileName;
 
         File folder = new File(path);
         if(!folder.exists()) {
-            folder.mkdir();
+            folder.mkdirs();
+        }
+
+        File file1 = new File(filePath);
+        if(file1.exists()) {
+            file1.delete();
         }
 
         Files.copy(file.getInputStream(), Paths.get(filePath));
@@ -41,8 +43,23 @@ public class ImageService {
         return fileName;
     }
 
-    public InputStream getResource(String path, String id) throws FileNotFoundException {
-        String filePath = path + File.separator + id;
-        return new FileInputStream(filePath);
+    public void deleteImage(String path, UUID id) throws FileNotFoundException {
+        String filePath = path + File.separator + id.toString()+".png";
+        File file = new File(filePath);
+        System.out.println(filePath);
+        if (file.exists()) {
+            file.delete();
+        }else throw new FileNotFoundException("Image not found");
+    }
+
+    public FileInputStream getResource(String path, UUID id) throws FileNotFoundException {
+        String filePath = path + File.separator + id+".png";
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            throw new FileNotFoundException("File not found at path: " + filePath);
+        }
+
+        return new FileInputStream(file);
     }
 }

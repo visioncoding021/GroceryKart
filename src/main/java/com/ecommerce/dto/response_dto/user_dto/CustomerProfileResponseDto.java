@@ -18,5 +18,5 @@ public class CustomerProfileResponseDto {
     private String lastName;
     private boolean isActive;
     private String contact;
-    private String imageUrl;
+    private ImageResponseDto imageUrl;
 }

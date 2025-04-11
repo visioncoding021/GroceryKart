@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 @Getter
@@ -20,6 +21,6 @@ public class SellerProfileResponseDto {
     private String companyName;
     private String companyContact;
     private String gstNumber;
-    private String imageUrl;
+    private ImageResponseDto imageUrl;
     private AddressResponseDto address;
 }
