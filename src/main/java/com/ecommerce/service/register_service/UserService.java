@@ -65,7 +65,7 @@ public class UserService {
         return loginLogoutService.logoutUser(accessToken,request, response);
     }
 
-    public String getAccessToken(HttpServletRequest request) {
+    public String getAccessToken(HttpServletRequest request) throws BadRequestException {
         return accessTokenService.getAccessToken(request);
     }
 

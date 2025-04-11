@@ -99,7 +99,7 @@ public class ProfileController {
         return ResponseEntity.ok(messageResponseDto);
     }
 
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/get-all-addresses")
     public ResponseEntity<ApiResponseDto<?>> getAllAddresses(HttpServletRequest request) {
         ApiResponseDto<?> response = new ApiResponseDto<>(200,
@@ -108,7 +108,6 @@ public class ProfileController {
 
         return ResponseEntity.ok(response);
     }
-
 
     private String getRoleFromToken(HttpServletRequest request) {
         String accessToken = JwtUtil.getAccessTokenFromHeader(request.getHeader("Authorization"));

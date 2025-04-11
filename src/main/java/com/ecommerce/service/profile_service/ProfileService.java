@@ -67,7 +67,7 @@ public class ProfileService {
 
     public List<AddressResponseDto> getAllAddresses(HttpServletRequest request) {
         String email = JwtUtil.extractEmail(request.getHeader("Authorization").substring(7));
-
+        UUID customerId = userRepository.findByEmail(email).get().getId();
         return addressService.getAllAddresses(customerId);
     }
 

@@ -34,7 +34,7 @@ public class AuthController {
     }
 
     @PostMapping("/get-access-token")
-    public ResponseEntity<ApiResponseDto<String>> getAccessToken(@RequestHeader("Authorization") String refreshToken, HttpServletRequest request) {
+    public ResponseEntity<ApiResponseDto<String>> getAccessToken(HttpServletRequest request) throws BadRequestException {
         String accessToken = userService.getAccessToken(request);
         ApiResponseDto<String> responseDto = new ApiResponseDto<String>(
                 HttpStatus.OK.value(),

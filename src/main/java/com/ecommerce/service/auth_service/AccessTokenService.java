@@ -7,6 +7,8 @@ import com.ecommerce.repository.user_repos.TokenRepository;
 import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.utils.jwt_utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.NotSupportedException;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,25 +21,25 @@ public class AccessTokenService {
     @Autowired
     private TokenRepository tokenRepository;
 
-    public String getAccessToken(HttpServletRequest request) {
+    public String getAccessToken(HttpServletRequest request) throws BadRequestException {
         String refreshToken = request.getHeader("Cookie");
         if(refreshToken==null || refreshToken.isEmpty() || !refreshToken.contains("refresh=")) {
-            return "No refresh token found";
+            throw new BadRequestException("No refresh token found");
         }
         refreshToken = refreshToken.replace("refresh=", "");
         refreshToken = refreshToken.replace(";", "");
 
-        if(!JwtUtil.isTokenValid(refreshToken) && !JwtUtil.extractType(refreshToken).equals("refresh")) return "Invalid refresh Token";
+        if(!JwtUtil.isTokenValid(refreshToken) && !JwtUtil.extractType(refreshToken).equals("refresh")) throw new BadRequestException("Refresh token is not valid");
 
         User user = userRepository.findByEmail(JwtUtil.extractEmail(refreshToken)).orElseThrow(UserNotFoundException::new);
         Token userToken = user.getToken();
         Long refreshIssuedAt = userToken.getRefresh();
         if (refreshIssuedAt == null) {
-            return "No Login Session Exist";
+            throw new BadRequestException("No Login Session found");
         }
 
         if(!refreshIssuedAt.equals(JwtUtil.extractIssuedAt(refreshToken))) {
-            return "Refresh token is not valid";
+            throw new BadRequestException("Refresh token is not valid");
         }
 
         String accessToken = JwtUtil.generateToken(user,"access",900000);
