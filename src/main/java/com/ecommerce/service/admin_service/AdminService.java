@@ -12,7 +12,9 @@ import com.ecommerce.models.user.User;
 import com.ecommerce.repository.user_repos.CustomerRepository;
 import com.ecommerce.repository.user_repos.SellerRepository;
 import com.ecommerce.repository.user_repos.UserRepository;
+import com.ecommerce.service.email_service.EmailService;
 import com.ecommerce.utils.service_utils.UserUtils;
+import jakarta.mail.MessagingException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +36,9 @@ public class AdminService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private UserUtils userUtils;
@@ -96,5 +101,24 @@ public class AdminService {
         user.setIsActive(false);
         userRepository.save(user);
         return authority+" with id "+userId+" is now deactivated";
+    }
+
+    public String unlockUser(UUID userId) throws BadRequestException, MessagingException {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Role role = user.getRole();
+        String authority = role.getAuthority();
+
+        if(authority.equals("ROLE_ADMIN")) throw new BadRequestException("Admin cant be updated");
+
+        if(!user.getIsLocked()){
+            throw new BadRequestException(authority+" with id "+userId+" is already unlocked");
+        }
+        user.setIsLocked(false);
+        user.setInvalidAttemptCount(0);
+        userRepository.save(user);
+
+        emailService.sendEmail( "ininsde15@gmail.com","Your account has been unlocked", "Your account has been unlocked. You can now login to your account. Email has been sent to "+user.getEmail());
+
+        return authority+" with id "+userId+" is now unlocked";
     }
 }

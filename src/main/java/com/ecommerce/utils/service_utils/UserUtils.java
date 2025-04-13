@@ -80,6 +80,10 @@ public final class UserUtils {
             AllSellersResponseDto sellerResponseDto = new AllSellersResponseDto();
             BeanUtils.copyProperties(seller, sellerResponseDto);
             sellerResponseDto.setFullName(seller.getFirstName()+" "+seller.getMiddleName()+" "+seller.getLastName());
+            sellerResponseDto.setLocked(seller.getIsLocked());
+            sellerResponseDto.setActive(seller.getIsActive());
+            sellerResponseDto.setExpired(seller.getIsExpired());
+            sellerResponseDto.setDeleted(seller.getIsDeleted());
             sellerResponseDtoList.add(sellerResponseDto);
         }
         return new PaginatedResponseDto<>(

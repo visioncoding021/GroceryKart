@@ -6,6 +6,7 @@ import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.AllSellersResponseDto;
 import com.ecommerce.service.admin_service.AdminService;
+import jakarta.mail.MessagingException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -62,5 +63,10 @@ public class AdminController {
     @PatchMapping("/deactivate")
     public MessageResponseDto deactivateUser(@RequestParam UUID id) throws BadRequestException {
         return new MessageResponseDto(200, adminService.deactivateUser(id));
+    }
+
+    @PutMapping("/unlock/{userId}")
+    public MessageResponseDto lockUser(@PathVariable UUID userId) throws BadRequestException, MessagingException {
+        return new MessageResponseDto(200, adminService.unlockUser(userId));
     }
 }

@@ -6,7 +6,6 @@ import com.ecommerce.dto.request_dto.profile_dto.CustomerProfileRequestDto;
 import com.ecommerce.dto.request_dto.profile_dto.SellerProfileRequestDto;
 import com.ecommerce.dto.request_dto.profile_dto.UserProfileRequestDto;
 import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
-import com.ecommerce.dto.response_dto.message_dto.ErrorResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.CustomerProfileResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.SellerProfileResponseDto;
