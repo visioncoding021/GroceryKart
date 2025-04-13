@@ -1,19 +1,28 @@
 package com.ecommerce.service.profile_service;
 
 import com.ecommerce.dto.request_dto.AddressRequestDto;
+import com.ecommerce.dto.request_dto.profile_dto.CustomerProfileRequestDto;
+import com.ecommerce.dto.request_dto.profile_dto.SellerProfileRequestDto;
+import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.AddressResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.CustomerProfileResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.SellerProfileResponseDto;
 import com.ecommerce.exception.user.UserNotFoundException;
+import com.ecommerce.models.user.Customer;
+import com.ecommerce.models.user.Seller;
 import com.ecommerce.models.user.User;
 import com.ecommerce.repository.user_repos.AddressRepository;
+import com.ecommerce.repository.user_repos.CustomerRepository;
+import com.ecommerce.repository.user_repos.SellerRepository;
 import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.service.image_service.ImageService;
 import com.ecommerce.utils.jwt_utils.JwtUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +40,12 @@ public class ProfileService {
 
     @Autowired
     private UserProfileService userProfileService;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private SellerRepository sellerRepository;
 
     @Autowired
     private ProfileImageService profileImageService;
@@ -71,6 +86,26 @@ public class ProfileService {
         return addressService.getAllAddresses(customerId);
     }
 
+    public CustomerProfileResponseDto updateCustomerProfile(String email,CustomerProfileRequestDto customerProfileRequestDto) throws FileNotFoundException, BadRequestException {
+        Customer customer = customerRepository.findByEmail(email).get();
+        if(customerRepository.existsByContact(customerProfileRequestDto.getContact())){
+            throw new BadRequestException("Contact already exists");
+        }
+        BeanUtils.copyProperties(customerProfileRequestDto,customer);
+        customerRepository.save(customer);
+        return userProfileService.getCustomerProfile(email);
+    }
+
+    public SellerProfileResponseDto updateSellerProfile(String email,SellerProfileRequestDto sellerProfileRequestDto) throws FileNotFoundException, BadRequestException {
+        Seller seller = sellerRepository.findByEmail(email).get();
+        BeanUtils.copyProperties(sellerProfileRequestDto,seller);
+        if(sellerRepository.existsByCompanyContact(sellerProfileRequestDto.getCompanyContact())){
+            throw new BadRequestException("Contact already exists");
+        }
+        sellerRepository.save(seller);
+        return userProfileService.getSellerProfile(email);
+    }
+
 
     public String updatePassword(String email, String newPassword, String confirmPassword) throws BadRequestException {
         if (!newPassword.equals(confirmPassword)) throw new BadRequestException("Passwords do not match");
@@ -80,5 +115,12 @@ public class ProfileService {
         return "Password updated successfully";
     }
 
+    public AddressResponseDto addAddress(AddressRequestDto addressRequestDto, String email) throws BadRequestException {
+        return addressService.addAddress(addressRequestDto,email);
+    }
+
+    public String deleteAddress(UUID addressId, String email) throws BadRequestException {
+        return addressService.deleteAddress(addressId,email);
+    }
 
 }

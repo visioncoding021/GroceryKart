@@ -88,4 +88,41 @@ public class AddressService {
         }
         return listOfAddress;
     }
+
+    public AddressResponseDto addAddress(AddressRequestDto addressRequestDto, String email) throws BadRequestException {
+        User user = userRepository.findByEmail(email).get();
+        for(Address address : user.getAddress()) {
+            if (address.getAddressLine().equals(addressRequestDto.getAddressLine()) && address.getLabel().equals(addressRequestDto.getLabel())) {
+                throw new BadRequestException("Address already exists with same label and address line");
+            }
+        }
+        Address address = new Address();
+        AddressResponseDto addressResponseDto = new AddressResponseDto();
+        BeanUtils.copyProperties(addressRequestDto, address);
+        address.setUser(user);
+        addressRepository.save(address);
+
+        List<Address> listOfAddresses = user.getAddress();
+        listOfAddresses.add(address);
+        user.setAddress(listOfAddresses);
+        userRepository.save(user);
+
+        BeanUtils.copyProperties(address, addressResponseDto);
+        return addressResponseDto;
+    }
+
+    public String deleteAddress(UUID addressId, String email) throws BadRequestException {
+        User user = userRepository.findByEmail(email).get();
+        Address address = addressRepository.findById(addressId).orElseThrow(() -> new BadRequestException("Address not found"));
+        if (!user.getAddress().contains(address)) {
+            throw new BadRequestException("Address does not belong to the user");
+        }
+        addressRepository.delete(address);
+        List<Address> listOfAddresses = user.getAddress();
+        listOfAddresses.remove(address);
+        user.setAddress(listOfAddresses);
+        userRepository.save(user);
+
+        return "Address deleted successfully";
+    }
 }

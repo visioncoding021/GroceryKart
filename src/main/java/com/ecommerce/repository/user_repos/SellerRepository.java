@@ -22,4 +22,5 @@ public interface SellerRepository extends JpaRepository<Seller, Long> {
     boolean existsByCompanyContact(String companyContact);
 
     Optional<Seller> findByCompanyName(String companyName);
+
 }
