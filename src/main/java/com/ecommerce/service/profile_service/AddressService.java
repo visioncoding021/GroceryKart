@@ -1,8 +1,7 @@
 package com.ecommerce.service.profile_service;
 
-import com.ecommerce.dto.request_dto.AddressRequestDto;
+import com.ecommerce.dto.request_dto.user_dto.AddressRequestDto;
 import com.ecommerce.dto.response_dto.user_dto.AddressResponseDto;
-import com.ecommerce.exception.user.UserNotFoundException;
 import com.ecommerce.models.user.*;
 import com.ecommerce.repository.user_repos.AddressRepository;
 import com.ecommerce.repository.user_repos.CustomerRepository;
@@ -16,7 +15,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

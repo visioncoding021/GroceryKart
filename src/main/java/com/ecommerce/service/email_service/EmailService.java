@@ -1,7 +1,8 @@
 package com.ecommerce.service.email_service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -9,20 +10,25 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
 
+import java.util.Locale;
+
 @Service
 public class EmailService {
+
     private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    @Autowired
+    private final MessageSource messageSource;
 
 
-    public EmailService(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender, MessageSource messageSource) {
         this.mailSender = mailSender;
+        this.messageSource=messageSource;
     }
 
+    @Async
     public void sendEmail(String to, String subject, String text) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -37,13 +43,16 @@ public class EmailService {
 
     @Async
     public void sendActivationEmail(String to, String subject, String text, String token) throws MessagingException {
+        Locale locale = LocaleContextHolder.getLocale();
         String activationLink = "http://localhost:8080/api/auth/activate?token=" + token;
-        sendEmail(to, subject, text + "\n\n" + "Click the link to activate your account: " + activationLink);
+        sendEmail(to, subject, text + "<br><br><a href=\"" + activationLink + "\">" +
+                messageSource.getMessage("email.activation.linkText", null, locale) + "</a>");
     }
 
     @Async
     public void sendResetPasswordEmail(String to, String subject, String text, String token) throws MessagingException {
+        Locale locale = LocaleContextHolder.getLocale();
         String resetLink = "http://localhost:8080/api/auth/reset-password?token=" + token;
-        sendEmail(to, subject, text + "\n\n" + "Click the link to reset your password: " + resetLink);
+        sendEmail(to, subject, text + "\n\n" + messageSource.getMessage("email.resetPassword.linkText", null, locale) + resetLink);
     }
 }

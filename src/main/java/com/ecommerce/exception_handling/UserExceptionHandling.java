@@ -1,10 +1,7 @@
 package com.ecommerce.exception_handling;
 
 import com.ecommerce.dto.response_dto.message_dto.ErrorResponseDto;
-import com.ecommerce.exception.user.UserAlreadyRegistered;
-import com.ecommerce.exception.user.UserIsInactiveException;
-import com.ecommerce.exception.user.UserIsLockedException;
-import com.ecommerce.exception.user.UserNotFoundException;
+import com.ecommerce.exception.user.*;
 import org.apache.coyote.BadRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -53,6 +50,11 @@ public class UserExceptionHandling {
         String rootMessage = getRootCauseMessage(ex);
         String userFriendlyMessage = "A record with the same value already exists.";
         return buildErrorResponse(userFriendlyMessage, rootMessage, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleRoleNotFound(RoleNotFoundException exception) {
+        return buildErrorResponse("Role not found", exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
 //    @ExceptionHandler(Exception.class)

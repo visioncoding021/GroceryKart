@@ -1,7 +1,7 @@
 package com.ecommerce.controller.common_controller;
 
-import com.ecommerce.dto.request_dto.AddressRequestDto;
-import com.ecommerce.dto.request_dto.ForgotPasswordDto;
+import com.ecommerce.dto.request_dto.user_dto.AddressRequestDto;
+import com.ecommerce.dto.request_dto.auth_dto.ForgotPasswordDto;
 import com.ecommerce.dto.request_dto.profile_dto.CustomerProfileRequestDto;
 import com.ecommerce.dto.request_dto.profile_dto.SellerProfileRequestDto;
 import com.ecommerce.dto.request_dto.profile_dto.UserProfileRequestDto;
@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @RestController

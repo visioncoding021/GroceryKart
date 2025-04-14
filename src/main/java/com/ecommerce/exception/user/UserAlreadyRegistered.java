@@ -8,4 +8,7 @@ public class UserAlreadyRegistered extends RuntimeException {
     public UserAlreadyRegistered() {
         super("User already registered with this email: ");
     }
+    public UserAlreadyRegistered(String message) {
+        super(message);
+    }
 }

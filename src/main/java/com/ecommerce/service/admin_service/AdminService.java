@@ -1,6 +1,6 @@
 package com.ecommerce.service.admin_service;
 
-import com.ecommerce.dto.request_dto.UserListRequestDto;
+import com.ecommerce.dto.request_dto.pagination_dto.UserListRequestDto;
 import com.ecommerce.dto.response_dto.user_dto.AllCustomersResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.AllSellersResponseDto;

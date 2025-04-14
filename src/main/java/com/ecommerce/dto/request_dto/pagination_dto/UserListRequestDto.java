@@ -1,4 +1,4 @@
-package com.ecommerce.dto.request_dto;
+package com.ecommerce.dto.request_dto.pagination_dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

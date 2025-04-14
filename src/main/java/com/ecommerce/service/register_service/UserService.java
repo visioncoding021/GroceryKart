@@ -1,8 +1,8 @@
 package com.ecommerce.service.register_service;
 
-import com.ecommerce.dto.request_dto.CustomerRequestDto;
-import com.ecommerce.dto.request_dto.ForgotPasswordDto;
-import com.ecommerce.dto.request_dto.SellerRequestDto;
+import com.ecommerce.dto.request_dto.user_dto.CustomerRequestDto;
+import com.ecommerce.dto.request_dto.auth_dto.ForgotPasswordDto;
+import com.ecommerce.dto.request_dto.user_dto.SellerRequestDto;
 import com.ecommerce.models.user.*;
 import com.ecommerce.service.auth_service.AccessTokenService;
 import com.ecommerce.service.auth_service.ForgotResetPasswordService;

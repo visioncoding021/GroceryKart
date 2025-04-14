@@ -1,6 +1,6 @@
 package com.ecommerce.service.profile_service;
 
-import com.ecommerce.dto.request_dto.AddressRequestDto;
+import com.ecommerce.dto.request_dto.user_dto.AddressRequestDto;
 import com.ecommerce.dto.request_dto.profile_dto.CustomerProfileRequestDto;
 import com.ecommerce.dto.request_dto.profile_dto.SellerProfileRequestDto;
 import com.ecommerce.dto.response_dto.user_dto.AddressResponseDto;

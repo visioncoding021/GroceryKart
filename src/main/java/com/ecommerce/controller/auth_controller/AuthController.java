@@ -1,7 +1,7 @@
 package com.ecommerce.controller.auth_controller;
 
-import com.ecommerce.dto.request_dto.AuthRequestDto;
-import com.ecommerce.dto.request_dto.ForgotPasswordDto;
+import com.ecommerce.dto.request_dto.auth_dto.AuthRequestDto;
+import com.ecommerce.dto.request_dto.auth_dto.ForgotPasswordDto;
 import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.service.register_service.UserService;

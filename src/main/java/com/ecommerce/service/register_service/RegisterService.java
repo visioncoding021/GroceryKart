@@ -1,8 +1,9 @@
 package com.ecommerce.service.register_service;
 
-import com.ecommerce.dto.request_dto.CustomerRequestDto;
-import com.ecommerce.dto.request_dto.SellerRequestDto;
+import com.ecommerce.dto.request_dto.user_dto.CustomerRequestDto;
+import com.ecommerce.dto.request_dto.user_dto.SellerRequestDto;
 import com.ecommerce.exception.seller.SellerValidationException;
+import com.ecommerce.exception.user.RoleNotFoundException;
 import com.ecommerce.exception.user.UserAlreadyRegistered;
 import com.ecommerce.models.user.*;
 import com.ecommerce.repository.user_repos.*;
@@ -12,10 +13,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class RegisterService {
@@ -46,26 +51,38 @@ public class RegisterService {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private MessageSource messageSource;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public Customer registerCustomer(CustomerRequestDto customerRequestDTO) throws MessagingException {
 
+        Locale locale = LocaleContextHolder.getLocale();
+
         Address address;
-        Role role = roleRepository.findByAuthority("ROLE_CUSTOMER").orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        Role role = roleRepository.findByAuthority("ROLE_CUSTOMER").orElseThrow(() -> new RoleNotFoundException(
+                messageSource.getMessage("error.roleNotFound", null, locale)
+        ));
         Customer customer = objectMapper.convertValue(customerRequestDTO, Customer.class);
 
         if (userRepository.existsByEmail(customerRequestDTO.getEmail())) {
             User user = userRepository.findByEmail(customerRequestDTO.getEmail()).get();
             if (!user.getIsActive()) {
-                tokenService.saveActivationToken(user, "Account Activation Pending");
+                tokenService.saveActivationToken(user,  messageSource.getMessage("email.resendActivationToken.subject",null, locale));
             }
-            throw new UserAlreadyRegistered();
+            throw new UserAlreadyRegistered(messageSource.getMessage("response.activation.alreadyActivated",null, locale));
         }
 
         if(!UserUtils.isPasswordMatching(customerRequestDTO.getPassword(), customerRequestDTO.getConfirmPassword())) {
-            throw new IllegalArgumentException("Passwords do not match");
+            throw new IllegalArgumentException(messageSource.getMessage("error.password.mismatch", null, locale));
         }
 
         customer.setRole(role);
-        UserUtils.setPasswordEncoder(customer);
+        customer.setPassword(passwordEncoder.encode(customerRequestDTO.getPassword()));
+//        UserUtils.setPasswordEncoder(customer);
+        System.out.println(customerRequestDTO.getPassword());
         customer = customerRepository.save(customer);
 
         if(UserUtils.isAddressValid(customerRequestDTO)){
@@ -74,27 +91,37 @@ public class RegisterService {
             addressRepository.save(address);
         }
         customer = customerRepository.save(customer);
-        tokenService.saveActivationToken(customer, "Account Activation Link Sent");
+        tokenService.saveActivationToken(customer, messageSource.getMessage("response.activation.resend", null, locale));
 
         return customer;
     }
 
     @Transactional
     public Seller registerSeller(SellerRequestDto sellerRequestDTO) throws MessagingException {
+        Locale locale = LocaleContextHolder.getLocale();
 
         Address address;
-        Role role = roleRepository.findByAuthority("ROLE_SELLER").orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        Role role = roleRepository.findByAuthority("ROLE_SELLER").orElseThrow(() -> new RoleNotFoundException(messageSource.getMessage("error.roleNotFound", null, locale)));
 
         if (!UserUtils.isPasswordMatching(sellerRequestDTO.getPassword(), sellerRequestDTO.getConfirmPassword())) {
-            throw new IllegalArgumentException("Passwords do not match");
+            throw new IllegalArgumentException(messageSource.getMessage("error.password.mismatch", null, locale));
         }
 
         List<String> errorList = new ArrayList<>();
-        if(userRepository.existsByEmail(sellerRequestDTO.getEmail())) errorList.add("Email already registered");
-        if(sellerRepository.existsByCompanyNameIgnoreCase(sellerRequestDTO.getCompanyName()))  errorList.add("Company name already exists");
-        if(sellerRepository.existsByCompanyContact(sellerRequestDTO.getCompanyContact()))  errorList.add("Company Contact already exists");
-        if(sellerRepository.existsByGstNumber(sellerRequestDTO.getGstNumber()))  errorList.add("Company Gst Number already registered");
-        if(!errorList.isEmpty()) throw new SellerValidationException(errorList);
+        if (userRepository.existsByEmail(sellerRequestDTO.getEmail()))
+            errorList.add(messageSource.getMessage("error.email.exists", null, locale));
+
+        if (sellerRepository.existsByCompanyNameIgnoreCase(sellerRequestDTO.getCompanyName()))
+            errorList.add(messageSource.getMessage("error.companyName.exists", null, locale));
+
+        if (sellerRepository.existsByCompanyContact(sellerRequestDTO.getCompanyContact()))
+            errorList.add(messageSource.getMessage("error.companyContact.exists", null, locale));
+
+        if (sellerRepository.existsByGstNumber(sellerRequestDTO.getGstNumber()))
+            errorList.add(messageSource.getMessage("error.gst.exists", null, locale));
+
+        if (!errorList.isEmpty())
+            throw new SellerValidationException(errorList);
 
         Seller seller = objectMapper.convertValue(sellerRequestDTO, Seller.class);
         seller.setPassword(sellerRequestDTO.getPassword());
@@ -115,8 +142,8 @@ public class RegisterService {
         }
         tokenRepository.save(userToken);
 
-        emailService.sendEmail("ininsde15@gmail.com", "Account Pending Approval",
-                "Your seller account has been created and is pending approval.");
+        emailService.sendEmail("ininsde15@gmail.com", messageSource.getMessage("email.sellerPendingApproval.subject", null, locale),
+                messageSource.getMessage("email.sellerPendingApproval.body", null, locale));
         return seller;
     }
 
