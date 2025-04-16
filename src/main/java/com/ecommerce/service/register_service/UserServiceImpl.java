@@ -1,0 +1,81 @@
+package com.ecommerce.service.register_service;
+
+import com.ecommerce.dto.request_dto.auth_dto.ForgotPasswordDto;
+import com.ecommerce.dto.request_dto.user_dto.CustomerRequestDto;
+import com.ecommerce.dto.request_dto.user_dto.SellerRequestDto;
+import com.ecommerce.models.user.Customer;
+import com.ecommerce.models.user.Seller;
+import com.ecommerce.service.auth_service.AccessTokenService;
+import com.ecommerce.service.auth_service.ForgotResetPasswordService;
+import com.ecommerce.service.auth_service.LoginLogoutService;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Locale;
+
+@Service
+public class UserServiceImpl implements UserService{
+    @Autowired
+    private RegisterService registerService;
+
+    @Autowired
+    private ActivationTokenService activationTokenService;
+
+    @Autowired
+    private ForgotResetPasswordService forgotResetPasswordService;
+
+    @Autowired
+    private LoginLogoutService loginLogoutService;
+
+    @Autowired
+    private AccessTokenService accessTokenService;
+
+    @Override
+    public Customer registerCustomer(CustomerRequestDto customerRequestDTO, Locale locale) throws MessagingException {
+        return registerService.registerCustomer(customerRequestDTO,locale);
+    }
+
+    @Override
+    public Seller registerSeller(SellerRequestDto sellerRequestDTO, Locale locale) throws MessagingException {
+        return registerService.registerSeller(sellerRequestDTO, locale);
+    }
+
+    @Override
+    public String activateUser(String token) throws MessagingException {
+        return activationTokenService.activateUser(token);
+    }
+
+    @Override
+    public String forgotPassword(String email) throws MessagingException {
+        return forgotResetPasswordService.sendResetPasswordEmail(email);
+    }
+
+    @Override
+    public String resetPassword(String token, ForgotPasswordDto forgotPasswordDTO) throws MessagingException {
+        return forgotResetPasswordService.resetPassword(token,forgotPasswordDTO.getPassword(),forgotPasswordDTO.getConfirmPassword());
+    }
+
+    @Override
+    public String loginUser(String email, String password, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+        return loginLogoutService.loginUser(email,password,request,response);
+    }
+
+    @Override
+    public String resendActivationLink(String email) throws MessagingException {
+        return activationTokenService.resendActivationLink(email);
+    }
+
+    @Override
+    public String logoutUser(String accessToken, HttpServletRequest request, HttpServletResponse response) {
+        return loginLogoutService.logoutUser(accessToken,request, response);
+    }
+
+    @Override
+    public String getAccessToken(HttpServletRequest request) throws BadRequestException {
+        return accessTokenService.getAccessToken(request);
+    }
+}
