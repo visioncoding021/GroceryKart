@@ -14,6 +14,8 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 public class UserService {
 
@@ -33,12 +35,12 @@ public class UserService {
     private AccessTokenService accessTokenService;
 
 
-    public Customer registerCustomer(CustomerRequestDto customerRequestDTO) throws MessagingException {
-        return registerService.registerCustomer(customerRequestDTO);
+    public Customer registerCustomer(CustomerRequestDto customerRequestDTO, Locale locale) throws MessagingException {
+        return registerService.registerCustomer(customerRequestDTO,locale);
     }
 
-    public Seller registerSeller(SellerRequestDto sellerRequestDTO) throws MessagingException {
-        return registerService.registerSeller(sellerRequestDTO);
+    public Seller registerSeller(SellerRequestDto sellerRequestDTO,Locale locale) throws MessagingException {
+        return registerService.registerSeller(sellerRequestDTO, locale);
     }
 
     public String activateUser(String token) throws MessagingException {

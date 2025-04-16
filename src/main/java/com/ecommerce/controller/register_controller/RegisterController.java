@@ -11,7 +11,6 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +30,8 @@ public class RegisterController {
 
     @PostMapping(value = {"/register", "/register/customer"})
     public ResponseEntity<ApiResponseDto<Customer>> registerUser(@Valid @RequestBody CustomerRequestDto customerRequestDTO, HttpServletRequest request) throws MessagingException {
-        Customer customer = userService.registerCustomer(customerRequestDTO);
         Locale locale = request.getLocale();
+        Customer customer = userService.registerCustomer(customerRequestDTO,locale);
         ApiResponseDto<Customer> response = new ApiResponseDto<Customer>(
                 HttpStatus.CREATED.value(),
                 messageSource.getMessage("response.register.customer.success", null,locale),
@@ -43,8 +42,8 @@ public class RegisterController {
 
     @PostMapping("/register/seller")
     public ResponseEntity<ApiResponseDto<Seller>> registerSeller(@Valid @RequestBody SellerRequestDto sellerRequestDTO, HttpServletRequest request) throws MessagingException {
-        Seller seller = userService.registerSeller(sellerRequestDTO);
         Locale locale = request.getLocale();
+        Seller seller = userService.registerSeller(sellerRequestDTO,locale);
         ApiResponseDto<Seller> response = new ApiResponseDto<Seller>(
                 HttpStatus.CREATED.value(),
                 messageSource.getMessage("response.register.seller.success", null,locale),

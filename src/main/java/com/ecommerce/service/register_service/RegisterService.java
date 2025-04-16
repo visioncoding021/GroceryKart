@@ -57,9 +57,7 @@ public class RegisterService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Customer registerCustomer(CustomerRequestDto customerRequestDTO) throws MessagingException {
-
-        Locale locale = LocaleContextHolder.getLocale();
+    public Customer registerCustomer(CustomerRequestDto customerRequestDTO, Locale locale) throws MessagingException {
 
         Address address;
         Role role = roleRepository.findByAuthority("ROLE_CUSTOMER").orElseThrow(() -> new RoleNotFoundException(
@@ -81,8 +79,6 @@ public class RegisterService {
 
         customer.setRole(role);
         customer.setPassword(passwordEncoder.encode(customerRequestDTO.getPassword()));
-//        UserUtils.setPasswordEncoder(customer);
-        System.out.println(customerRequestDTO.getPassword());
         customer = customerRepository.save(customer);
 
         if(UserUtils.isAddressValid(customerRequestDTO)){
@@ -97,8 +93,7 @@ public class RegisterService {
     }
 
     @Transactional
-    public Seller registerSeller(SellerRequestDto sellerRequestDTO) throws MessagingException {
-        Locale locale = LocaleContextHolder.getLocale();
+    public Seller registerSeller(SellerRequestDto sellerRequestDTO , Locale locale) throws MessagingException {
 
         Address address;
         Role role = roleRepository.findByAuthority("ROLE_SELLER").orElseThrow(() -> new RoleNotFoundException(messageSource.getMessage("error.roleNotFound", null, locale)));
