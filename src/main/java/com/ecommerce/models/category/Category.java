@@ -33,7 +33,7 @@ public class Category extends AuditDetails {
 
     @OneToMany(mappedBy = "parent")
     @JsonIgnore
-    private List<Category> subCategories = new ArrayList<>();
+    private List<Category> subCategories;
 
     @OneToMany(mappedBy = "category")
     @JsonIgnore
