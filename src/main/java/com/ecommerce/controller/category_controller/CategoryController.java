@@ -18,6 +18,13 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-
+    @PostMapping
+    public ApiResponseDto<Category> addCategory(@RequestBody CategoryRequestDto categoryRequestDto){
+        return new ApiResponseDto<>(
+                HttpStatus.OK.value(),
+                "Category Added SuccessFully",
+                categoryService.addCategory(categoryRequestDto.getName(),categoryRequestDto.getParentId())
+        );
+    }
 
 }
