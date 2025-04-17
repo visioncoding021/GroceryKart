@@ -12,7 +12,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryMetadataFieldResponseDto {
+public class CategoryMetadataFieldValueResponseDto {
     private UUID id;
     private String name;
+    private List<String> value;
 }

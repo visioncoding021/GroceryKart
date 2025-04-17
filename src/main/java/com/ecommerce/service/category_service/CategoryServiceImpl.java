@@ -1,14 +1,22 @@
 package com.ecommerce.service.category_service;
 
+import com.ecommerce.dto.response_dto.category_dto.*;
 import com.ecommerce.models.category.Category;
+import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import com.ecommerce.repository.category_repos.CategoryRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -85,6 +93,98 @@ public class CategoryServiceImpl implements CategoryService{
         categoryRepository.save(parentCategory);
 
         return newCategory.getId().toString();
+    }
+
+    @Override
+    public CategoryResponseDto getCategoryById(UUID id){
+        if(!categoryRepository.existsById(id)){
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400),"Category Doesn't exist with given Id");
+        }
+
+        Category category = categoryRepository.findById(id).get();
+        CategoryResponseDto categoryResponseDto = new CategoryResponseDto();
+        BeanUtils.copyProperties(category,categoryResponseDto);
+
+        categoryResponseDto.setParent(mapParentHierarchy(category.getParent()));
+
+        categoryResponseDto.setChildren(mapChildren(category));
+
+        categoryResponseDto.setFields(mapFields(category));
+
+        return categoryResponseDto;
+    }
+
+    @Override
+    public List<CategoryResponseDto> getAllParentCategory(int max, int offset, String sort, String order, Map<String,Object> filters){
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
+
+        Page<Category> listOfCategory = categoryRepository.findAll(pageable);
+
+        List<CategoryResponseDto> categoryResponseDtoList = new ArrayList<>();
+
+        for(Category category : listOfCategory){
+            CategoryResponseDto categoryResponseDto = new CategoryResponseDto();
+            BeanUtils.copyProperties(category,categoryResponseDto);
+
+            categoryResponseDto.setParent(mapParentHierarchy(category.getParent()));
+
+            categoryResponseDto.setChildren(mapChildren(category));
+
+            categoryResponseDto.setFields(mapFields(category));
+
+            categoryResponseDtoList.add(categoryResponseDto);
+        }
+        return categoryResponseDtoList;
+    }
+
+
+
+
+    private ParentCategoryDto mapParentHierarchy(Category parent) {
+        ParentCategoryDto root = null;
+        ParentCategoryDto currentDto = null;
+
+        while (parent != null) {
+            ParentCategoryDto temp = new ParentCategoryDto();
+            BeanUtils.copyProperties(parent, temp);
+
+            if (root == null) {
+                root = temp;
+            } else {
+                currentDto.setParent(temp);
+            }
+
+            currentDto = temp;
+            parent = parent.getParent();
+        }
+        return root;
+    }
+
+    private List<ChildrenCategoryDto> mapChildren(Category category) {
+        List<ChildrenCategoryDto> children = new ArrayList<>();
+
+        if (category.getSubCategories() != null) {
+            for (Category subCategory : category.getSubCategories()) {
+                ChildrenCategoryDto dto = new ChildrenCategoryDto();
+                BeanUtils.copyProperties(subCategory, dto);
+                children.add(dto);
+            }
+        }
+
+        return children;
+    }
+
+    private List<CategoryMetadataFieldValueResponseDto> mapFields(Category category){
+        List<CategoryMetadataFieldValueResponseDto> fields = new ArrayList<>();
+        if(category.getCategoryMetadataFieldValues()!=null){
+            for (CategoryMetadataFieldValues categoryMetadataFieldValues : category.getCategoryMetadataFieldValues()){
+                CategoryMetadataFieldValueResponseDto categoryMetadataFieldValueResponseDto = new CategoryMetadataFieldValueResponseDto();
+                BeanUtils.copyProperties(categoryMetadataFieldValues,categoryMetadataFieldValueResponseDto);
+                fields.add(categoryMetadataFieldValueResponseDto);
+            }
+        }
+        return fields;
     }
 
 }
