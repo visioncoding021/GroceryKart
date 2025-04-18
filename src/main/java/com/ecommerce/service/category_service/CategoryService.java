@@ -1,5 +1,6 @@
 package com.ecommerce.service.category_service;
 
+import com.ecommerce.dto.request_dto.category_dto.MetaDataValuesRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import org.apache.coyote.BadRequestException;
 
@@ -16,4 +17,6 @@ public interface CategoryService {
     public List<CategoryResponseDto> getAllParentCategory(int max, int offset, String sort, String order, Map<String,Object> filters);
 
     public String updateCategory(UUID categoryId,String categoryName) throws BadRequestException;
+
+    public String addMetadataFieldWithValues(UUID categoryId,List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException;
 }

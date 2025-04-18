@@ -1,6 +1,8 @@
 package com.ecommerce.controller.category_controller;
 
+import com.ecommerce.dto.request_dto.category_dto.CategoryMetadataFieldValueRequestDto;
 import com.ecommerce.dto.request_dto.category_dto.CategoryRequestDto;
+import com.ecommerce.dto.request_dto.category_dto.MetaDataValuesRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
@@ -13,9 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/admin/category")
@@ -72,6 +72,27 @@ public class CategoryController {
         return new MessageResponseDto(
                 HttpStatus.OK.value(),
                 categoryService.updateCategory(categoryId,categoryRequestDto.getName())
+        );
+    }
+
+    @PostMapping("/category-metadata")
+    public MessageResponseDto addMetadataFieldsToCategory(@Valid @RequestBody CategoryMetadataFieldValueRequestDto categoryMetadataFieldValueRequestDto) throws BadRequestException {
+        UUID categoryId = categoryMetadataFieldValueRequestDto.getCategoryId();
+        List<MetaDataValuesRequestDto> metaDataValuesRequestDtos = categoryMetadataFieldValueRequestDto.getMetadataFields();
+
+        for(MetaDataValuesRequestDto metaDataValuesRequestDto : metaDataValuesRequestDtos){
+            UUID metadataFieldId = metaDataValuesRequestDto.getMetadataFieldId();
+            List<String> list = new ArrayList<>();
+            for(String el : metaDataValuesRequestDto.getValue()){
+                el = el.trim();
+                if(list.contains(el)) throw new BadRequestException("Elements in list are not unique in Metadata with id " + metadataFieldId);
+                list.add(el);
+            }
+        }
+
+        return new MessageResponseDto(
+            HttpStatus.OK.value(),
+            categoryService.addMetadataFieldWithValues(categoryId,metaDataValuesRequestDtos)
         );
     }
 

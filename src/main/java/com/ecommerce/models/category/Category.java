@@ -37,10 +37,16 @@ public class Category extends AuditDetails {
 
     @OneToMany(mappedBy = "category")
     @JsonIgnore
-    private List<CategoryMetadataFieldValues> categoryMetadataFieldValues = new ArrayList<>();
+    private List<CategoryMetadataFieldValues> categoryMetadataFieldValues = null;
 
     @OneToMany(mappedBy = "category")
     @JsonIgnore
-    private List<Product> products = new ArrayList<>();
+    private List<Product> products = null;
+
+    @PrePersist
+    public void setFields(){
+        products = null;
+        categoryMetadataFieldValues=null;
+    }
 
 }
