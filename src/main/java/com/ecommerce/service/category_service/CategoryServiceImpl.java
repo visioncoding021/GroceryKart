@@ -5,6 +5,8 @@ import com.ecommerce.models.category.Category;
 import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import com.ecommerce.repository.category_repos.CategoryRepository;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -69,12 +71,8 @@ public class CategoryServiceImpl implements CategoryService{
             }
 
             Category parent = parentCategory;
-            while(parent!=null && !isBreadth){
-                if(parent.getName().equalsIgnoreCase(name)){
-                    isDepth = true;
-                    break;
-                }
-                parent=parent.getParent();
+            if(!isBreadth){
+                isDepth = isInDepth(parent,name);
             }
 
             if(isBreadth || isDepth){
@@ -143,6 +141,26 @@ public class CategoryServiceImpl implements CategoryService{
         return categoryResponseDtoList;
     }
 
+    @Override
+    @Transactional
+    public String updateCategory(UUID categoryId,String categoryName) throws BadRequestException {
+        if(!categoryRepository.existsById(categoryId)) throw new BadRequestException("Category doesn't Exists");
+
+        categoryName = categoryName.trim();
+
+        Category category = categoryRepository.findById(categoryId).get();
+
+        if(isInDepth(category.getParent(),categoryName) || isInChildDepth(category,categoryName) ){
+            throw new BadRequestException("Already Exists in Parent or child Hierarchy");
+        }
+
+        category.setName(categoryName);
+        System.out.println(categoryName);
+        categoryRepository.updateCategoryName(categoryName,categoryId);
+
+        return "Category Updated Successfully";
+    }
+
 
     private ParentCategoryDto mapParentHierarchy(Category parent) {
         ParentCategoryDto root = null;
@@ -163,6 +181,8 @@ public class CategoryServiceImpl implements CategoryService{
         }
         return root;
     }
+
+
 
     private List<ChildrenCategoryDto> mapChildren(Category category) {
         List<ChildrenCategoryDto> children = new ArrayList<>();
@@ -210,5 +230,26 @@ public class CategoryServiceImpl implements CategoryService{
             return criteriaBuilder.and(listOfPredicate.toArray(new Predicate[0]));
         };
     }
+
+    private boolean isInDepth(Category parent,String name){
+        while(parent!=null){
+            if(parent.getName().equalsIgnoreCase(name)){
+                return true;
+            }
+            parent=parent.getParent();
+        }
+        return false;
+    }
+
+    private boolean isInChildDepth(Category child,String name){
+            if(child.getName().equalsIgnoreCase(name)){
+                return true;
+            }
+            for (Category children : child.getSubCategories()){
+                isInChildDepth(children,name);
+            }
+        return false;
+    }
+
 
 }

@@ -3,6 +3,7 @@ package com.ecommerce.controller.category_controller;
 import com.ecommerce.dto.request_dto.category_dto.CategoryRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.service.category_service.CategoryService;
 import com.ecommerce.utils.service_utils.CategoryUtils;
 import jakarta.validation.Valid;
@@ -46,7 +47,7 @@ public class CategoryController {
             @RequestParam(value = "max", defaultValue = "10") int max,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "sort", defaultValue = "id") String sort,
-            @RequestParam(value = "order", defaultValue = "id") String order,
+            @RequestParam(value = "order", defaultValue = "asc") String order,
             @RequestParam(value = "query", defaultValue = "") String query
     ) throws BadRequestException {
         final Set<String> VALID_SORT_FIELDS = Set.of("name", "id", "parentId");
@@ -64,6 +65,14 @@ public class CategoryController {
                 "Categories List",
                 categoryService.getAllParentCategory(max,offset,sort,order,filters)
         ));
+    }
+
+    @PutMapping("/{categoryId}")
+    public MessageResponseDto updateCategory(@PathVariable UUID categoryId,@RequestBody CategoryRequestDto categoryRequestDto) throws BadRequestException {
+        return new MessageResponseDto(
+                HttpStatus.OK.value(),
+                categoryService.updateCategory(categoryId,categoryRequestDto.getName())
+        );
     }
 
 }

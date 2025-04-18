@@ -1,6 +1,7 @@
 package com.ecommerce.service.category_service;
 
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
+import org.apache.coyote.BadRequestException;
 
 import java.util.List;
 import java.util.Map;
@@ -14,4 +15,5 @@ public interface CategoryService {
 
     public List<CategoryResponseDto> getAllParentCategory(int max, int offset, String sort, String order, Map<String,Object> filters);
 
+    public String updateCategory(UUID categoryId,String categoryName) throws BadRequestException;
 }
