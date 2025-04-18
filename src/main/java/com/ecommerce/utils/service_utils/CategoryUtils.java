@@ -7,10 +7,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class CategoryUtils {
 
@@ -49,4 +46,26 @@ public final class CategoryUtils {
                 data.getNumber()
         );
     }
+
+    public static Map<String, String> validateCategoryRequestParams(
+            String order,
+            int max,
+            int offset
+    ) {
+        Map<String, String> errors = new LinkedHashMap<>();
+
+        if (order != null && !(order.equalsIgnoreCase("asc") || order.equalsIgnoreCase("desc"))) {
+            errors.put("order", "Invalid order value: " + order + " (must be 'asc' or 'desc')");
+        }
+
+        if (max <= 0) {
+            errors.put("max", "Max must be greater than 0");
+        }
+        if (offset < 0) {
+            errors.put("offset", "Offset must be 0 or greater");
+        }
+
+        return errors;
+    }
+
 }

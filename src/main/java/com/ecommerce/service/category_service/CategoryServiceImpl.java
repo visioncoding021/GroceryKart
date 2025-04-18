@@ -4,12 +4,14 @@ import com.ecommerce.dto.response_dto.category_dto.*;
 import com.ecommerce.models.category.Category;
 import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import com.ecommerce.repository.category_repos.CategoryRepository;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -51,6 +53,9 @@ public class CategoryServiceImpl implements CategoryService{
         if(parentCategory.getProducts()!=null && !parentCategory.getProducts().isEmpty())
             throw new ResponseStatusException(HttpStatusCode.valueOf(400),"Products are active under the parent category; cannot add a subcategory ");
 
+        if(parentCategory.getCategoryMetadataFieldValues()!=null){
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400),"Metadata Available on the Parent Category so considered as leaf Category, cannot add a subcategory ");
+        }
 
         if(nameExists){
             boolean isDepth = false;
@@ -64,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService{
             }
 
             Category parent = parentCategory;
-            while(parent!=null){
+            while(parent!=null && !isBreadth){
                 if(parent.getName().equalsIgnoreCase(name)){
                     isDepth = true;
                     break;
@@ -119,7 +124,7 @@ public class CategoryServiceImpl implements CategoryService{
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
 
-        Page<Category> listOfCategory = categoryRepository.findAll(pageable);
+        Page<Category> listOfCategory = categoryRepository.findAll(getCategoryFilters(filters),pageable);
 
         List<CategoryResponseDto> categoryResponseDtoList = new ArrayList<>();
 
@@ -137,8 +142,6 @@ public class CategoryServiceImpl implements CategoryService{
         }
         return categoryResponseDtoList;
     }
-
-
 
 
     private ParentCategoryDto mapParentHierarchy(Category parent) {
@@ -185,6 +188,27 @@ public class CategoryServiceImpl implements CategoryService{
             }
         }
         return fields;
+    }
+
+    private Specification<Category> getCategoryFilters(Map<String, Object> filters){
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> listOfPredicate = new ArrayList<>();
+            if(filters.containsKey("name") && !((String) filters.get("name")).isBlank()){
+                listOfPredicate.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%" + ((String) filters.get("name")).toLowerCase() + "%"));
+            }
+
+            if(filters.containsKey("id") && !((String) filters.get("id")).isBlank()){
+                UUID id = UUID.fromString((String) filters.get("id"));
+                listOfPredicate.add(criteriaBuilder.equal(root.get("id"), id));
+            }
+
+            if (filters.containsKey("parentId") && !((String) filters.get("parentId")).isBlank()){
+                UUID parentId = UUID.fromString((String) filters.get("parentId"));
+                listOfPredicate.add(criteriaBuilder.equal(root.get("parent").get("id"),parentId));
+            }
+
+            return criteriaBuilder.and(listOfPredicate.toArray(new Predicate[0]));
+        };
     }
 
 }

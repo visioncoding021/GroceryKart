@@ -36,6 +36,11 @@ public class ValidationExceptionHandler {
         return buildErrorResponse(ex.getMessage(),ex.getReason(),HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDto> handleIllegalArgumentException(IllegalArgumentException ex){
+        return buildErrorResponse(ex.getMessage(),ex.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<ErrorResponseDto> buildErrorResponse( String message, String errorDetail, HttpStatus status) {
         ErrorResponseDto response = new ErrorResponseDto(status.value(),message, Collections.singletonList(errorDetail));
         return ResponseEntity.status(status).body(response);
