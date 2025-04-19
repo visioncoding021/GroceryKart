@@ -13,5 +13,6 @@ import java.util.UUID;
 public class CategoryRequestDto {
     @NotBlank(message = "Field name is required")
     private String name;
+
     private UUID parentId;
 }

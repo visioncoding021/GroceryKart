@@ -39,63 +39,32 @@ public class CategoryServiceImpl implements CategoryService{
     @Autowired
     private CategoryMetadataFieldRepository categoryMetadataFieldRepository;
 
+    @Autowired
+    private CategoryValidator categoryValidator;
+
+    @Autowired
+    private CategoryMapper categoryMapper;
+
     @Override
     public String addCategory(String name, UUID parentId){
 
         name = name.trim();
-        boolean nameExists = categoryRepository.existsByNameIgnoreCase(name);
 
-        if (parentId == null) {
-            if (nameExists) {
-                throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Category already exists at root level");
-            }
+        categoryValidator.validateCategoryName(name, parentId);
 
-            Category newCategory = new Category();
-            newCategory.setName(name);
-            newCategory.setParent(null);
-            return categoryRepository.save(newCategory).getId().toString();
-        }
+        Category parentCategory = (parentId!=null)?getParentCategory(parentId):null;
 
-        if(!categoryRepository.existsById(parentId)){
-            throw new ResponseStatusException(HttpStatusCode.valueOf(400),"Parent Id doesn't Exist");
-        }
-
-        Category parentCategory = categoryRepository.findById(parentId).get();
-
-        System.out.println(parentCategory.getProducts());
-        if(!parentCategory.getProducts().isEmpty())
+        if(parentCategory!=null && parentCategory.getProducts()!=null && !parentCategory.getProducts().isEmpty())
             throw new ResponseStatusException(HttpStatusCode.valueOf(400),"Products are active under the parent category; cannot add a subcategory ");
-
-        if(!parentCategory.getCategoryMetadataFieldValues().isEmpty()){
-            throw new ResponseStatusException(HttpStatusCode.valueOf(400),"Metadata Available on the Parent Category so considered as leaf Category, cannot add a subcategory ");
-        }
-
-        if(nameExists){
-            boolean isDepth = false;
-            boolean isBreadth = false;
-
-            for(Category subCategory : parentCategory.getSubCategories()){
-                if(subCategory.getName().equalsIgnoreCase(name)){
-                    isBreadth=true;
-                    break;
-                }
-            }
-
-            Category parent = parentCategory;
-            if(!isBreadth){
-                isDepth = isInDepth(parent,name);
-            }
-
-            if(isBreadth || isDepth){
-                throw new ResponseStatusException(HttpStatusCode.valueOf(400),"Either Parent or Sibling exists with same name category");
-            }
-
-        }
 
         Category newCategory = new Category();
         newCategory.setName(name);
         newCategory.setParent(parentCategory);
         newCategory = categoryRepository.save(newCategory);
+
+        if(parentCategory==null){
+            return newCategory.getId().toString();
+        }
 
         if (parentCategory.getSubCategories()==null){
             parentCategory.setSubCategories(new ArrayList<>());
@@ -119,11 +88,16 @@ public class CategoryServiceImpl implements CategoryService{
         CategoryResponseDto categoryResponseDto = new CategoryResponseDto();
         BeanUtils.copyProperties(category,categoryResponseDto);
 
-        categoryResponseDto.setParent(mapParentHierarchy(category.getParent()));
+        categoryResponseDto.setParent(categoryMapper.mapParentHierarchyAndMetadataFieldValues(category.getParent(),categoryResponseDto));
 
-        categoryResponseDto.setChildren(mapChildren(category));
+        categoryResponseDto.setChildren(categoryMapper.mapChildren(category));
 
-        categoryResponseDto.setFields(mapFields(category));
+        List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = categoryMapper.mapFields(category);
+        List<CategoryMetadataFieldValueResponseDto> currentFields = categoryResponseDto.getFields();
+         if (!fieldsResponseDtos.isEmpty()) currentFields.addAll(fieldsResponseDtos);
+         categoryResponseDto.setFields(currentFields);
+
+        System.out.println("----" + categoryResponseDto.getFields());
 
         return categoryResponseDto;
     }
@@ -141,11 +115,16 @@ public class CategoryServiceImpl implements CategoryService{
             CategoryResponseDto categoryResponseDto = new CategoryResponseDto();
             BeanUtils.copyProperties(category,categoryResponseDto);
 
-            categoryResponseDto.setParent(mapParentHierarchy(category.getParent()));
+            categoryResponseDto.setParent(categoryMapper.mapParentHierarchyAndMetadataFieldValues(category.getParent(),categoryResponseDto));
 
-            categoryResponseDto.setChildren(mapChildren(category));
+            categoryResponseDto.setChildren(categoryMapper.mapChildren(category));
 
-            categoryResponseDto.setFields(mapFields(category));
+            List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = categoryMapper.mapFields(category);
+            List<CategoryMetadataFieldValueResponseDto> currentFields = categoryResponseDto.getFields();
+            if (!fieldsResponseDtos.isEmpty()) currentFields.addAll(fieldsResponseDtos);
+            categoryResponseDto.setFields(currentFields);
+
+            System.out.println("----" + categoryResponseDto.getFields());
 
             categoryResponseDtoList.add(categoryResponseDto);
         }
@@ -161,7 +140,7 @@ public class CategoryServiceImpl implements CategoryService{
 
         Category category = categoryRepository.findById(categoryId).get();
 
-        if(isInDepth(category.getParent(),categoryName) || isInChildDepth(category,categoryName) ){
+        if(categoryValidator.isInDepth(category.getParent(),categoryName) || categoryValidator.isInChildDepth(category,categoryName) ){
             throw new BadRequestException("Already Exists in Parent or child Hierarchy");
         }
 
@@ -182,14 +161,8 @@ public class CategoryServiceImpl implements CategoryService{
         }
 
         Category category = categoryRepository.findById(categoryId).get();
-        if(category.getSubCategories()!=null && !category.getSubCategories().isEmpty()) throw new BadRequestException("Its Not leaf Category");
 
-
-        for (MetaDataValuesRequestDto metaDataValuesRequestDto : metaDataValuesRequestDtos){
-            UUID metadataFieldId = metaDataValuesRequestDto.getMetadataFieldId();
-            if(metadataFieldValuesRepository.existsByCategoryMetadataField_IdAndCategory_Id(metadataFieldId,categoryId))
-                throw new BadRequestException("Relation already exists between category and metadata with id "+ metadataFieldId);
-        }
+        categoryValidator.validateMetadataNotAssignedInHierarchy(category, metaDataValuesRequestDtos);
 
         for (MetaDataValuesRequestDto metaDataValuesRequestDto : metaDataValuesRequestDtos){
 
@@ -217,54 +190,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
 
-    private ParentCategoryDto mapParentHierarchy(Category parent) {
-        ParentCategoryDto root = null;
-        ParentCategoryDto currentDto = null;
 
-        while (parent != null) {
-            ParentCategoryDto temp = new ParentCategoryDto();
-            BeanUtils.copyProperties(parent, temp);
-
-            if (root == null) {
-                root = temp;
-            } else {
-                currentDto.setParent(temp);
-            }
-
-            currentDto = temp;
-            parent = parent.getParent();
-        }
-        return root;
-    }
-
-
-
-    private List<ChildrenCategoryDto> mapChildren(Category category) {
-        List<ChildrenCategoryDto> children = new ArrayList<>();
-
-        if (category.getSubCategories() != null) {
-            for (Category subCategory : category.getSubCategories()) {
-                ChildrenCategoryDto dto = new ChildrenCategoryDto();
-                BeanUtils.copyProperties(subCategory, dto);
-                children.add(dto);
-            }
-        }
-
-        return children;
-    }
-
-    private List<CategoryMetadataFieldValueResponseDto> mapFields(Category category){
-        List<CategoryMetadataFieldValueResponseDto> fields = new ArrayList<>();
-        if(category.getCategoryMetadataFieldValues()!=null){
-            for (CategoryMetadataFieldValues categoryMetadataFieldValues : category.getCategoryMetadataFieldValues()){
-                CategoryMetadataFieldValueResponseDto categoryMetadataFieldValueResponseDto = new CategoryMetadataFieldValueResponseDto();
-                BeanUtils.copyProperties(categoryMetadataFieldValues,categoryMetadataFieldValueResponseDto);
-                categoryMetadataFieldValueResponseDto.setName(categoryMetadataFieldValues.getCategoryMetadataField().getName());
-                fields.add(categoryMetadataFieldValueResponseDto);
-            }
-        }
-        return fields;
-    }
 
     private Specification<Category> getCategoryFilters(Map<String, Object> filters){
         return (root, query, criteriaBuilder) -> {
@@ -287,24 +213,11 @@ public class CategoryServiceImpl implements CategoryService{
         };
     }
 
-    private boolean isInDepth(Category parent,String name){
-        while(parent!=null){
-            if(parent.getName().equalsIgnoreCase(name)){
-                return true;
-            }
-            parent=parent.getParent();
+    private Category getParentCategory(UUID parentId) {
+        if (!categoryRepository.existsById(parentId)) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(400), "Parent Id doesn't Exist");
         }
-        return false;
-    }
-
-    private boolean isInChildDepth(Category child,String name){
-            if(child.getName().equalsIgnoreCase(name)){
-                return true;
-            }
-            for (Category children : child.getSubCategories()){
-                isInChildDepth(children,name);
-            }
-        return false;
+        return categoryRepository.findById(parentId).get();
     }
 
 
