@@ -19,4 +19,7 @@ public interface CategoryService {
     public String updateCategory(UUID categoryId,String categoryName) throws BadRequestException;
 
     public String addMetadataFieldWithValues(UUID categoryId,List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException;
+
+    public String updateMetadataFieldValues(UUID categoryId, List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException;
+
 }

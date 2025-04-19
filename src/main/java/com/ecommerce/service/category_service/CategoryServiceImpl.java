@@ -22,10 +22,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
@@ -46,6 +43,7 @@ public class CategoryServiceImpl implements CategoryService{
     private CategoryMapper categoryMapper;
 
     @Override
+    @Transactional
     public String addCategory(String name, UUID parentId){
 
         name = name.trim();
@@ -96,8 +94,6 @@ public class CategoryServiceImpl implements CategoryService{
         List<CategoryMetadataFieldValueResponseDto> currentFields = categoryResponseDto.getFields();
          if (!fieldsResponseDtos.isEmpty()) currentFields.addAll(fieldsResponseDtos);
          categoryResponseDto.setFields(currentFields);
-
-        System.out.println("----" + categoryResponseDto.getFields());
 
         return categoryResponseDto;
     }
@@ -152,6 +148,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
+    @Transactional
     public String addMetadataFieldWithValues(UUID categoryId, List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException {
         if (!categoryRepository.existsById(categoryId)) throw new BadRequestException("Category Id doesn't Exists");
 
@@ -190,6 +187,40 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
 
+    @Override
+    @Transactional
+    public String updateMetadataFieldValues(UUID categoryId, List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new BadRequestException("Category ID doesn't exist"));
+
+        for (MetaDataValuesRequestDto dto : metaDataValuesRequestDtos) {
+            UUID metadataFieldId = dto.getMetadataFieldId();
+
+            CategoryMetadataField metadataField = categoryMetadataFieldRepository.findById(metadataFieldId)
+                    .orElseThrow(() -> new BadRequestException("Metadata Field ID doesn't exist"));
+
+            CategoryMetadataFieldValues existingValues = metadataFieldValuesRepository
+                    .findByCategory_IdAndCategoryMetadataField_Id(categoryId, metadataFieldId)
+                    .orElseThrow(() -> new BadRequestException("Mapping doesn't exist. Can't update"));
+
+            List<String> requestValues = dto.getValue();
+            List<String> alreadySavedValues = existingValues.getValue();
+
+            for (String savedValue : alreadySavedValues) {
+                if (!requestValues.contains(savedValue)) {
+                    throw new BadRequestException("Missing previously saved value: " + savedValue);
+                }
+            }
+
+            Set<String> merged = new LinkedHashSet<>(alreadySavedValues);
+            merged.addAll(requestValues);
+
+            existingValues.setValue(new ArrayList<>(merged));
+            metadataFieldValuesRepository.save(existingValues);
+        }
+
+        return "Metadata field values updated successfully.";
+    }
 
 
     private Specification<Category> getCategoryFilters(Map<String, Object> filters){

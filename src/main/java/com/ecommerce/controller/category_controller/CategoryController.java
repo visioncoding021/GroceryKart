@@ -96,4 +96,25 @@ public class CategoryController {
         );
     }
 
+    @PutMapping("/category-metadata")
+    public MessageResponseDto updateMetadataFieldValues(@Valid @RequestBody CategoryMetadataFieldValueRequestDto categoryMetadataFieldValueRequestDto) throws BadRequestException {
+        UUID categoryId = categoryMetadataFieldValueRequestDto.getCategoryId();
+        List<MetaDataValuesRequestDto> metaDataValuesRequestDtos = categoryMetadataFieldValueRequestDto.getMetadataFields();
+
+        for(MetaDataValuesRequestDto metaDataValuesRequestDto : metaDataValuesRequestDtos){
+            UUID metadataFieldId = metaDataValuesRequestDto.getMetadataFieldId();
+            List<String> list = new ArrayList<>();
+            for(String el : metaDataValuesRequestDto.getValue()){
+                el = el.trim();
+                if(list.contains(el)) throw new BadRequestException("Elements in list are not unique in Metadata with id " + metadataFieldId);
+                list.add(el);
+            }
+        }
+
+        return new MessageResponseDto(
+                HttpStatus.OK.value(),
+                categoryService.updateMetadataFieldValues(categoryId,metaDataValuesRequestDtos)
+        );
+    }
+
 }
