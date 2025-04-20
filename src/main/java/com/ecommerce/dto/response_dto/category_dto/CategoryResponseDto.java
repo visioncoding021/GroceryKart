@@ -15,7 +15,7 @@ import java.util.UUID;
 public class CategoryResponseDto {
     private UUID id;
     private String name;
-    private ParentCategoryDto parent;
-    private List<ChildrenCategoryDto> children;
+    private ParentCategoryResponseDto parent;
+    private List<ChildrenCategoryResponseDto> children;
     private List<CategoryMetadataFieldValueResponseDto> fields;
 }

@@ -240,6 +240,20 @@ public class CategoryServiceImpl implements CategoryService{
         return leafCategoryResponseDtoList;
     }
 
+    @Override
+    public List<CategoryNameResponseDto> getSameLevelCategories(UUID categoryId){
+        if(categoryId!=null && !categoryRepository.existsById(categoryId)) throw new ResponseStatusException(HttpStatusCode.valueOf(400),"Category doesn't exists with given Id");
+        List<Category> categoryList = categoryRepository.findByParent_Id(categoryId);
+        List<CategoryNameResponseDto> categoryNameResponseDtoList = new ArrayList<>();
+
+        for (Category category : categoryList){
+            CategoryNameResponseDto categoryNameResponseDto = new CategoryNameResponseDto();
+            BeanUtils.copyProperties(category,categoryNameResponseDto);
+            categoryNameResponseDtoList.add(categoryNameResponseDto);
+        }
+        return categoryNameResponseDtoList;
+    }
+
 
     private Specification<Category> getCategoryFilters(Map<String, Object> filters){
         return (root, query, criteriaBuilder) -> {

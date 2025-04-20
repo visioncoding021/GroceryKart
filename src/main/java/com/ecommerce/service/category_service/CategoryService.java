@@ -1,6 +1,7 @@
 package com.ecommerce.service.category_service;
 
 import com.ecommerce.dto.request_dto.category_dto.MetaDataValuesRequestDto;
+import com.ecommerce.dto.response_dto.category_dto.CategoryNameResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.LeafCategoryResponseDto;
 import org.apache.coyote.BadRequestException;
@@ -24,5 +25,7 @@ public interface CategoryService {
     public String updateMetadataFieldValues(UUID categoryId, List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException;
 
     public List<LeafCategoryResponseDto> getAllLeafCategories();
+
+    public List<CategoryNameResponseDto> getSameLevelCategories(UUID categoryId);
 
 }

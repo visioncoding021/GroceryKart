@@ -11,7 +11,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChildrenCategoryDto {
+public class CategoryNameResponseDto {
     private UUID id;
     private String name;
 }

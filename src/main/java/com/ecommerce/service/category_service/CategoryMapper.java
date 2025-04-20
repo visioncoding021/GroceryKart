@@ -12,16 +12,16 @@ import java.util.List;
 @Component
 public class CategoryMapper {
 
-    public ParentCategoryDto mapParentHierarchyAndMetadataFieldValues(Category parent, CategoryResponseDto categoryResponseDto) {
-        ParentCategoryDto root = null;
-        ParentCategoryDto currentDto = null;
+    public ParentCategoryResponseDto mapParentHierarchyAndMetadataFieldValues(Category parent, CategoryResponseDto categoryResponseDto) {
+        ParentCategoryResponseDto root = null;
+        ParentCategoryResponseDto currentDto = null;
 
         if(categoryResponseDto.getFields()==null){
             categoryResponseDto.setFields(new ArrayList<>());
         }
 
         while (parent != null) {
-            ParentCategoryDto temp = new ParentCategoryDto();
+            ParentCategoryResponseDto temp = new ParentCategoryResponseDto();
             BeanUtils.copyProperties(parent, temp);
 
             List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = mapFields(parent);
@@ -49,12 +49,12 @@ public class CategoryMapper {
 
 
 
-    public List<ChildrenCategoryDto> mapChildren(Category category) {
-        List<ChildrenCategoryDto> children = new ArrayList<>();
+    public List<ChildrenCategoryResponseDto> mapChildren(Category category) {
+        List<ChildrenCategoryResponseDto> children = new ArrayList<>();
 
         if (category.getSubCategories() != null) {
             for (Category subCategory : category.getSubCategories()) {
-                ChildrenCategoryDto dto = new ChildrenCategoryDto();
+                ChildrenCategoryResponseDto dto = new ChildrenCategoryResponseDto();
                 BeanUtils.copyProperties(subCategory, dto);
                 children.add(dto);
             }
@@ -76,16 +76,16 @@ public class CategoryMapper {
         return fields;
     }
 
-    public ParentCategoryDto mapParentHierarchyAndMetadataFieldValuesForLeaf(Category parent, LeafCategoryResponseDto categoryResponseDto) {
-        ParentCategoryDto root = null;
-        ParentCategoryDto currentDto = null;
+    public ParentCategoryResponseDto mapParentHierarchyAndMetadataFieldValuesForLeaf(Category parent, LeafCategoryResponseDto categoryResponseDto) {
+        ParentCategoryResponseDto root = null;
+        ParentCategoryResponseDto currentDto = null;
 
         if(categoryResponseDto.getFields()==null){
             categoryResponseDto.setFields(new ArrayList<>());
         }
 
         while (parent != null) {
-            ParentCategoryDto temp = new ParentCategoryDto();
+            ParentCategoryResponseDto temp = new ParentCategoryResponseDto();
             BeanUtils.copyProperties(parent, temp);
 
             List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = mapFields(parent);

@@ -29,4 +29,6 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
 
     @Query("SELECT c FROM Category c WHERE c.id NOT IN (SELECT sc.parent.id FROM Category sc WHERE sc.parent IS NOT NULL)")
     List<Category> findLeafCategories();
+
+    List<Category> findByParent_Id(UUID parent);
 }
