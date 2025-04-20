@@ -63,7 +63,7 @@ public class CategoryController {
         return ResponseEntity.ok().body(new ApiResponseDto<>(
                 HttpStatus.OK.value(),
                 "Categories List",
-                categoryService.getAllParentCategory(max,offset,sort,order,filters)
+                categoryService.getAllCategories(max,offset,sort,order,filters)
         ));
     }
 

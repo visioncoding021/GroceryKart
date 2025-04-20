@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,4 +26,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     @Modifying
     @Query("UPDATE Category c SET c.name = :name WHERE c.id = :id")
     void updateCategoryName(@Param("name") String name, @Param("id") UUID id);
+
+    @Query("SELECT c FROM Category c WHERE c.id NOT IN (SELECT sc.parent.id FROM Category sc WHERE sc.parent IS NOT NULL)")
+    List<Category> findLeafCategories();
 }

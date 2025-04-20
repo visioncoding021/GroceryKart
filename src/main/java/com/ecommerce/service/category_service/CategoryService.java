@@ -2,6 +2,7 @@ package com.ecommerce.service.category_service;
 
 import com.ecommerce.dto.request_dto.category_dto.MetaDataValuesRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
+import com.ecommerce.dto.response_dto.category_dto.LeafCategoryResponseDto;
 import org.apache.coyote.BadRequestException;
 
 import java.util.List;
@@ -14,12 +15,14 @@ public interface CategoryService {
 
     public CategoryResponseDto getCategoryById(UUID id);
 
-    public List<CategoryResponseDto> getAllParentCategory(int max, int offset, String sort, String order, Map<String,Object> filters);
+    public List<CategoryResponseDto> getAllCategories(int max, int offset, String sort, String order, Map<String,Object> filters);
 
     public String updateCategory(UUID categoryId,String categoryName) throws BadRequestException;
 
     public String addMetadataFieldWithValues(UUID categoryId,List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException;
 
     public String updateMetadataFieldValues(UUID categoryId, List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException;
+
+    public List<LeafCategoryResponseDto> getAllLeafCategories();
 
 }

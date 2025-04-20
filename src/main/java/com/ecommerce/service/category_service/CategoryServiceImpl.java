@@ -99,7 +99,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public List<CategoryResponseDto> getAllParentCategory(int max, int offset, String sort, String order, Map<String,Object> filters){
+    public List<CategoryResponseDto> getAllCategories(int max, int offset, String sort, String order, Map<String,Object> filters){
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
 
@@ -208,7 +208,7 @@ public class CategoryServiceImpl implements CategoryService{
 
             for (String savedValue : alreadySavedValues) {
                 if (!requestValues.contains(savedValue)) {
-                    throw new BadRequestException("Missing previously saved value: " + savedValue);
+                    throw new BadRequestException("Missing previously saved value: " + savedValue + " in "+metadataField.getName()+ " Metadata Field");
                 }
             }
 
@@ -220,6 +220,24 @@ public class CategoryServiceImpl implements CategoryService{
         }
 
         return "Metadata field values updated successfully.";
+    }
+
+    @Override
+    public List<LeafCategoryResponseDto> getAllLeafCategories(){
+        List<Category> categoryList = categoryRepository.findLeafCategories();
+        List<LeafCategoryResponseDto> leafCategoryResponseDtoList = new ArrayList<>();
+
+        for(Category category:categoryList){
+            LeafCategoryResponseDto leafCategoryResponseDto = new LeafCategoryResponseDto();
+            BeanUtils.copyProperties(category,leafCategoryResponseDto);
+            leafCategoryResponseDto.setParent(categoryMapper.mapParentHierarchyAndMetadataFieldValuesForLeaf(category.getParent(),leafCategoryResponseDto));
+            List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = categoryMapper.mapFields(category);
+            List<CategoryMetadataFieldValueResponseDto> currentFields = leafCategoryResponseDto.getFields();
+            if (!fieldsResponseDtos.isEmpty()) currentFields.addAll(fieldsResponseDtos);
+            leafCategoryResponseDto.setFields(currentFields);
+            leafCategoryResponseDtoList.add(leafCategoryResponseDto);
+        }
+        return leafCategoryResponseDtoList;
     }
 
 

@@ -1,9 +1,6 @@
 package com.ecommerce.service.category_service;
 
-import com.ecommerce.dto.response_dto.category_dto.CategoryMetadataFieldValueResponseDto;
-import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
-import com.ecommerce.dto.response_dto.category_dto.ChildrenCategoryDto;
-import com.ecommerce.dto.response_dto.category_dto.ParentCategoryDto;
+import com.ecommerce.dto.response_dto.category_dto.*;
 import com.ecommerce.models.category.Category;
 import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import org.springframework.beans.BeanUtils;
@@ -77,5 +74,40 @@ public class CategoryMapper {
             }
         }
         return fields;
+    }
+
+    public ParentCategoryDto mapParentHierarchyAndMetadataFieldValuesForLeaf(Category parent, LeafCategoryResponseDto categoryResponseDto) {
+        ParentCategoryDto root = null;
+        ParentCategoryDto currentDto = null;
+
+        if(categoryResponseDto.getFields()==null){
+            categoryResponseDto.setFields(new ArrayList<>());
+        }
+
+        while (parent != null) {
+            ParentCategoryDto temp = new ParentCategoryDto();
+            BeanUtils.copyProperties(parent, temp);
+
+            List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = mapFields(parent);
+
+            System.out.println(fieldsResponseDtos.toString());
+
+            if(!fieldsResponseDtos.isEmpty()){
+                List<CategoryMetadataFieldValueResponseDto> currentList = categoryResponseDto.getFields();
+                currentList.addAll(fieldsResponseDtos);
+                categoryResponseDto.setFields(currentList);
+                System.out.println(categoryResponseDto.getFields());
+            }
+
+            if (root == null) {
+                root = temp;
+            } else {
+                currentDto.setParent(temp);
+            }
+
+            currentDto = temp;
+            parent = parent.getParent();
+        }
+        return root;
     }
 }
