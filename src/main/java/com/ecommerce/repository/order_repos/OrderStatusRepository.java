@@ -4,5 +4,7 @@ import com.ecommerce.models.order.OrderStatus;
 import com.ecommerce.models.product.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface OrderStatusRepository extends JpaRepository<OrderStatus, Long> {
+import java.util.UUID;
+
+public interface OrderStatusRepository extends JpaRepository<OrderStatus, UUID> {
 }

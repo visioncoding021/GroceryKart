@@ -31,4 +31,6 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findLeafCategories();
 
     List<Category> findByParent_Id(UUID parent);
+
+    boolean existsByIdAndSubCategoriesIsEmpty(UUID categoryId);
 }

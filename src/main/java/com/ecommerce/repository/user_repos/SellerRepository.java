@@ -4,10 +4,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.awt.print.Pageable;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface SellerRepository extends JpaRepository<Seller, Long> {
+public interface SellerRepository extends JpaRepository<Seller, UUID> {
 
     Optional<Seller> findByEmail(String email);
 

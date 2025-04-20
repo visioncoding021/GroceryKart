@@ -4,5 +4,7 @@ import com.ecommerce.models.product.Product;
 import com.ecommerce.models.product.ProductVariation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProductVariationRepository extends JpaRepository<ProductVariation, Long> {
+import java.util.UUID;
+
+public interface ProductVariationRepository extends JpaRepository<ProductVariation, UUID> {
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface AddressRepository extends JpaRepository<Address, Long> {
+public interface AddressRepository extends JpaRepository<Address, UUID> {
 
     public Optional<Address> findById(UUID id);
     public List<Address> findByUserId(UUID userId);

@@ -90,8 +90,6 @@ public class CategoryMapper {
 
             List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = mapFields(parent);
 
-            System.out.println(fieldsResponseDtos.toString());
-
             if(!fieldsResponseDtos.isEmpty()){
                 List<CategoryMetadataFieldValueResponseDto> currentList = categoryResponseDto.getFields();
                 currentList.addAll(fieldsResponseDtos);
