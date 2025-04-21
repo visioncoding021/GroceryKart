@@ -1,11 +1,14 @@
 package com.ecommerce.controller.seller_controller;
 
 import com.ecommerce.dto.request_dto.product_dto.ProductRequestDto;
+import com.ecommerce.dto.request_dto.product_dto.ProductVariationRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.LeafCategoryResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.service.category_service.CategoryService;
 import com.ecommerce.service.product_service.ProductService;
+import com.ecommerce.service.product_variation_service.ProductVariationService;
+import com.ecommerce.utils.service_utils.ProductUtils;
 import com.ecommerce.utils.user_utils.CurrentUserUtils;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
@@ -15,8 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Currency;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/seller")
@@ -31,13 +36,16 @@ public class SellerController {
     @Autowired
     private CurrentUserUtils currentUserUtils;
 
+    @Autowired
+    private ProductVariationService productVariationService;
+
     @GetMapping("/categories")
     public ApiResponseDto<List<LeafCategoryResponseDto>> getAllLeafCategories(){
         System.out.println(currentUserUtils.getUserId());
         System.out.println(currentUserUtils.getUsername());
         return new ApiResponseDto<>(
                 HttpStatus.OK.value(),
-                "All Leaf Categories are fetched",
+                "All Leaf Categories are fetched Successfully",
                 categoryService.getAllLeafCategories()
         );
     }
@@ -49,6 +57,11 @@ public class SellerController {
         );
     }
 
-
+    @PostMapping("/add-product-variation")
+    public ResponseEntity<?> addProductVariation(@Valid @ModelAttribute ProductVariationRequestDto requestDto) throws IOException {
+        System.out.println(requestDto.toString());
+        Map<String,String> metadata = ProductUtils.parseMetadata(requestDto.getMetadata());
+        return ResponseEntity.ok().body(productVariationService.addProductVariation(currentUserUtils.getUserId(),requestDto,metadata));
+    }
 
 }

@@ -36,15 +36,12 @@ public class UserProfileService {
     @Autowired
     private ImageService imageService;
 
-    @Value("${image.path}")
-    private String imagePath;
-
     public CustomerProfileResponseDto getCustomerProfile(String email) throws FileNotFoundException {
         Customer customer = customerRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Customer not found"));
         CustomerProfileResponseDto customerProfileResponseDto = new CustomerProfileResponseDto();
         BeanUtils.copyProperties(customer, customerProfileResponseDto);
         try{
-            FileInputStream fileInputStream = imageService.getResource(imagePath+"/users", customer.getId());
+            FileInputStream fileInputStream = imageService.getResource("/users", customer.getId());
             ImageResponseDto imageResponseDto = ProfileHelper.getImageUrl(fileInputStream, customer.getId().toString());
             customerProfileResponseDto.setImageUrl(imageResponseDto);
         }catch (FileNotFoundException e){
@@ -59,7 +56,7 @@ public class UserProfileService {
         SellerProfileResponseDto sellerProfileResponseDto = new SellerProfileResponseDto();
         BeanUtils.copyProperties(seller, sellerProfileResponseDto);
         try {
-            FileInputStream fileInputStream = imageService.getResource(imagePath + "/users", seller.getId());
+            FileInputStream fileInputStream = imageService.getResource( "/users", seller.getId());
             ImageResponseDto imageResponseDto = ProfileHelper.getImageUrl(fileInputStream, seller.getId().toString());
             sellerProfileResponseDto.setImageUrl(imageResponseDto);
         }catch (FileNotFoundException e){

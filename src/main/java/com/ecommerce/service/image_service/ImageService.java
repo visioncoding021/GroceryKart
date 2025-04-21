@@ -16,4 +16,10 @@ public interface ImageService {
     public void deleteImage(String path, UUID id) throws FileNotFoundException ;
 
     public FileInputStream getResource(String path, UUID id) throws FileNotFoundException ;
+
+    public String uploadMultipleImages(String path, UUID id, List<MultipartFile> files) throws IOException ;
+
+    public List<String> getAllImages(String path, UUID id) throws FileNotFoundException ;
+
+    public String getPrimaryImage(String path, UUID id) throws FileNotFoundException ;
 }

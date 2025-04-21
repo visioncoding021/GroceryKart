@@ -48,6 +48,6 @@ public class ProductServiceImpl implements ProductService{
         product.setIsActive(false);
         productRepository.save(product);
 
-        return "Product added successfully";
+        return "Product added successfully and Product ID is "+product.getId();
     }
 }

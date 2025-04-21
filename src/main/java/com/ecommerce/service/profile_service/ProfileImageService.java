@@ -17,22 +17,19 @@ public class ProfileImageService {
     @Autowired
     private ImageService imageService;
 
-    @Value("${image.path}")
-    private String imagePath;
-
     @Autowired
     private UserRepository userRepository;
 
     public String uploadProfileImage(String email, MultipartFile file) throws IOException {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
-        String fullPath = imagePath + "/users";
+        String fullPath = "/users";
         imageService.uploadImage(fullPath, user.getId(), file);
         return "Profile image uploaded successfully";
     }
 
     public String deleteProfileImage(String email) throws FileNotFoundException {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
-        String fullPath = imagePath + "/users";
+        String fullPath =  "/users";
         imageService.deleteImage(fullPath, user.getId());
         return "Profile image deleted successfully";
     }

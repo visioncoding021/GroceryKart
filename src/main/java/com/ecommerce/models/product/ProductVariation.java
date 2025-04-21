@@ -47,5 +47,4 @@ public class ProductVariation extends AuditDetails {
     @OneToMany(mappedBy = "productVariation")
     @JsonIgnore
     private Set<OrderProduct> orderProduct;
-
 }
