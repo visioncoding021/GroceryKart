@@ -30,7 +30,6 @@ public class ProductVariationServiceImpl implements ProductVariationService{
     @Autowired
     private ImageService imageService;
 
-
     @Value("${base.path}")
     private String basePath;
 
@@ -39,22 +38,25 @@ public class ProductVariationServiceImpl implements ProductVariationService{
     public String addProductVariation(UUID sellerId, ProductVariationRequestDto productVariationRequestDto , Map<String,String> metadata) throws IOException {
 
         Product product = productVariationValidation.getProductById(productVariationRequestDto.getProductId());
+
         Category category = product.getCategory();
         if(category==null) throw new BadRequestException("Product doesn't have category. So variation can't be added");
-        List<CategoryMetadataFieldValues> categoryMetadataFieldValues = category.getCategoryMetadataFieldValues();
+        List<CategoryMetadataFieldValues> categoryMetadataFieldValues = ProductVariationHelper.getMetadataFieldValues(category);
 
         productVariationValidation.isMetadataValidForProductVariation(metadata, categoryMetadataFieldValues);
 
         if(product.getProductVariations()!=null && !product.getProductVariations().isEmpty()){
+            System.out.println(product.getProductVariations().get(0).getMetadata().keySet().toString());
             productVariationValidation.isStructureSameForAllVariations(product.getProductVariations().get(0).getMetadata().keySet(),metadata.keySet());
         }
 
+        UUID generatedUuid = UUID.randomUUID();
+
         ProductVariation productVariation = new ProductVariation();
+        productVariation.setId(generatedUuid);
         BeanUtils.copyProperties(productVariationRequestDto,productVariation);
         productVariation.setProduct(product);
-        productVariation = productVariationRepository.save(productVariation);
 
-        // For product variations, <BASE_PATH>/products/<product_id>/variations/<variation_id>.extention
         String path = "/products/" + product.getId() + "/variations" ;
 
         List<MultipartFile> allImages = new ArrayList<>();
@@ -62,8 +64,10 @@ public class ProductVariationServiceImpl implements ProductVariationService{
         allImages.addAll(Arrays.stream(productVariationRequestDto.getSecondaryImages()).toList());
         imageService.uploadMultipleImages(path,productVariation.getId(),allImages);
 
+        System.out.println(basePath+path+"/"+productVariation.getId());
+        productVariation.setPrimaryImageUrl(basePath+path+"/"+productVariation.getId());
 
-        productVariation.setPrimaryImageUrl(basePath+imageService.getPrimaryImage(path,productVariation.getId()));
+        productVariationRepository.save(productVariation);
 
         return "Product variation added successfully";
     }

@@ -55,11 +55,14 @@ public class AdminAndRoleCreation {
                 admin.setRole(role);
 
                 Token token = new Token();
+                tokenRepository.save(token);
+
                 token.setUser(admin);
                 admin.setToken(token);
 
                 admin.setIsActive(true);
                 userRepository.save(admin);
+
                 System.out.println("Admin created successfully");
             }
         };

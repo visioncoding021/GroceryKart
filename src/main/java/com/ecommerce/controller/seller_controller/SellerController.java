@@ -61,7 +61,11 @@ public class SellerController {
     public ResponseEntity<?> addProductVariation(@Valid @ModelAttribute ProductVariationRequestDto requestDto) throws IOException {
         System.out.println(requestDto.toString());
         Map<String,String> metadata = ProductUtils.parseMetadata(requestDto.getMetadata());
-        return ResponseEntity.ok().body(productVariationService.addProductVariation(currentUserUtils.getUserId(),requestDto,metadata));
+        MessageResponseDto messageResponseDto = new MessageResponseDto(
+                HttpStatus.OK.value(),
+                productVariationService.addProductVariation(currentUserUtils.getUserId(),requestDto,metadata)
+        );
+        return ResponseEntity.ok().body(messageResponseDto);
     }
 
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Collections;
 
 @RestControllerAdvice
-public class UserExceptionHandling {
+public class UserExceptionHandler {
 
     @ExceptionHandler(UserAlreadyRegistered.class)
     public ResponseEntity<ErrorResponseDto> handleUserAlreadyRegistered(UserAlreadyRegistered exception) {

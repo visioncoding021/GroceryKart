@@ -89,16 +89,16 @@ public class ImageServiceImpl implements ImageService{
             if (i == 0) {
                 fileName = id + extension;
             } else {
-                // Secondary images
                 fileName = id + "_" + UUID.randomUUID() + extension;
             }
 
-            String filePath = path + File.separator + fileName;
+            String filePath = imageUploadPath + path + File.separator + fileName;
 
             File destination = new File(filePath);
             if (destination.exists()) destination.delete();
 
             Files.copy(file.getInputStream(), Paths.get(filePath));
+
         }
 
         return "Images uploaded successfully";
@@ -121,7 +121,7 @@ public class ImageServiceImpl implements ImageService{
 
         List<String> imagePaths = new ArrayList<>();
         for (File file : matchingFiles) {
-            imagePaths.add(file.getAbsolutePath());
+            imagePaths.add(file.getPath());
         }
 
         return imagePaths;

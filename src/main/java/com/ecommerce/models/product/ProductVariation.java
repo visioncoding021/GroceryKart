@@ -24,10 +24,10 @@ import java.util.UUID;
 public class ProductVariation extends AuditDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
@@ -40,7 +40,7 @@ public class ProductVariation extends AuditDetails {
     @Column(nullable = false)
     private String primaryImageUrl;
 
-    @Column(columnDefinition = "JSON")
+    @Column(columnDefinition = "JSON",nullable = false)
     @Convert(converter = JsonConverter.class)
     private Map<String, String> metadata;
 

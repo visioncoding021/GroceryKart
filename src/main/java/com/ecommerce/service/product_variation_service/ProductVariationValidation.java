@@ -49,6 +49,7 @@ public class ProductVariationValidation {
         for (String currentKey : currentProductVariationKeySet) {
             boolean isKeyPresent = false;
             for (String previousKey : previousProductVariationKeySet) {
+                System.out.println("Previous Key: " + previousKey);
                 if (currentKey.equalsIgnoreCase(previousKey)) {
                     isKeyPresent = true;
                     break;
