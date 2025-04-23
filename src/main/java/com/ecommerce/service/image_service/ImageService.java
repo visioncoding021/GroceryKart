@@ -21,5 +21,4 @@ public interface ImageService {
 
     public List<String> getAllImages(String path, UUID id) throws FileNotFoundException ;
 
-    public String getPrimaryImage(String path, UUID id) throws FileNotFoundException ;
 }

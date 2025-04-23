@@ -14,11 +14,15 @@ import com.ecommerce.repository.category_repos.CategoryRepository;
 import com.ecommerce.repository.product_repos.ProductRepository;
 import com.ecommerce.repository.user_repos.SellerRepository;
 import com.ecommerce.service.category_service.CategoryMapper;
+import com.ecommerce.service.image_service.ImageService;
 import com.ecommerce.utils.service_utils.ProductUtils;
+import com.ecommerce.utils.service_utils.ProductVariationUtils;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +50,12 @@ public class ProductServiceImpl implements ProductService{
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    private ImageService imageService;
+
+    @Value("${base.path}")
+    private String basePath;
 
     @Override
     public String addProduct(ProductRequestDto productRequestDto, UUID sellerId) throws BadRequestException {
@@ -72,7 +83,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductResponseDto getProductDetailsById(UUID productId, UUID sellerId) throws BadRequestException {
+    public ProductResponseDto getProductDetailsById(UUID productId, UUID sellerId) throws BadRequestException, FileNotFoundException {
         Product product = productRepository.findByIdAndSellerId(productId,sellerId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
         ProductResponseDto productResponseDto = new ProductResponseDto();
         BeanUtils.copyProperties(product,productResponseDto);
@@ -85,7 +96,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public PaginatedResponseDto<List<ProductResponseDto>> getAllProductsBySellerId(UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException {
+    public PaginatedResponseDto<List<ProductResponseDto>> getAllProductsBySellerId(UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException, FileNotFoundException {
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
 
@@ -103,6 +114,25 @@ public class ProductServiceImpl implements ProductService{
         return ProductUtils.getProductPaginatedResponse(productResponseDtos,products);
     }
 
+    @Override
+    @Transactional
+    public String updateProduct(ProductRequestDto productRequestDto, UUID productId, UUID sellerId) throws BadRequestException {
+        String name = productRequestDto.getName().trim();
+        String brand = productRequestDto.getBrand();
+        UUID categoryId = productRequestDto.getCategoryId();
+
+        Product product = productRepository.findByIdAndSellerId(productId,sellerId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
+
+        if(productRepository.existsByNameIgnoreCaseAndBrandAndCategoryIdAndSellerId(name,brand,categoryId,sellerId))
+            throw new BadRequestException("Can't Update product as it's already exists with same name");
+
+        BeanUtils.copyProperties(productRequestDto,product);
+        product.setIsActive(false);
+
+        productRepository.save(product);
+        return "Product updated successfully";
+    }
+
     private LeafCategoryResponseDto getCategoryResponse(Category category){
         LeafCategoryResponseDto categoryResponseDto = new LeafCategoryResponseDto();
         BeanUtils.copyProperties(category,categoryResponseDto);
@@ -114,13 +144,16 @@ public class ProductServiceImpl implements ProductService{
         return categoryResponseDto;
     }
 
-    private List<ProductVariationResponseDto> getProductVariationResponseDtos(Product product){
+    private List<ProductVariationResponseDto> getProductVariationResponseDtos(Product product) throws FileNotFoundException {
         List<ProductVariationResponseDto> productVariationResponseDtos = new ArrayList<>();
         for(ProductVariation productVariation : product.getProductVariations()){
             ProductVariationResponseDto productVariationResponseDto = new ProductVariationResponseDto();
             BeanUtils.copyProperties(productVariation,productVariationResponseDto);
             productVariationResponseDtos.add(productVariationResponseDto);
             productVariationResponseDto.setProductId(product.getId());
+            String path = "/products/" + product.getId() + "/variations" ;
+            List<String> allImages = ProductVariationUtils.getSecondaryImageUrls(basePath+path,imageService.getAllImages(path,productVariation.getId()));
+            productVariationResponseDto.setSecondaryImages(allImages);
         }
         return productVariationResponseDtos;
     }

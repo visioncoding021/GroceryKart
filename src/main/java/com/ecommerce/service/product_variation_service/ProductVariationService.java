@@ -5,6 +5,7 @@ import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.product_variation_dto.ProductVariationResponseDto;
 import org.apache.coyote.BadRequestException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ public interface ProductVariationService {
 
     public String addProductVariation(UUID sellerId, ProductVariationRequestDto productVariationRequestDto, Map<String, String> metadata) throws IOException;
 
-    ProductVariationResponseDto getProductVariationById(UUID productVariationId, UUID sellerId) throws BadRequestException;
+    ProductVariationResponseDto getProductVariationById(UUID productVariationId, UUID sellerId) throws BadRequestException, FileNotFoundException;
 
-    PaginatedResponseDto<List<ProductVariationResponseDto>> getAllProductVariationByProductId(UUID productId, UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException;
+    PaginatedResponseDto<List<ProductVariationResponseDto>> getAllProductVariationByProductId(UUID productId, UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException, FileNotFoundException;
 }

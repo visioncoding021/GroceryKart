@@ -18,9 +18,9 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -58,6 +58,15 @@ public class SellerController {
         );
     }
 
+    @PutMapping("/products/{productId}")
+    public ResponseEntity<MessageResponseDto> updateProduct(@PathVariable UUID productId, @RequestBody ProductRequestDto productRequestDto) throws BadRequestException {
+        MessageResponseDto messageResponseDto = new MessageResponseDto(
+                HttpStatus.OK.value(),
+                productService.updateProduct(productRequestDto,productId,currentUserUtils.getUserId())
+        );
+        return ResponseEntity.ok().body(messageResponseDto);
+    }
+
     @PostMapping("/add-product-variation")
     public ResponseEntity<?> addProductVariation(@Valid @ModelAttribute ProductVariationRequestDto requestDto) throws IOException {
         System.out.println(requestDto.toString());
@@ -70,14 +79,14 @@ public class SellerController {
     }
 
     @GetMapping("/products/{productId}")
-    public ResponseEntity<?> getProduct(@PathVariable UUID productId) throws BadRequestException {
+    public ResponseEntity<?> getProduct(@PathVariable UUID productId) throws BadRequestException, FileNotFoundException {
         return ResponseEntity.ok().body(
                 productService.getProductDetailsById(productId,currentUserUtils.getUserId())
         );
     }
 
     @GetMapping("/products/variations/{productVariationId}")
-    public ResponseEntity<?> getProductVariation(@PathVariable UUID productVariationId) throws BadRequestException {
+    public ResponseEntity<?> getProductVariation(@PathVariable UUID productVariationId) throws BadRequestException, FileNotFoundException {
         return ResponseEntity.ok().body(
                 productVariationService.getProductVariationById(productVariationId,currentUserUtils.getUserId())
         );
@@ -90,7 +99,7 @@ public class SellerController {
             @RequestParam(value = "sort", defaultValue = "id") String sort,
             @RequestParam(value = "order", defaultValue = "asc") String order,
             @RequestParam(value = "query", defaultValue = "") String query
-    ) throws BadRequestException {
+    ) throws BadRequestException, FileNotFoundException {
         final Set<String> VALID_SORT_FIELDS = Set.of("name", "id", "parentId");
         Map<String,String> errors = ProductUtils.validateProductRequestParams(order,max,offset);
         if (!VALID_SORT_FIELDS.contains(sort)) {
@@ -118,7 +127,7 @@ public class SellerController {
             @RequestParam(value = "sort", defaultValue = "id") String sort,
             @RequestParam(value = "order", defaultValue = "asc") String order,
             @RequestParam(value = "query", defaultValue = "") String query
-    ) throws BadRequestException {
+    ) throws BadRequestException, FileNotFoundException {
         final Set<String> VALID_SORT_FIELDS = Set.of("name", "id", "parentId");
         Map<String,String> errors = ProductUtils.validateProductRequestParams(order,max,offset);
         if (!VALID_SORT_FIELDS.contains(sort)) {

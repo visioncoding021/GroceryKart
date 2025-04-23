@@ -9,6 +9,7 @@ import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Seller;
 import com.ecommerce.models.user.User;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,9 +17,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public final class UserUtils {
+
+    @Value("${base.path}")
+    private String basePath;
 
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -95,6 +100,10 @@ public final class UserUtils {
                 sellers.getSize(),
                 sellers.getNumber()
         );
+    }
+
+    public String getPathOfImage(UUID userId) {
+        return basePath + "users/" + userId;
     }
 
 }

@@ -7,6 +7,7 @@ import com.ecommerce.models.product.Product;
 import com.ecommerce.models.product.ProductVariation;
 import jakarta.persistence.criteria.Predicate;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,11 @@ import java.util.*;
 
 @Component
 public class ProductVariationUtils {
+
+    @Value("${base.path}")
+    private String basePath;
+
+
     public static Map<String, String> parseMetadata(String metadataJson) {
         Map<String, String> metadataMap = new HashMap<>();
 
@@ -118,5 +124,14 @@ public class ProductVariationUtils {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    public static List<String> getSecondaryImageUrls(String fullpath, List<String> filenames) {
+        List<String> secondaryImageUrls = new ArrayList<>();
+        for (String filename : filenames) {
+            String secondaryImageUrl = fullpath + "/" + filename;
+            secondaryImageUrls.add(secondaryImageUrl);
+        }
+        return secondaryImageUrls;
     }
 }

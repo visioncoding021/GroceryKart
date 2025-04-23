@@ -41,6 +41,11 @@ public class ValidationExceptionHandler {
         return buildErrorResponse(ex.getMessage(),ex.getMessage(),HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorResponseDto> handleNullPointerException(NullPointerException ex){
+        return buildErrorResponse("Null Pointer Exception",ex.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<ErrorResponseDto> buildErrorResponse( String message, String errorDetail, HttpStatus status) {
         ErrorResponseDto response = new ErrorResponseDto(status.value(),message, Collections.singletonList(errorDetail));
         return ResponseEntity.status(status).body(response);

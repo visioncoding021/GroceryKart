@@ -119,17 +119,12 @@ public class ImageServiceImpl implements ImageService{
             throw new FileNotFoundException("No image found for variation ID: " + id);
         }
 
-        List<String> imagePaths = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
         for (File file : matchingFiles) {
-            imagePaths.add(file.getPath());
+            fileNames.add(file.getName());;
         }
 
-        return imagePaths;
-    }
-
-    public String getPrimaryImage(String path, UUID id) throws FileNotFoundException {
-        List<String> allImages = getAllImages(path, id);
-        return allImages.get(0);
+        return fileNames;
     }
 
     private void fileValidations(MultipartFile file) throws IOException {

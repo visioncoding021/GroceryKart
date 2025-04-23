@@ -24,6 +24,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -83,7 +84,7 @@ public class ProductVariationServiceImpl implements ProductVariationService{
     }
 
     @Override
-    public ProductVariationResponseDto getProductVariationById(UUID productVariationId, UUID sellerId) throws BadRequestException {
+    public ProductVariationResponseDto getProductVariationById(UUID productVariationId, UUID sellerId) throws BadRequestException, FileNotFoundException {
         ProductVariation productVariation = productVariationRepository.findById(productVariationId)
                 .orElseThrow(() -> new BadRequestException("Product variation not found with ID: " + productVariationId));
 
@@ -98,12 +99,17 @@ public class ProductVariationServiceImpl implements ProductVariationService{
         BeanUtils.copyProperties(product,productResponseDto);
         productVariationResponseDto.setProduct(productResponseDto);
 
+        String path = "/products/" + product.getId() + "/variations" ;
+        List<String> allImages = ProductVariationUtils.getSecondaryImageUrls(basePath+path,imageService.getAllImages(path,productVariation.getId()));
+        productVariationResponseDto.setSecondaryImages(allImages);
+
+
         return productVariationResponseDto;
     }
 
 
     @Override
-    public PaginatedResponseDto<List<ProductVariationResponseDto>> getAllProductVariationByProductId(UUID productId, UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException {
+    public PaginatedResponseDto<List<ProductVariationResponseDto>> getAllProductVariationByProductId(UUID productId, UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException, FileNotFoundException {
         Product product = productVariationValidation.getProductById(productId);
         if(!product.getSeller().getId().equals(sellerId))
             throw new BadRequestException("Product not found with ID: " + productId);
@@ -122,6 +128,9 @@ public class ProductVariationServiceImpl implements ProductVariationService{
             BeanUtils.copyProperties(product,productResponseDto);
             productVariationResponseDto.setProduct(productResponseDto);
             productVariationResponseDtos.add(productVariationResponseDto);
+            String path = "/products/" + product.getId() + "/variations" ;
+            List<String> allImages = ProductVariationUtils.getSecondaryImageUrls(basePath+path,imageService.getAllImages(path,productVariation.getId()));
+            productVariationResponseDto.setSecondaryImages(allImages);
         }
 
         return ProductVariationUtils.getProductVariationPaginatedResponse(productVariationResponseDtos,productVariations);
