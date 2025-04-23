@@ -1,6 +1,8 @@
 package com.ecommerce.service.product_variation_service;
 
 import com.ecommerce.dto.request_dto.product_dto.ProductVariationRequestDto;
+import com.ecommerce.dto.response_dto.product_dto.ProductResponseDto;
+import com.ecommerce.dto.response_dto.product_dto.ProductVariationResponseDto;
 import com.ecommerce.models.category.Category;
 import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import com.ecommerce.models.product.Product;
@@ -55,6 +57,7 @@ public class ProductVariationServiceImpl implements ProductVariationService{
         ProductVariation productVariation = new ProductVariation();
         productVariation.setId(generatedUuid);
         BeanUtils.copyProperties(productVariationRequestDto,productVariation);
+        productVariation.setMetadata(metadata);
         productVariation.setProduct(product);
 
         String path = "/products/" + product.getId() + "/variations" ;
@@ -65,12 +68,14 @@ public class ProductVariationServiceImpl implements ProductVariationService{
         imageService.uploadMultipleImages(path,productVariation.getId(),allImages);
 
         System.out.println(basePath+path+"/"+productVariation.getId());
-        productVariation.setPrimaryImageUrl(basePath+path+"/"+productVariation.getId());
+        productVariation.setPrimaryImageUrl(basePath+path+"/"+productVariation.getId()+".png");
 
         productVariationRepository.save(productVariation);
 
         return "Product variation added successfully";
     }
+
+
 
 
 }

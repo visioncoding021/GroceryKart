@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Converter(autoApply = true) // Auto-applies this converter to all JSON fields
-public class JsonConverter implements AttributeConverter<Map<String, Object>, String> {
+public class JsonConverter implements AttributeConverter<Map<String, String>, String> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // Convert Map to JSON String before storing in MySQL
     @Override
-    public String convertToDatabaseColumn(Map<String, Object> attribute) {
+    public String convertToDatabaseColumn(Map<String, String> attribute) {
         if (attribute == null) {
             return null;
         }
@@ -28,7 +28,7 @@ public class JsonConverter implements AttributeConverter<Map<String, Object>, St
 
     // Convert JSON String from MySQL to Map
     @Override
-    public Map<String, Object> convertToEntityAttribute(String dbData) {
+        public Map<String, String> convertToEntityAttribute(String dbData) {
         if (dbData == null || dbData.isEmpty()) {
             return new HashMap<>();
         }

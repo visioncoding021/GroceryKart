@@ -46,6 +46,7 @@ public class ProductVariationValidation {
     }
 
     public void isStructureSameForAllVariations(Set<String> previousProductVariationKeySet, Set<String> currentProductVariationKeySet) throws BadRequestException {
+        if(previousProductVariationKeySet.size()!=currentProductVariationKeySet.size()) throw new BadRequestException("Product variation can't be added as structure is not same for all variations");
         for (String currentKey : currentProductVariationKeySet) {
             boolean isKeyPresent = false;
             for (String previousKey : previousProductVariationKeySet) {

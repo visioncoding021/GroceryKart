@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/seller")
@@ -66,6 +67,13 @@ public class SellerController {
                 productVariationService.addProductVariation(currentUserUtils.getUserId(),requestDto,metadata)
         );
         return ResponseEntity.ok().body(messageResponseDto);
+    }
+
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<?> getProduct(@PathVariable UUID productId) throws BadRequestException {
+        return ResponseEntity.ok().body(
+                productService.getProductDetailsById(productId)
+        );
     }
 
 }

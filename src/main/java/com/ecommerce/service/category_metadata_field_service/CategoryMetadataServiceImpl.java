@@ -24,7 +24,7 @@ public class CategoryMetadataServiceImpl implements CategoryMetadataService{
     @Override
     public CategoryMetadataFieldResponseDto createField(CategoryMetadataFieldRequestDto categoryMetadataFieldRequestDto) {
         if (categoryMetadataFieldRepository.existsByNameIgnoreCase(categoryMetadataFieldRequestDto.getName().trim())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Field name already exists");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Metadata field name already exists with name +" + categoryMetadataFieldRequestDto.getName());
         }
 
         CategoryMetadataField field = new CategoryMetadataField();
