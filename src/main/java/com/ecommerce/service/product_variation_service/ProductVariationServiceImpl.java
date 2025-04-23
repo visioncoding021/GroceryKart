@@ -1,8 +1,8 @@
 package com.ecommerce.service.product_variation_service;
 
 import com.ecommerce.dto.request_dto.product_dto.ProductVariationRequestDto;
-import com.ecommerce.dto.response_dto.product_dto.ProductResponseDto;
-import com.ecommerce.dto.response_dto.product_dto.ProductVariationResponseDto;
+import com.ecommerce.dto.response_dto.product_variation_dto.ProductResponseDto;
+import com.ecommerce.dto.response_dto.product_variation_dto.ProductVariationResponseDto;
 import com.ecommerce.models.category.Category;
 import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import com.ecommerce.models.product.Product;
@@ -75,7 +75,24 @@ public class ProductVariationServiceImpl implements ProductVariationService{
         return "Product variation added successfully";
     }
 
+    @Override
+    public ProductVariationResponseDto getProductVariationById(UUID productVariationId, UUID sellerId) throws BadRequestException {
+        ProductVariation productVariation = productVariationRepository.findById(productVariationId)
+                .orElseThrow(() -> new BadRequestException("Product variation not found with ID: " + productVariationId));
 
+        if(!productVariation.getProduct().getSeller().getId().equals(sellerId))
+            throw new BadRequestException("Product variation not found with ID: " + productVariationId);
+
+        ProductVariationResponseDto productVariationResponseDto = new ProductVariationResponseDto();
+        BeanUtils.copyProperties(productVariation,productVariationResponseDto);
+
+        Product product = productVariation.getProduct();
+        ProductResponseDto productResponseDto = new ProductResponseDto();
+        BeanUtils.copyProperties(product,productResponseDto);
+        productVariationResponseDto.setProduct(productResponseDto);
+
+        return productVariationResponseDto;
+    }
 
 
 }

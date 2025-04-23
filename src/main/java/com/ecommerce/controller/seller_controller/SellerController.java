@@ -72,7 +72,14 @@ public class SellerController {
     @GetMapping("/products/{productId}")
     public ResponseEntity<?> getProduct(@PathVariable UUID productId) throws BadRequestException {
         return ResponseEntity.ok().body(
-                productService.getProductDetailsById(productId)
+                productService.getProductDetailsById(productId,currentUserUtils.getUserId())
+        );
+    }
+
+    @GetMapping("/products/variations/{productVariationId}")
+    public ResponseEntity<?> getProductVariation(@PathVariable UUID productVariationId) throws BadRequestException {
+        return ResponseEntity.ok().body(
+                productVariationService.getProductVariationById(productVariationId,currentUserUtils.getUserId())
         );
     }
 

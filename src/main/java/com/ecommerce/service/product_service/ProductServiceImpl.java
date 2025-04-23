@@ -2,7 +2,6 @@ package com.ecommerce.service.product_service;
 
 import com.ecommerce.dto.request_dto.product_dto.ProductRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryMetadataFieldValueResponseDto;
-import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.LeafCategoryResponseDto;
 import com.ecommerce.dto.response_dto.product_dto.ProductResponseDto;
 import com.ecommerce.dto.response_dto.product_dto.ProductVariationResponseDto;
@@ -64,8 +63,8 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductResponseDto getProductDetailsById(UUID productId) throws BadRequestException {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
+    public ProductResponseDto getProductDetailsById(UUID productId, UUID sellerId) throws BadRequestException {
+        Product product = productRepository.findByIdAndSellerId(productId,sellerId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
         ProductResponseDto productResponseDto = new ProductResponseDto();
         BeanUtils.copyProperties(product,productResponseDto);
 

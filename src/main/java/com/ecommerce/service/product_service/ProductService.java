@@ -8,5 +8,6 @@ import java.util.UUID;
 
 public interface ProductService {
     public String addProduct(ProductRequestDto productRequestDto, UUID sellerId) throws BadRequestException;
-    public ProductResponseDto getProductDetailsById(UUID productId) throws BadRequestException;
+
+    public ProductResponseDto getProductDetailsById(UUID productId, UUID sellerId) throws BadRequestException;
 }

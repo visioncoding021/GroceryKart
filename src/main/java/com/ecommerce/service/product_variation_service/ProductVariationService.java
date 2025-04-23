@@ -1,6 +1,7 @@
 package com.ecommerce.service.product_variation_service;
 
 import com.ecommerce.dto.request_dto.product_dto.ProductVariationRequestDto;
+import com.ecommerce.dto.response_dto.product_variation_dto.ProductVariationResponseDto;
 import org.apache.coyote.BadRequestException;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 public interface ProductVariationService {
 
-    public String addProductVariation(UUID sellerId, ProductVariationRequestDto productVariationRequestDto, Map<String,String> metadata) throws IOException;
+    public String addProductVariation(UUID sellerId, ProductVariationRequestDto productVariationRequestDto, Map<String, String> metadata) throws IOException;
 
+    ProductVariationResponseDto getProductVariationById(UUID productVariationId, UUID sellerId) throws BadRequestException;
 }
