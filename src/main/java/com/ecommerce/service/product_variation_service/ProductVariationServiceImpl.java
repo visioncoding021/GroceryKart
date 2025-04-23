@@ -1,6 +1,7 @@
 package com.ecommerce.service.product_variation_service;
 
 import com.ecommerce.dto.request_dto.product_dto.ProductVariationRequestDto;
+import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.product_variation_dto.ProductResponseDto;
 import com.ecommerce.dto.response_dto.product_variation_dto.ProductVariationResponseDto;
 import com.ecommerce.models.category.Category;
@@ -9,11 +10,17 @@ import com.ecommerce.models.product.Product;
 import com.ecommerce.models.product.ProductVariation;
 import com.ecommerce.repository.product_repos.ProductVariationRepository;
 import com.ecommerce.service.image_service.ImageService;
+import com.ecommerce.utils.service_utils.ProductVariationUtils;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -94,5 +101,30 @@ public class ProductVariationServiceImpl implements ProductVariationService{
         return productVariationResponseDto;
     }
 
+
+    @Override
+    public PaginatedResponseDto<List<ProductVariationResponseDto>> getAllProductVariationByProductId(UUID productId, UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException {
+        Product product = productVariationValidation.getProductById(productId);
+        if(!product.getSeller().getId().equals(sellerId))
+            throw new BadRequestException("Product not found with ID: " + productId);
+
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
+
+        Specification<ProductVariation> specification = ProductVariationUtils.getProductVariationFilters(filters,productId);
+        Page<ProductVariation> productVariations = productVariationRepository.findAll(specification,pageable);
+
+        List<ProductVariationResponseDto> productVariationResponseDtos = new ArrayList<>();
+        for(ProductVariation productVariation : productVariations.getContent()){
+            ProductVariationResponseDto productVariationResponseDto = new ProductVariationResponseDto();
+            BeanUtils.copyProperties(productVariation,productVariationResponseDto);
+            ProductResponseDto productResponseDto = new ProductResponseDto();
+            BeanUtils.copyProperties(product,productResponseDto);
+            productVariationResponseDto.setProduct(productResponseDto);
+            productVariationResponseDtos.add(productVariationResponseDto);
+        }
+
+        return ProductVariationUtils.getProductVariationPaginatedResponse(productVariationResponseDtos,productVariations);
+    }
 
 }

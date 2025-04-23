@@ -14,6 +14,6 @@ public interface ProductService {
 
     public ProductResponseDto getProductDetailsById(UUID productId, UUID sellerId) throws BadRequestException;
 
-    PaginatedResponseDto<?> getAllProductsBySellerId(UUID sellerId, int max, int offset, String sort, String order, Map<String,String> filters) throws BadRequestException;
+    PaginatedResponseDto<List<ProductResponseDto>> getAllProductsBySellerId(UUID sellerId, int max, int offset, String sort, String order, Map<String,String> filters) throws BadRequestException;
 
 }

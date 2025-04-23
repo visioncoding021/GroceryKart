@@ -85,7 +85,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public PaginatedResponseDto<?> getAllProductsBySellerId(UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException {
+    public PaginatedResponseDto<List<ProductResponseDto>> getAllProductsBySellerId(UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException {
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
 

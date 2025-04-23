@@ -1,12 +1,12 @@
 package com.ecommerce.utils.service_utils;
 
-import com.ecommerce.dto.response_dto.category_dto.CategoryMetadataFieldResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.product_dto.ProductResponseDto;
-import com.ecommerce.models.category.CategoryMetadataField;
+import com.ecommerce.dto.response_dto.product_variation_dto.ProductVariationResponseDto;
 import com.ecommerce.models.product.Product;
+import com.ecommerce.models.product.ProductVariation;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.BeanUtils;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class ProductUtils {
+public class ProductVariationUtils {
     public static Map<String, String> parseMetadata(String metadataJson) {
         Map<String, String> metadataMap = new HashMap<>();
 
@@ -56,7 +56,7 @@ public class ProductUtils {
         return filters;
     }
 
-    public static PaginatedResponseDto<List<ProductResponseDto>> getProductPaginatedResponse(List<ProductResponseDto> responseDtos, Page<Product> products) {
+    public static PaginatedResponseDto<List<ProductVariationResponseDto>> getProductVariationPaginatedResponse(List<ProductVariationResponseDto> responseDtos, Page<ProductVariation> products) {
 
         return new PaginatedResponseDto<>(
                 HttpStatus.OK.value(),
@@ -90,29 +90,33 @@ public class ProductUtils {
         return errors;
     }
 
-    public static Specification<Product> getProductFilters(Map<String, String> filters,UUID sellerId){
-        return (root, query, criteriaBuilder) -> {
-            List<Predicate> listOfPredicate = new ArrayList<>();
+    public static Specification<ProductVariation> getProductVariationFilters(Map<String, String> filters,UUID productId) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-            if (sellerId != null) {
-                listOfPredicate.add(criteriaBuilder.equal(root.get("seller").get("id"), sellerId));
+            if (productId.toString() != null && !productId.toString().isBlank()) {
+                predicates.add(cb.equal(root.get("product").get("id"), productId));
             }
 
-            if(filters.containsKey("name") && !((String) filters.get("name")).isBlank()){
-                listOfPredicate.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%" + ((String) filters.get("name")).toLowerCase() + "%"));
+            if (filters.containsKey("id") && !filters.get("id").isBlank()) {
+                UUID id = UUID.fromString(filters.get("id"));
+                predicates.add(cb.equal(root.get("id"), id));
             }
 
-            if(filters.containsKey("id") && !((String) filters.get("id")).isBlank()){
-                UUID id = UUID.fromString((String) filters.get("id"));
-                listOfPredicate.add(criteriaBuilder.equal(root.get("id"), id));
+            if (filters.containsKey("quantity") && !filters.get("quantity").isBlank()) {
+                predicates.add(cb.equal(root.get("quantityAvailable"), filters.get("quantity")));
             }
 
-            if (filters.containsKey("brand") && !((String) filters.get("brand")).isBlank()){
-                UUID brand = UUID.fromString((String) filters.get("brand"));
-                listOfPredicate.add(criteriaBuilder.equal(root.get("parent").get("id"),brand));
+            if (filters.containsKey("price") && !filters.get("price").isBlank()) {
+                try {
+                    Double price = Double.parseDouble(filters.get("price"));
+                    predicates.add(cb.equal(root.get("price"), price));
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Invalid price value in query string");
+                }
             }
 
-            return criteriaBuilder.and(listOfPredicate.toArray(new Predicate[0]));
+            return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 }
