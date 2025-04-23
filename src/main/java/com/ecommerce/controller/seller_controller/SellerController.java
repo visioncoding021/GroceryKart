@@ -8,6 +8,7 @@ import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.service.category_service.CategoryService;
 import com.ecommerce.service.product_service.ProductService;
 import com.ecommerce.service.product_variation_service.ProductVariationService;
+import com.ecommerce.utils.service_utils.CategoryUtils;
 import com.ecommerce.utils.service_utils.ProductUtils;
 import com.ecommerce.utils.user_utils.CurrentUserUtils;
 import jakarta.validation.Valid;
@@ -19,10 +20,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Currency;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/seller")
@@ -80,6 +78,30 @@ public class SellerController {
     public ResponseEntity<?> getProductVariation(@PathVariable UUID productVariationId) throws BadRequestException {
         return ResponseEntity.ok().body(
                 productVariationService.getProductVariationById(productVariationId,currentUserUtils.getUserId())
+        );
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<?> getAllProducts(
+            @RequestParam(value = "max", defaultValue = "10") int max,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "order", defaultValue = "asc") String order,
+            @RequestParam(value = "query", defaultValue = "") String query
+    ) throws BadRequestException {
+        final Set<String> VALID_SORT_FIELDS = Set.of("name", "id", "parentId");
+        Map<String,String> errors = ProductUtils.validateCategoryRequestParams(order,max,offset);
+        if (!VALID_SORT_FIELDS.contains(sort)) {
+            errors.put("Sort" , "Invalid sort field: " + sort);
+        }
+        if(!errors.isEmpty()){
+            throw new BadRequestException(errors.toString());
+        }
+
+        Map<String, String> filters = ProductUtils.parseQuery(query);
+        System.out.printf("Filters: %s", filters);
+        return ResponseEntity.ok().body(
+                productService.getAllProductsBySellerId(currentUserUtils.getUserId(),max,offset,sort,order,filters)
         );
     }
 
