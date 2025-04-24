@@ -5,6 +5,7 @@ import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.product_dto.ProductResponseDto;
 import com.ecommerce.models.category.CategoryMetadataField;
 import com.ecommerce.models.product.Product;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -144,7 +145,7 @@ public class ProductUtils {
 
     }
 
-    public static Specification<Product> getProductFiltersForCustomer(Map<String, String> filters){
+    public static Specification<Product> getProductFiltersForCustomer(Map<String, String> filters,List<String> categoryIds){
         return (root, query, criteriaBuilder) -> {
             List<Predicate> listOfPredicate = new ArrayList<>();
 
@@ -160,6 +161,17 @@ public class ProductUtils {
             if (filters.containsKey("brand") && !((String) filters.get("brand")).isBlank()){
                 String brand = filters.get("brand");
                 listOfPredicate.add(criteriaBuilder.equal(root.get("brand"),brand));
+            }
+
+            if (filters.containsKey("categoryId") && !((String) filters.get("categoryId")).isBlank()){
+                UUID categoryId = UUID.fromString((String) filters.get("categoryId"));
+                listOfPredicate.add(criteriaBuilder.equal(root.get("category").get("id"),categoryId));
+            }else if (categoryIds!=null && !categoryIds.isEmpty()){
+                CriteriaBuilder.In<UUID> inClause = criteriaBuilder.in(root.get("category").get("id"));
+                for (String categoryId : categoryIds) {
+                    inClause.value(UUID.fromString(categoryId));
+                }
+                listOfPredicate.add(inClause);
             }
 
             listOfPredicate.add(criteriaBuilder.equal(root.get("isActive"), true));

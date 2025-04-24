@@ -12,6 +12,7 @@ import com.ecommerce.models.product.ProductVariation;
 import com.ecommerce.models.user.Seller;
 import com.ecommerce.repository.category_repos.CategoryRepository;
 import com.ecommerce.repository.product_repos.ProductRepository;
+import com.ecommerce.repository.product_repos.ProductVariationRepository;
 import com.ecommerce.repository.user_repos.SellerRepository;
 import com.ecommerce.service.category_service.CategoryMapper;
 import com.ecommerce.service.image_service.ImageService;
@@ -43,6 +44,9 @@ public class ProductServiceImpl implements ProductService{
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductVariationRepository productVariationRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -80,6 +84,22 @@ public class ProductServiceImpl implements ProductService{
         productRepository.save(product);
 
         return "Product added successfully and Product ID is "+product.getId();
+    }
+
+    @Transactional
+    @Override
+    public String deleteProduct(UUID productId, UUID sellerId) throws BadRequestException {
+        Product product = productRepository.findByIdAndSellerId(productId,sellerId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
+        if(product.getIsDeleted()==true)
+            throw new BadRequestException("Product with id " + productId + " doesn't exists");
+
+        for (ProductVariation productVariation : product.getProductVariations()){
+            productVariation.setIsActive(false);
+            productVariationRepository.save(productVariation);
+        }
+        product.setIsDeleted(true);
+        productRepository.save(product);
+        return "Product with id " + productId + " is deleted successfully";
     }
 
     @Override
@@ -177,6 +197,9 @@ public class ProductServiceImpl implements ProductService{
         if(role.equals("ROLE_CUSTOMER") && (product.getIsActive()==false || product.getIsDeleted()==true))
             throw new BadRequestException("Product with id " + productId + " is not active or deleted");
 
+        if(role.equals("ROLE_CUSTOMER") && (product.getProductVariations().isEmpty()))
+            throw new BadRequestException("Product with id " + productId + " has no product Variations");
+
         ProductResponseDto productResponseDto = new ProductResponseDto();
         BeanUtils.copyProperties(product,productResponseDto);
         Category category = product.getCategory();
@@ -186,16 +209,47 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public PaginatedResponseDto<List<ProductResponseDto>> getAllProductsForUser(String role, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException, FileNotFoundException {
+    public PaginatedResponseDto<List<ProductResponseDto>> getAllProductsForUser(String role,UUID categoryId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException, FileNotFoundException {
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
 
         Specification<Product> specification = null;
-        if (role.equals("ROLE_CUSTOMER")) specification = ProductUtils.getProductFiltersForCustomer(filters);
+        if (role.equals("ROLE_CUSTOMER")){
+            Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new BadRequestException("Category not found with ID: " + categoryId));
+            List<String> categoryIdList = null;
+            if(category.getSubCategories()!=null && !category.getSubCategories().isEmpty())
+                categoryIdList = getLeafCategoriesByCategory(category);
+            else filters.put("categoryId", categoryId.toString());
+            specification = ProductUtils.getProductFiltersForCustomer(filters,categoryIdList);
+        }
         else if (role.equals("ROLE_ADMIN")) specification = ProductUtils.getProductFiltersForAdmin(filters);
         Page<Product> products = productRepository.findAll(specification,pageable);
         List<ProductResponseDto> productResponseDtos = new ArrayList<>();
         for(Product product : products.getContent()){
+            if(role.equals("ROLE_CUSTOMER") && (product.getProductVariations().isEmpty()))
+                continue;
+            ProductResponseDto productResponseDto = new ProductResponseDto();
+            BeanUtils.copyProperties(product,productResponseDto);
+            Category category = product.getCategory();
+            productResponseDto.setCategory(getCategoryResponse(category));
+            productResponseDto.setProductVariations(getProductVariationResponseDtos(product));
+            productResponseDtos.add(productResponseDto);
+        }
+        return ProductUtils.getProductPaginatedResponse(productResponseDtos,products);
+    }
+
+    @Override
+    public PaginatedResponseDto<List<ProductResponseDto>> getAllSimilarProductsForCustomer(UUID productId, int max, int offset, String sort, String order, Map<String, String> filters) throws FileNotFoundException {
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
+        Product product1 = productRepository.findById(productId).get();
+        filters.put("categoryId", product1.getCategory().getId().toString());
+        Specification<Product> specification = ProductUtils.getProductFiltersForCustomer(filters,null);
+        Page<Product> products = productRepository.findAll(specification,pageable);
+        List<ProductResponseDto> productResponseDtos = new ArrayList<>();
+        for(Product product : products.getContent()){
+            if (product.getId().equals(product1.getId()) || product.getProductVariations().isEmpty())
+                continue;
             ProductResponseDto productResponseDto = new ProductResponseDto();
             BeanUtils.copyProperties(product,productResponseDto);
             Category category = product.getCategory();
@@ -209,7 +263,7 @@ public class ProductServiceImpl implements ProductService{
     private LeafCategoryResponseDto getCategoryResponse(Category category){
         LeafCategoryResponseDto categoryResponseDto = new LeafCategoryResponseDto();
         BeanUtils.copyProperties(category,categoryResponseDto);
-        categoryResponseDto.setParent(categoryMapper.mapParentHierarchyAndMetadataFieldValuesForLeaf(category,categoryResponseDto));
+        categoryResponseDto.setParent(categoryMapper.mapParentHierarchyAndMetadataFieldValuesForLeaf(category.getParent(),categoryResponseDto));
         List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = categoryMapper.mapFields(category);
         List<CategoryMetadataFieldValueResponseDto> currentFields = categoryResponseDto.getFields();
         if (!fieldsResponseDtos.isEmpty()) currentFields.addAll(fieldsResponseDtos);
@@ -231,5 +285,20 @@ public class ProductServiceImpl implements ProductService{
         return productVariationResponseDtos;
     }
 
+    private List<String> getLeafCategoriesByCategory(Category category) {
+        List<String> leafIds = new ArrayList<>();
+        collectLeafCategoryIds(category, leafIds);
+        return leafIds;
+    }
+
+    private void collectLeafCategoryIds(Category category, List<String> leafIds) {
+        if (category.getSubCategories() == null || category.getSubCategories().isEmpty()) {
+            leafIds.add(category.getId().toString());
+            return;
+        }
+        for (Category sub : category.getSubCategories()) {
+            collectLeafCategoryIds(sub, leafIds);
+        }
+    }
 
 }

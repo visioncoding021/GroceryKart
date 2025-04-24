@@ -132,7 +132,7 @@ public class SellerController {
             @RequestParam(value = "query", defaultValue = "") String query
     ) throws BadRequestException, FileNotFoundException {
         final Set<String> VALID_SORT_FIELDS = Set.of(
-                "id", "quantityAvailable", "price", "primaryImageUrl", "isActive"
+                "id", "quantityAvailable", "price", "isActive"
         );
         Map<String,String> errors = ProductUtils.validateProductRequestParams(order,max,offset);
         if (!VALID_SORT_FIELDS.contains(sort)) {
@@ -143,13 +143,21 @@ public class SellerController {
         }
 
         Map<String, String> filters = ProductUtils.parseQuery(query);
-        System.out.printf("Filters: %s", filters);
 
         PaginatedResponseDto<List<ProductVariationResponseDto>> responseDto =  productVariationService.getAllProductVariationByProductId(productId,currentUserUtils.getUserId(),max,offset,sort,order,filters);
         responseDto.setMessage("All Product Variations are fetched successfully");
         return ResponseEntity.ok().body(
             responseDto
         );
+
     }
 
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<MessageResponseDto> deleteProduct(@PathVariable UUID productId) throws BadRequestException {
+        MessageResponseDto messageResponseDto = new MessageResponseDto(
+                HttpStatus.OK.value(),
+                productService.deleteProduct(productId,currentUserUtils.getUserId())
+        );
+        return ResponseEntity.ok().body(messageResponseDto);
+    }
 }
