@@ -17,7 +17,6 @@ import com.ecommerce.service.category_service.CategoryMapper;
 import com.ecommerce.service.image_service.ImageService;
 import com.ecommerce.utils.service_utils.ProductUtils;
 import com.ecommerce.utils.service_utils.ProductVariationUtils;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
@@ -58,6 +57,7 @@ public class ProductServiceImpl implements ProductService{
     private String basePath;
 
     @Override
+    @Transactional
     public String addProduct(ProductRequestDto productRequestDto, UUID sellerId) throws BadRequestException {
         Seller seller = sellerRepository.findById(sellerId).get();
         String name = productRequestDto.getName().trim();
@@ -85,6 +85,9 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductResponseDto getProductDetailsById(UUID productId, UUID sellerId) throws BadRequestException, FileNotFoundException {
         Product product = productRepository.findByIdAndSellerId(productId,sellerId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
+        if(product.getIsDeleted()==true)
+            throw new BadRequestException("Product with id " + productId + " doesn't exists");
+
         ProductResponseDto productResponseDto = new ProductResponseDto();
         BeanUtils.copyProperties(product,productResponseDto);
 
@@ -100,7 +103,7 @@ public class ProductServiceImpl implements ProductService{
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
 
-        Specification<Product> specification = ProductUtils.getProductFilters(filters,sellerId);
+        Specification<Product> specification = ProductUtils.getProductFiltersForSeller(filters,sellerId);
         Page<Product> products = productRepository.findAll(specification,pageable);
         List<ProductResponseDto> productResponseDtos = new ArrayList<>();
         for(Product product : products.getContent()){
@@ -122,6 +125,8 @@ public class ProductServiceImpl implements ProductService{
         UUID categoryId = productRequestDto.getCategoryId();
 
         Product product = productRepository.findByIdAndSellerId(productId,sellerId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
+        if(product.getIsActive()==false || product.getIsDeleted()==true)
+            throw new BadRequestException("Product with id " + productId + " is not active or deleted");
 
         if(productRepository.existsByNameIgnoreCaseAndBrandAndCategoryIdAndSellerId(name,brand,categoryId,sellerId))
             throw new BadRequestException("Can't Update product as it's already exists with same name");
@@ -131,6 +136,53 @@ public class ProductServiceImpl implements ProductService{
 
         productRepository.save(product);
         return "Product updated successfully";
+    }
+
+    @Override
+    @Transactional
+    public String activateProduct(UUID productId) throws BadRequestException {
+        if (!productRepository.existsByIdAndIsDeleted(productId,false)) {
+            throw new BadRequestException("Product with id " + productId + " doesn't exists");
+        }
+        if (productRepository.existsByIdAndIsActive(productId, true)) {
+            throw new BadRequestException("Product with id " + productId + " is already active");
+        }
+
+        Product product = productRepository.findById(productId).get();
+        product.setIsActive(true);
+        productRepository.save(product);
+        return "Product with id " + productId + " is now active";
+    }
+
+    @Override
+    @Transactional
+    public String deactivateProduct(UUID productId) throws BadRequestException {
+        if (!productRepository.existsByIdAndIsDeleted(productId,false)) {
+            throw new BadRequestException("Product with id " + productId + " doesn't exists");
+        }
+        if (!productRepository.existsByIdAndIsActive(productId, true)) {
+            throw new BadRequestException("Product with id " + productId + " is already deactivated");
+        }
+
+        Product product = productRepository.findById(productId).get();
+        product.setIsActive(false);
+        productRepository.save(product);
+        return "Product with id " + productId + " is now deactivated";
+    }
+
+    @Override
+    public ProductResponseDto getProductByIdForUser(UUID productId, String role) throws BadRequestException, FileNotFoundException {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
+
+        if(role.equals("ROLE_CUSTOMER") && (product.getIsActive()==false || product.getIsDeleted()==true))
+            throw new BadRequestException("Product with id " + productId + " is not active or deleted");
+
+        ProductResponseDto productResponseDto = new ProductResponseDto();
+        BeanUtils.copyProperties(product,productResponseDto);
+        Category category = product.getCategory();
+        productResponseDto.setCategory(getCategoryResponse(category));
+        productResponseDto.setProductVariations(getProductVariationResponseDtos(product));
+        return productResponseDto;
     }
 
     private LeafCategoryResponseDto getCategoryResponse(Category category){

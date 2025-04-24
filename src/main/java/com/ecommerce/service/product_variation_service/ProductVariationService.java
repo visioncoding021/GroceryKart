@@ -18,4 +18,6 @@ public interface ProductVariationService {
     ProductVariationResponseDto getProductVariationById(UUID productVariationId, UUID sellerId) throws BadRequestException, FileNotFoundException;
 
     PaginatedResponseDto<List<ProductVariationResponseDto>> getAllProductVariationByProductId(UUID productId, UUID sellerId, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException, FileNotFoundException;
+
+    String updateProductVariation(UUID productVariationId, UUID sellerId, ProductVariationRequestDto productVariationRequestDto);
 }

@@ -22,4 +22,5 @@ public interface AdminService {
     public String deactivateUser(UUID userId) throws BadRequestException;
 
     public String unlockUser(UUID userId) throws BadRequestException, MessagingException;
+
 }

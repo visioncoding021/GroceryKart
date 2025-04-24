@@ -29,7 +29,6 @@ public class AccessTokenServiceImpl implements AccessTokenService{
         }
         refreshToken = refreshToken.replace("refresh=", "");
         refreshToken = refreshToken.replace(";", "");
-
         if(!JwtUtil.isTokenValid(refreshToken) && !JwtUtil.extractType(refreshToken).equals("refresh")) throw new BadRequestException("Refresh token is not valid");
 
         User user = userRepository.findByEmail(JwtUtil.extractEmail(refreshToken)).orElseThrow(UserNotFoundException::new);
@@ -38,7 +37,6 @@ public class AccessTokenServiceImpl implements AccessTokenService{
         if (refreshIssuedAt == null) {
             throw new BadRequestException("No Login Session found");
         }
-
         if(!refreshIssuedAt.equals(JwtUtil.extractIssuedAt(refreshToken))) {
             throw new BadRequestException("Refresh token is not valid");
         }

@@ -122,6 +122,8 @@ public class ProductVariationUtils {
                 }
             }
 
+            predicates.add(cb.equal(root.get("isActive"),true));
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

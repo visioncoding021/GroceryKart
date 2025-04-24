@@ -20,8 +20,9 @@ public class ProductResponseDto {
     private String name;
     private String description;
     private String brand;
-    private Boolean isCancellable = false;
-    private Boolean isReturnable = false;
+    private Boolean isCancellable;
+    private Boolean isReturnable;
+    private Boolean isActive;
     private List<ProductVariationResponseDto> productVariations;
     private LeafCategoryResponseDto category;
 }

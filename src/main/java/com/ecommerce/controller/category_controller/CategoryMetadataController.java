@@ -30,7 +30,7 @@ public class CategoryMetadataController {
         ApiResponseDto<CategoryMetadataFieldResponseDto> apiResponseDto = new ApiResponseDto<>(
                 HttpStatus.CREATED.value(),
                 "New Category Metadata Field Created",
-                categoryMetadataService.createField(categoryMetadataFieldRequestDto)
+                categoryMetadataService.addMetadataField(categoryMetadataFieldRequestDto)
         );
         return ResponseEntity.ok(apiResponseDto);
     }

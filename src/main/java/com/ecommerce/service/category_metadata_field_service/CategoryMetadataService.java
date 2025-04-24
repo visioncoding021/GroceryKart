@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface CategoryMetadataService {
 
-    public CategoryMetadataFieldResponseDto createField(CategoryMetadataFieldRequestDto categoryMetadataFieldRequestDto);
+    public CategoryMetadataFieldResponseDto addMetadataField(CategoryMetadataFieldRequestDto categoryMetadataFieldRequestDto);
 
     public Page<CategoryMetadataField> getAllMetadataFields(int max, int offset, String sort, String order, Map<String,Object> filters);
 

@@ -90,7 +90,7 @@ public class ProductUtils {
         return errors;
     }
 
-    public static Specification<Product> getProductFilters(Map<String, String> filters,UUID sellerId){
+    public static Specification<Product> getProductFiltersForSeller(Map<String, String> filters,UUID sellerId){
         return (root, query, criteriaBuilder) -> {
             List<Predicate> listOfPredicate = new ArrayList<>();
 
@@ -108,9 +108,64 @@ public class ProductUtils {
             }
 
             if (filters.containsKey("brand") && !((String) filters.get("brand")).isBlank()){
-                UUID brand = UUID.fromString((String) filters.get("brand"));
-                listOfPredicate.add(criteriaBuilder.equal(root.get("parent").get("id"),brand));
+                String brand = filters.get("brand");
+                listOfPredicate.add(criteriaBuilder.equal(root.get("brand"),brand));
             }
+
+            listOfPredicate.add(criteriaBuilder.equal(root.get("isDeleted"), false));
+
+            return criteriaBuilder.and(listOfPredicate.toArray(new Predicate[0]));
+        };
+
+    }
+
+    public static Specification<Product> getProductFiltersForAdmin(Map<String, String> filters,UUID sellerId){
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> listOfPredicate = new ArrayList<>();
+
+            if (sellerId != null) {
+                listOfPredicate.add(criteriaBuilder.equal(root.get("seller").get("id"), sellerId));
+            }
+
+            if(filters.containsKey("name") && !((String) filters.get("name")).isBlank()){
+                listOfPredicate.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%" + ((String) filters.get("name")).toLowerCase() + "%"));
+            }
+
+            if(filters.containsKey("id") && !((String) filters.get("id")).isBlank()){
+                UUID id = UUID.fromString((String) filters.get("id"));
+                listOfPredicate.add(criteriaBuilder.equal(root.get("id"), id));
+            }
+
+            if (filters.containsKey("brand") && !((String) filters.get("brand")).isBlank()){
+                String brand = filters.get("brand");
+                listOfPredicate.add(criteriaBuilder.equal(root.get("brand"),brand));
+            }
+
+            return criteriaBuilder.and(listOfPredicate.toArray(new Predicate[0]));
+        };
+
+    }
+
+    public static Specification<Product> getProductFiltersForCustomer(Map<String, String> filters){
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> listOfPredicate = new ArrayList<>();
+
+            if(filters.containsKey("name") && !((String) filters.get("name")).isBlank()){
+                listOfPredicate.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%" + ((String) filters.get("name")).toLowerCase() + "%"));
+            }
+
+            if(filters.containsKey("id") && !((String) filters.get("id")).isBlank()){
+                UUID id = UUID.fromString((String) filters.get("id"));
+                listOfPredicate.add(criteriaBuilder.equal(root.get("id"), id));
+            }
+
+            if (filters.containsKey("brand") && !((String) filters.get("brand")).isBlank()){
+                String brand = filters.get("brand");
+                listOfPredicate.add(criteriaBuilder.equal(root.get("brand"),brand));
+            }
+
+            listOfPredicate.add(criteriaBuilder.equal(root.get("isActive"), true));
+            listOfPredicate.add(criteriaBuilder.equal(root.get("isDeleted"), false));
 
             return criteriaBuilder.and(listOfPredicate.toArray(new Predicate[0]));
         };

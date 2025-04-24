@@ -19,4 +19,9 @@ public interface ProductService {
 
     public String updateProduct(ProductRequestDto productRequestDto, UUID productId, UUID sellerId) throws BadRequestException;
 
+    String activateProduct(UUID productId) throws BadRequestException;
+
+    String deactivateProduct(UUID productId) throws BadRequestException;
+
+    ProductResponseDto getProductByIdForUser(UUID productId, String role) throws BadRequestException, FileNotFoundException;
 }

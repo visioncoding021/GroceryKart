@@ -60,12 +60,15 @@ public class ProductVariationServiceImpl implements ProductVariationService{
             productVariationValidation.isStructureSameForAllVariations(product.getProductVariations().get(0).getMetadata().keySet(),metadata.keySet());
         }
 
+        if(product.getProductVariations()!=null && !product.getProductVariations().isEmpty()) productVariationValidation.isMetadataSame(product.getProductVariations(),metadata);
+
         UUID generatedUuid = UUID.randomUUID();
 
         ProductVariation productVariation = new ProductVariation();
         productVariation.setId(generatedUuid);
         BeanUtils.copyProperties(productVariationRequestDto,productVariation);
         productVariation.setMetadata(metadata);
+
         productVariation.setProduct(product);
 
         String path = "/products/" + product.getId() + "/variations" ;
@@ -134,6 +137,12 @@ public class ProductVariationServiceImpl implements ProductVariationService{
         }
 
         return ProductVariationUtils.getProductVariationPaginatedResponse(productVariationResponseDtos,productVariations);
+    }
+
+
+    @Override
+    public String updateProductVariation(UUID productVariationId, UUID sellerId, ProductVariationRequestDto productVariationRequestDto){
+        return "Product variation updated successfully";
     }
 
 }

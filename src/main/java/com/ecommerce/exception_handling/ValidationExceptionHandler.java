@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +27,6 @@ public class ValidationExceptionHandler {
                 "Validation failed",
                 errors
         );
-
-
-
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(ResponseStatusException.class)
@@ -44,6 +42,11 @@ public class ValidationExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ErrorResponseDto> handleNullPointerException(NullPointerException ex){
         return buildErrorResponse("Null Pointer Exception",ex.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleNoResourceFoundException(NoResourceFoundException ex){
+        return buildErrorResponse("No Resource Found",ex.getMessage(),HttpStatus.NOT_FOUND);
     }
 
     private ResponseEntity<ErrorResponseDto> buildErrorResponse( String message, String errorDetail, HttpStatus status) {

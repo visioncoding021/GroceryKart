@@ -40,6 +40,9 @@ public class ProductVariation extends AuditDetails {
     @Column(nullable = false)
     private String primaryImageUrl;
 
+    @Column(nullable = false)
+    private Boolean isActive=true;
+
     @Column(columnDefinition = "JSON",nullable = false)
     @Convert(converter = JsonConverter.class)
     private Map<String, String> metadata;

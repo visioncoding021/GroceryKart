@@ -64,7 +64,6 @@ public class ForgotResetPasswordServiceImpl implements ForgotResetPasswordServic
         Token userToken = user.getToken();
         if(!Objects.equals(type, "resetPassword") && !userToken.getResetPassword().equals(tokenIssuedAt))
             throw new IllegalArgumentException("Invalid token type");
-
         if (!UserUtils.isPasswordMatching(password, confirmPassword)) {
             throw new IllegalArgumentException("Passwords do not match");
         }

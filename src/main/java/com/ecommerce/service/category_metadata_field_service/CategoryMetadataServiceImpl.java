@@ -22,11 +22,10 @@ public class CategoryMetadataServiceImpl implements CategoryMetadataService{
     private CategoryMetadataFieldRepository categoryMetadataFieldRepository;
 
     @Override
-    public CategoryMetadataFieldResponseDto createField(CategoryMetadataFieldRequestDto categoryMetadataFieldRequestDto) {
+    public CategoryMetadataFieldResponseDto addMetadataField(CategoryMetadataFieldRequestDto categoryMetadataFieldRequestDto) {
         if (categoryMetadataFieldRepository.existsByNameIgnoreCase(categoryMetadataFieldRequestDto.getName().trim())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Metadata field name already exists with name +" + categoryMetadataFieldRequestDto.getName());
         }
-
         CategoryMetadataField field = new CategoryMetadataField();
         field.setName(categoryMetadataFieldRequestDto.getName().trim());
 
@@ -42,10 +41,7 @@ public class CategoryMetadataServiceImpl implements CategoryMetadataService{
 
         String name = filters.containsKey("name") ? (String) filters.get("name") : null;
         UUID id = filters.containsKey("id") ? UUID.fromString((String) filters.get("id")) : null;
-
         if(name==null && id==null) return categoryMetadataFieldRepository.findAll(pageable);
-
-        System.out.println(filters.toString());
 
         return categoryMetadataFieldRepository.findByNameOrId(name, id, pageable);
     }

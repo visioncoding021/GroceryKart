@@ -18,6 +18,7 @@ public class ProductVariationResponseDto {
     private Map<String,String> metadata;
     private String quantityAvailable;
     private Double price;
+    private Boolean isActive;
     private String primaryImageUrl;
     private List<String> secondaryImages;
     private ProductResponseDto product;

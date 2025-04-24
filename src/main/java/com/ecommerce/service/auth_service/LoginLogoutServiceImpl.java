@@ -52,6 +52,14 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
             throw new UserIsLockedException();
         }
 
+        if(request.getHeader("Cookie") != null) {
+            String cookie = request.getHeader("Cookie");
+            if (cookie.contains("refresh=")) {
+                String refreshToken = cookie.split("refresh=")[1].split(";")[0];
+                throw new BadCredentialsException("There is already a login session");
+            }
+        }
+
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             user.setInvalidAttemptCount(user.getInvalidAttemptCount() + 1);
@@ -95,7 +103,7 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
     @Override
     public String logoutUser(String accessToken, HttpServletRequest request, HttpServletResponse response) {
 
-        if(isValidAccessToken(accessToken) && isValidRefreshToken(request.getHeader("Cookie"))) {
+        if(isAccessTokenValid(accessToken) && isRefreshTokenValid(request.getHeader("Cookie"))) {
             response.setHeader(HttpHeaders.AUTHORIZATION, null);
             response.setHeader(HttpHeaders.AUTHORIZATION, null);
             ResponseCookie deleteRefreshCookie = ResponseCookie.from("refresh", "")
@@ -122,7 +130,7 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
         return "User Logout Successful";
     }
 
-    private boolean isValidAccessToken(String authHeader) {
+    private boolean isAccessTokenValid(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             authHeader = authHeader.substring(7);
             System.out.println("Auth Header"+authHeader);
@@ -140,7 +148,7 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
     }
 
 
-    private boolean isValidRefreshToken(String cookie) {
+    private boolean isRefreshTokenValid(String cookie) {
         if (cookie != null && cookie.startsWith("refresh=")) {
             cookie = cookie.replace("refresh=", "");
             cookie = cookie.replace(";", "");

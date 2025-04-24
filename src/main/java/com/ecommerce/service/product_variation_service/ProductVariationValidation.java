@@ -1,8 +1,8 @@
 package com.ecommerce.service.product_variation_service;
 
-import com.ecommerce.dto.request_dto.product_dto.ProductVariationRequestDto;
 import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import com.ecommerce.models.product.Product;
+import com.ecommerce.models.product.ProductVariation;
 import com.ecommerce.repository.product_repos.ProductRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +57,15 @@ public class ProductVariationValidation {
                 }
             }
             if (!isKeyPresent) throw new BadRequestException("Product variation can't be added as field name " + currentKey + " doesn't exists in previous product variation");
+        }
+    }
+
+    public void isMetadataSame(List<ProductVariation> productVariations, Map<String,String> current) throws BadRequestException {
+        for (ProductVariation productVariation : productVariations){
+            System.out.println(productVariation.getMetadata().toString());
+            System.out.println(current.toString());
+            if(productVariation.getMetadata().toString().equalsIgnoreCase(current.toString()))
+                throw new BadRequestException("Product variation with same metadata exists");
         }
     }
 

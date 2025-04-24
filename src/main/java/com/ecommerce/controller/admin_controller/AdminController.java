@@ -6,6 +6,7 @@ import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.AllSellersResponseDto;
 import com.ecommerce.service.admin_service.AdminService;
+import com.ecommerce.service.product_service.ProductService;
 import jakarta.mail.MessagingException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private ProductService productService;
 
     @GetMapping("/customers")
     public ResponseEntity<PaginatedResponseDto<List<AllCustomersResponseDto>>> getCustomers(
@@ -68,5 +72,15 @@ public class AdminController {
     @PutMapping("/unlock/{userId}")
     public MessageResponseDto lockUser(@PathVariable UUID userId) throws BadRequestException, MessagingException {
         return new MessageResponseDto(200, adminService.unlockUser(userId));
+    }
+
+    @PutMapping("/product-activate/{productId}")
+    public MessageResponseDto activateProduct(@PathVariable UUID productId) throws BadRequestException {
+        return new MessageResponseDto(200, productService.activateProduct(productId));
+    }
+
+    @PutMapping("/product-deactivate/{productId}")
+    public MessageResponseDto deactivateProduct(@PathVariable UUID productId) throws BadRequestException {
+        return new MessageResponseDto(200, productService.deactivateProduct(productId));
     }
 }

@@ -85,11 +85,8 @@ public class CategoryServiceImpl implements CategoryService{
         Category category = categoryRepository.findById(id).get();
         CategoryResponseDto categoryResponseDto = new CategoryResponseDto();
         BeanUtils.copyProperties(category,categoryResponseDto);
-
         categoryResponseDto.setParent(categoryMapper.mapParentHierarchyAndMetadataFieldValues(category.getParent(),categoryResponseDto));
-
         categoryResponseDto.setChildren(categoryMapper.mapChildren(category));
-
         List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = categoryMapper.mapFields(category);
         List<CategoryMetadataFieldValueResponseDto> currentFields = categoryResponseDto.getFields();
          if (!fieldsResponseDtos.isEmpty()) currentFields.addAll(fieldsResponseDtos);
@@ -104,23 +101,17 @@ public class CategoryServiceImpl implements CategoryService{
         Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
 
         Page<Category> listOfCategory = categoryRepository.findAll(getCategoryFilters(filters),pageable);
-
         List<CategoryResponseDto> categoryResponseDtoList = new ArrayList<>();
 
         for(Category category : listOfCategory){
             CategoryResponseDto categoryResponseDto = new CategoryResponseDto();
             BeanUtils.copyProperties(category,categoryResponseDto);
-
             categoryResponseDto.setParent(categoryMapper.mapParentHierarchyAndMetadataFieldValues(category.getParent(),categoryResponseDto));
-
             categoryResponseDto.setChildren(categoryMapper.mapChildren(category));
-
             List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = categoryMapper.mapFields(category);
             List<CategoryMetadataFieldValueResponseDto> currentFields = categoryResponseDto.getFields();
             if (!fieldsResponseDtos.isEmpty()) currentFields.addAll(fieldsResponseDtos);
             categoryResponseDto.setFields(currentFields);
-
-            System.out.println("----" + categoryResponseDto.getFields());
 
             categoryResponseDtoList.add(categoryResponseDto);
         }
@@ -136,7 +127,7 @@ public class CategoryServiceImpl implements CategoryService{
 
         Category category = categoryRepository.findById(categoryId).get();
 
-        if(categoryValidator.isInDepth(category.getParent(),categoryName) || categoryValidator.isInChildDepth(category,categoryName) ){
+        if(categoryValidator.existsInParentCategories(category.getParent(),categoryName) || categoryValidator.existsInChildCategories(category,categoryName) ){
             throw new BadRequestException("Already Exists in Parent or child Hierarchy");
         }
 

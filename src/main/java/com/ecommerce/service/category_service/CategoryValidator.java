@@ -22,7 +22,7 @@ public class CategoryValidator {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public boolean isInDepth(Category parent, String name){
+    public boolean existsInParentCategories(Category parent, String name){
         while(parent!=null){
             if(parent.getName().equalsIgnoreCase(name)){
                 return true;
@@ -32,12 +32,12 @@ public class CategoryValidator {
         return false;
     }
 
-    public boolean isInChildDepth(Category child,String name){
+    public boolean existsInChildCategories(Category child,String name){
         if(child.getName().equalsIgnoreCase(name)){
             return true;
         }
         for (Category children : child.getSubCategories()){
-            isInChildDepth(children,name);
+            existsInChildCategories(children,name);
         }
         return false;
     }
@@ -73,7 +73,7 @@ public class CategoryValidator {
 
     public boolean isNameConflictInParentOrSiblings(Category parent, String name) {
         boolean isBreadth = isInBreadth(parent, name);
-        boolean isDepth = !isBreadth && isInDepth(parent, name);
+        boolean isDepth = !isBreadth && existsInParentCategories(parent, name);
         return isBreadth || isDepth;
     }
 
