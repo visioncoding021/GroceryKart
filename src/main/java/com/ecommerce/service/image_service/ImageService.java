@@ -19,6 +19,10 @@ public interface ImageService {
 
     public String uploadMultipleImages(String path, UUID id, List<MultipartFile> files) throws IOException ;
 
+    String updateMultipleImages(String path, UUID id, List<MultipartFile> files) throws IOException;
+
+    void deleteAllImage(String path, UUID id) throws FileNotFoundException;
+
     public List<String> getAllImages(String path, UUID id) throws FileNotFoundException ;
 
 }

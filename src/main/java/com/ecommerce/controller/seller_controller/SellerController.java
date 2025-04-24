@@ -2,6 +2,7 @@ package com.ecommerce.controller.seller_controller;
 
 import com.ecommerce.dto.request_dto.product_dto.ProductRequestDto;
 import com.ecommerce.dto.request_dto.product_dto.ProductVariationRequestDto;
+import com.ecommerce.dto.request_dto.product_dto.ProductVariationUpdateRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.LeafCategoryResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
@@ -74,6 +75,17 @@ public class SellerController {
         MessageResponseDto messageResponseDto = new MessageResponseDto(
                 HttpStatus.OK.value(),
                 productVariationService.addProductVariation(currentUserUtils.getUserId(),requestDto,metadata)
+        );
+        return ResponseEntity.ok().body(messageResponseDto);
+    }
+
+    @PutMapping("/product-variation/{variationId}")
+    public ResponseEntity<?> updateProductVariation(@PathVariable UUID variationId,@Valid @ModelAttribute ProductVariationUpdateRequestDto requestDto) throws IOException {
+        System.out.println(requestDto.toString());
+        Map<String,String> metadata = ProductUtils.parseMetadata(requestDto.getMetadata());
+        MessageResponseDto messageResponseDto = new MessageResponseDto(
+                HttpStatus.OK.value(),
+                productVariationService.updateProductVariation(variationId,currentUserUtils.getUserId(),requestDto,metadata)
         );
         return ResponseEntity.ok().body(messageResponseDto);
     }

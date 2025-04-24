@@ -1,6 +1,7 @@
 package com.ecommerce.service.product_variation_service;
 
 import com.ecommerce.dto.request_dto.product_dto.ProductVariationRequestDto;
+import com.ecommerce.dto.request_dto.product_dto.ProductVariationUpdateRequestDto;
 import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.product_variation_dto.ProductResponseDto;
 import com.ecommerce.dto.response_dto.product_variation_dto.ProductVariationResponseDto;
@@ -60,7 +61,7 @@ public class ProductVariationServiceImpl implements ProductVariationService{
             productVariationValidation.isStructureSameForAllVariations(product.getProductVariations().get(0).getMetadata().keySet(),metadata.keySet());
         }
 
-        if(product.getProductVariations()!=null && !product.getProductVariations().isEmpty()) productVariationValidation.isMetadataSame(product.getProductVariations(),metadata);
+        if(product.getProductVariations()!=null && !product.getProductVariations().isEmpty()) productVariationValidation.isMetadataSame(product.getProductVariations(),metadata,null);
 
         UUID generatedUuid = UUID.randomUUID();
 
@@ -141,7 +142,47 @@ public class ProductVariationServiceImpl implements ProductVariationService{
 
 
     @Override
-    public String updateProductVariation(UUID productVariationId, UUID sellerId, ProductVariationRequestDto productVariationRequestDto){
+    public String updateProductVariation(UUID productVariationId, UUID sellerId, ProductVariationUpdateRequestDto productVariationRequestDto, Map<String, String> metadata) throws IOException {
+
+        ProductVariation productVariation = productVariationRepository.findById(productVariationId).orElseThrow(()->new BadRequestException("Product variation not found with ID: " + productVariationId));
+
+        Product product = productVariation.getProduct();
+        if(!product.getSeller().getId().equals(sellerId))
+            throw new BadRequestException("Product variation not found with ID: " + productVariationId);
+
+        if(!productVariation.getIsActive())
+            throw new BadRequestException("Product variation is not active. So it can't be updated");
+
+        Category category = product.getCategory();
+        List<CategoryMetadataFieldValues> categoryMetadataFieldValues = ProductVariationHelper.getMetadataFieldValues(category);
+
+        productVariationValidation.isMetadataValidForProductVariation(metadata, categoryMetadataFieldValues);
+
+        if(product.getProductVariations()!=null && !product.getProductVariations().isEmpty()){
+            System.out.println(product.getProductVariations().get(0).getMetadata().keySet().toString());
+            productVariationValidation.isStructureSameForAllVariations(product.getProductVariations().get(0).getMetadata().keySet(),metadata.keySet());
+        }
+
+        if(product.getProductVariations()!=null && !product.getProductVariations().isEmpty()) productVariationValidation.isMetadataSame(product.getProductVariations(),metadata,productVariation);
+
+        BeanUtils.copyProperties(productVariationRequestDto,productVariation);
+        productVariation.setProduct(product);
+        productVariation.setMetadata(metadata);
+
+        String path = "/products/" + product.getId() + "/variations" ;
+
+        List<MultipartFile> allImages = new ArrayList<>();
+        allImages.add(productVariationRequestDto.getPrimaryImage());
+        imageService.uploadMultipleImages(path,productVariation.getId(),allImages);
+        allImages.clear();
+        allImages.addAll(Arrays.stream(productVariationRequestDto.getSecondaryImages()).toList());
+        imageService.updateMultipleImages(path,productVariation.getId(),allImages);
+
+        System.out.println(basePath+path+"/"+productVariation.getId());
+        productVariation.setPrimaryImageUrl(basePath+path+"/"+productVariation.getId()+".png");
+
+        productVariationRepository.save(productVariation);
+
         return "Product variation updated successfully";
     }
 

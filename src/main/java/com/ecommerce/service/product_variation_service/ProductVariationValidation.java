@@ -50,7 +50,6 @@ public class ProductVariationValidation {
         for (String currentKey : currentProductVariationKeySet) {
             boolean isKeyPresent = false;
             for (String previousKey : previousProductVariationKeySet) {
-                System.out.println("Previous Key: " + previousKey);
                 if (currentKey.equalsIgnoreCase(previousKey)) {
                     isKeyPresent = true;
                     break;
@@ -60,12 +59,13 @@ public class ProductVariationValidation {
         }
     }
 
-    public void isMetadataSame(List<ProductVariation> productVariations, Map<String,String> current) throws BadRequestException {
-        for (ProductVariation productVariation : productVariations){
-            System.out.println(productVariation.getMetadata().toString());
-            System.out.println(current.toString());
-            if(productVariation.getMetadata().toString().equalsIgnoreCase(current.toString()))
+    public void isMetadataSame(List<ProductVariation> productVariations, Map<String, String> current, ProductVariation productVariation) throws BadRequestException {
+        for (ProductVariation productVariation1 : productVariations) {
+            if(productVariation!=null && productVariation.getId()==productVariation1.getId())
+                continue;
+            if (productVariation1.getMetadata().equals(current)) {
                 throw new BadRequestException("Product variation with same metadata exists");
+            }
         }
     }
 

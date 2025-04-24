@@ -95,7 +95,10 @@ public class ImageServiceImpl implements ImageService{
             String filePath = imageUploadPath + path + File.separator + fileName;
 
             File destination = new File(filePath);
-            if (destination.exists()) destination.delete();
+            if (destination.exists()) {
+                System.out.println("Deleting: " );
+                destination.delete();
+            }
 
             Files.copy(file.getInputStream(), Paths.get(filePath));
 
@@ -103,6 +106,56 @@ public class ImageServiceImpl implements ImageService{
 
         return "Images uploaded successfully";
     }
+
+    @Override
+    public String updateMultipleImages(String path, UUID id, List<MultipartFile> files) throws IOException {
+        File folder = new File(Paths.get(imageUploadPath, path).toString());
+        if (!folder.exists()) folder.mkdirs();
+
+        for(MultipartFile file : files) {
+            fileValidations(file);
+        }
+
+        deleteAllImage(path,id);
+
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile file = files.get(i);
+            String originalFileName = Objects.requireNonNull(file.getOriginalFilename()).toLowerCase();
+            String extension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+
+            String fileName;
+            fileName = id + "_" + UUID.randomUUID() + extension;
+
+            String filePath = imageUploadPath + path + File.separator + fileName;
+
+            Files.copy(file.getInputStream(), Paths.get(filePath));
+
+        }
+        return "Updated images successfully";
+    }
+
+    @Override
+    public void deleteAllImage(String path, UUID id) throws FileNotFoundException {
+        String directoryPath = imageUploadPath + path;
+        File directory = new File(directoryPath);
+
+        if (!directory.exists() || !directory.isDirectory()) {
+            throw new FileNotFoundException("Directory not found: " + directoryPath);
+        }
+
+        File[] matchingFiles = directory.listFiles((dir, name) -> name.startsWith(id.toString() + "_"));
+
+        if (matchingFiles == null || matchingFiles.length == 0) {
+            throw new FileNotFoundException("No images found starting with: " + id.toString() + "_");
+        }
+
+        for (File file : matchingFiles) {
+            System.out.println("Deleting: " + file.getAbsolutePath());
+            file.delete();
+        }
+        System.out.println("All images deleted successfully for ID: " + id);
+    }
+
 
     @Override
     public List<String> getAllImages(String path, UUID id) throws FileNotFoundException {
