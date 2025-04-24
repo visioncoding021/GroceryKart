@@ -100,7 +100,10 @@ public class SellerController {
             @RequestParam(value = "order", defaultValue = "asc") String order,
             @RequestParam(value = "query", defaultValue = "") String query
     ) throws BadRequestException, FileNotFoundException {
-        final Set<String> VALID_SORT_FIELDS = Set.of("name", "id", "parentId");
+        final Set<String> VALID_SORT_FIELDS = Set.of(
+                "id", "name", "description", "brand",
+                "isCancellable", "isReturnable", "isActive"
+        );
         Map<String,String> errors = ProductUtils.validateProductRequestParams(order,max,offset);
         if (!VALID_SORT_FIELDS.contains(sort)) {
             errors.put("Sort" , "Invalid sort field: " + sort);
@@ -128,7 +131,9 @@ public class SellerController {
             @RequestParam(value = "order", defaultValue = "asc") String order,
             @RequestParam(value = "query", defaultValue = "") String query
     ) throws BadRequestException, FileNotFoundException {
-        final Set<String> VALID_SORT_FIELDS = Set.of("name", "id", "parentId");
+        final Set<String> VALID_SORT_FIELDS = Set.of(
+                "id", "quantityAvailable", "price", "primaryImageUrl", "isActive"
+        );
         Map<String,String> errors = ProductUtils.validateProductRequestParams(order,max,offset);
         if (!VALID_SORT_FIELDS.contains(sort)) {
             errors.put("Sort" , "Invalid sort field: " + sort);

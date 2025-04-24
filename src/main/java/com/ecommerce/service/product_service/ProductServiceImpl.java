@@ -185,6 +185,27 @@ public class ProductServiceImpl implements ProductService{
         return productResponseDto;
     }
 
+    @Override
+    public PaginatedResponseDto<List<ProductResponseDto>> getAllProductsForUser(String role, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException, FileNotFoundException {
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
+
+        Specification<Product> specification = null;
+        if (role.equals("ROLE_CUSTOMER")) specification = ProductUtils.getProductFiltersForCustomer(filters);
+        else if (role.equals("ROLE_ADMIN")) specification = ProductUtils.getProductFiltersForAdmin(filters);
+        Page<Product> products = productRepository.findAll(specification,pageable);
+        List<ProductResponseDto> productResponseDtos = new ArrayList<>();
+        for(Product product : products.getContent()){
+            ProductResponseDto productResponseDto = new ProductResponseDto();
+            BeanUtils.copyProperties(product,productResponseDto);
+            Category category = product.getCategory();
+            productResponseDto.setCategory(getCategoryResponse(category));
+            productResponseDto.setProductVariations(getProductVariationResponseDtos(product));
+            productResponseDtos.add(productResponseDto);
+        }
+        return ProductUtils.getProductPaginatedResponse(productResponseDtos,products);
+    }
+
     private LeafCategoryResponseDto getCategoryResponse(Category category){
         LeafCategoryResponseDto categoryResponseDto = new LeafCategoryResponseDto();
         BeanUtils.copyProperties(category,categoryResponseDto);

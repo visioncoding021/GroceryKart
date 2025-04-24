@@ -119,13 +119,9 @@ public class ProductUtils {
 
     }
 
-    public static Specification<Product> getProductFiltersForAdmin(Map<String, String> filters,UUID sellerId){
+    public static Specification<Product> getProductFiltersForAdmin(Map<String, String> filters){
         return (root, query, criteriaBuilder) -> {
             List<Predicate> listOfPredicate = new ArrayList<>();
-
-            if (sellerId != null) {
-                listOfPredicate.add(criteriaBuilder.equal(root.get("seller").get("id"), sellerId));
-            }
 
             if(filters.containsKey("name") && !((String) filters.get("name")).isBlank()){
                 listOfPredicate.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%" + ((String) filters.get("name")).toLowerCase() + "%"));
@@ -140,6 +136,8 @@ public class ProductUtils {
                 String brand = filters.get("brand");
                 listOfPredicate.add(criteriaBuilder.equal(root.get("brand"),brand));
             }
+
+            listOfPredicate.add(criteriaBuilder.equal(root.get("isDeleted"), false));
 
             return criteriaBuilder.and(listOfPredicate.toArray(new Predicate[0]));
         };

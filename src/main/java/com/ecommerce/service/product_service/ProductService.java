@@ -24,4 +24,6 @@ public interface ProductService {
     String deactivateProduct(UUID productId) throws BadRequestException;
 
     ProductResponseDto getProductByIdForUser(UUID productId, String role) throws BadRequestException, FileNotFoundException;
+
+    PaginatedResponseDto<List<ProductResponseDto>> getAllProductsForUser(String role, int max, int offset, String sort, String order, Map<String, String> filters) throws BadRequestException, FileNotFoundException;
 }
