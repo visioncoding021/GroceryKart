@@ -3,11 +3,15 @@ package com.ecommerce.service.category_service;
 import com.ecommerce.dto.response_dto.category_dto.*;
 import com.ecommerce.models.category.Category;
 import com.ecommerce.models.category.CategoryMetadataFieldValues;
+import com.ecommerce.models.product.Product;
+import com.ecommerce.models.product.ProductVariation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class CategoryMapper {
@@ -47,6 +51,86 @@ public class CategoryMapper {
         return root;
     }
 
+    public List<CategoryMetadataFieldValueResponseDto> mapParentFields(Category category,CategoryFiltersResponseDto currentDto){
+        List<CategoryMetadataFieldValueResponseDto> fields = new ArrayList<>();
+        while (category != null) {
+            List<CategoryMetadataFieldValueResponseDto> fieldsResponseDtos = mapFields(category);
+
+            System.out.println(fieldsResponseDtos.toString());
+
+            if(!fieldsResponseDtos.isEmpty()){
+                List<CategoryMetadataFieldValueResponseDto> currentList = currentDto.getMetadata();
+                currentList.addAll(fieldsResponseDtos);
+                currentDto.setMetadata(currentList);
+                System.out.println(currentDto.getMetadata());
+            }
+            category = category.getParent();
+        }
+        return fields;
+    }
+
+    public Set<String> mapBrands(Category category) {
+        return mapBrandFromLeaf(category);
+    }
+
+    private Set<String> mapBrandFromLeaf(Category category) {
+        List<Category> subCategories = category.getSubCategories();
+        if (subCategories==null || subCategories.isEmpty()) {
+            List<Product> products = category.getProducts();
+            Set<String> brands = new HashSet<>();
+            for (Product product : products) {
+                if (!brands.contains(product.getBrand())) {
+                    brands.add(product.getBrand());
+                }
+            }
+            return brands;
+        }
+        Set<String> brands = new HashSet<>();
+        for (Category subCategory : subCategories) {
+            brands.addAll(mapBrandFromLeaf(subCategory));
+        }
+        return brands;
+    }
+
+    public Double getMinimumPriceFromCategory(Category category) {
+        double minimumPrice = Double.MAX_VALUE;
+
+        List<Category> subCategories = category.getSubCategories();
+        if (subCategories == null || subCategories.isEmpty()) {
+            for (Product product : category.getProducts()) {
+                for (ProductVariation productVariation : product.getProductVariations()) {
+                    minimumPrice = Math.min(minimumPrice, productVariation.getPrice());
+                }
+            }
+            return minimumPrice;
+        }
+
+        for (Category subCategory : subCategories) {
+            minimumPrice = Math.min(minimumPrice, getMinimumPriceFromCategory(subCategory));
+        }
+
+        return minimumPrice;
+    }
+
+    public Double getMaximumPriceFromCategory(Category category) {
+        double maximumPrice = Double.NEGATIVE_INFINITY;
+
+        List<Category> subCategories = category.getSubCategories();
+        if (subCategories == null || subCategories.isEmpty()) {
+            for (Product product : category.getProducts()) {
+                for (ProductVariation productVariation : product.getProductVariations()) {
+                    maximumPrice = Math.max(maximumPrice, productVariation.getPrice());
+                }
+            }
+            return maximumPrice;
+        }
+
+        for (Category subCategory : subCategories) {
+            maximumPrice = Math.max(maximumPrice, getMaximumPriceFromCategory(subCategory));
+        }
+
+        return maximumPrice;
+    }
 
 
     public List<ChildrenCategoryResponseDto> mapChildren(Category category) {
@@ -75,6 +159,8 @@ public class CategoryMapper {
         }
         return fields;
     }
+
+
 
     public ParentCategoryResponseDto mapParentHierarchyAndMetadataFieldValuesForLeaf(Category parent, LeafCategoryResponseDto categoryResponseDto) {
         ParentCategoryResponseDto root = null;

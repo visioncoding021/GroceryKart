@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -40,7 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.equals("/api/auth/get-access-token");
+        List<String> excludedPaths = List.of(
+                "/api/auth/get-access-token",
+                "/api/auth/login",
+                "/api/auth/register"
+        );
+        return excludedPaths.contains(path);
     }
 
     @Override

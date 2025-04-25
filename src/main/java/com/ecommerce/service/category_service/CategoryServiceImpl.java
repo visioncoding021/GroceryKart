@@ -245,6 +245,25 @@ public class CategoryServiceImpl implements CategoryService{
         return categoryNameResponseDtoList;
     }
 
+    @Override
+    public CategoryFiltersResponseDto getCategoryFilters(UUID categoryId) {
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatusCode.valueOf(400), "Category doesn't exist with given Id"));
+        CategoryFiltersResponseDto categoryFiltersResponseDto = new CategoryFiltersResponseDto();
+        categoryFiltersResponseDto.setMetadata(new ArrayList<>());
+        categoryMapper.mapParentFields(category, categoryFiltersResponseDto);
+        categoryFiltersResponseDto.setMetadata(categoryMapper.mapFields(category));
+
+        categoryFiltersResponseDto.setBrands(new HashSet<>());
+        categoryFiltersResponseDto.setBrands(categoryMapper.mapBrands(category));
+
+        categoryFiltersResponseDto.setMinPrice(categoryMapper.getMinimumPriceFromCategory(category));
+        categoryFiltersResponseDto.setMaxPrice(categoryMapper.getMaximumPriceFromCategory(category));
+
+        return categoryFiltersResponseDto;
+    }
+
 
     private Specification<Category> getCategoryFilters(Map<String, Object> filters){
         return (root, query, criteriaBuilder) -> {

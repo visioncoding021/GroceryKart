@@ -1,5 +1,6 @@
 package com.ecommerce.controller.customer_controller;
 
+import com.ecommerce.dto.response_dto.category_dto.CategoryFiltersResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryNameResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.LeafCategoryResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
@@ -36,6 +37,17 @@ public class CustomerController {
                 HttpStatus.OK.value(),
                 "All Categories are fetched Successfully",
                 categoryService.getSameLevelCategories(categoryId)
+        );
+    }
+
+    @GetMapping("/categories-filters/{categoryId}")
+    public ApiResponseDto<CategoryFiltersResponseDto> getAllCategoriesFilters(
+            @PathVariable UUID categoryId
+    ){
+        return new ApiResponseDto<>(
+                HttpStatus.OK.value(),
+                "All Categories Filters are fetched Successfully",
+                categoryService.getCategoryFilters(categoryId)
         );
     }
 

@@ -1,6 +1,7 @@
 package com.ecommerce.service.category_service;
 
 import com.ecommerce.dto.request_dto.category_dto.MetaDataValuesRequestDto;
+import com.ecommerce.dto.response_dto.category_dto.CategoryFiltersResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryNameResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.LeafCategoryResponseDto;
@@ -28,4 +29,5 @@ public interface CategoryService {
 
     public List<CategoryNameResponseDto> getSameLevelCategories(UUID categoryId);
 
+    CategoryFiltersResponseDto getCategoryFilters(UUID categoryId);
 }
