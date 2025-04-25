@@ -10,15 +10,21 @@ import com.ecommerce.service.email_service.EmailService;
 import com.ecommerce.utils.jwt_utils.JwtUtil;
 import com.ecommerce.utils.service_utils.UserUtils;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ForgotResetPasswordServiceImpl implements ForgotResetPasswordService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ForgotResetPasswordServiceImpl.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -28,6 +34,9 @@ public class ForgotResetPasswordServiceImpl implements ForgotResetPasswordServic
 
     @Autowired
     private TokenRepository tokenRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -40,6 +49,8 @@ public class ForgotResetPasswordServiceImpl implements ForgotResetPasswordServic
         }
 
         String resetToken = JwtUtil.generateToken(user,"resetPassword",900000);
+        logger.debug("Generated reset token for user: {}", email);
+
         Token userToken = user.getToken();
         userToken.setResetPassword(JwtUtil.extractIssuedAt(resetToken));
         tokenRepository.save(userToken);
@@ -50,6 +61,7 @@ public class ForgotResetPasswordServiceImpl implements ForgotResetPasswordServic
     }
 
     @Override
+    @Transactional
     public String resetPassword(String token, String password , String confirmPassword) throws UserNotFoundException {
 
         if(!JwtUtil.isTokenValid(token))
@@ -60,6 +72,8 @@ public class ForgotResetPasswordServiceImpl implements ForgotResetPasswordServic
         String type = (String) claims.get("type");
         Long tokenIssuedAt = JwtUtil.extractIssuedAt(token);
 
+        logger.debug("Reset password token type: {}, issuedAt: {}, email: {}", type, tokenIssuedAt, email);
+
         User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         Token userToken = user.getToken();
         if(!Objects.equals(type, "resetPassword") && !userToken.getResetPassword().equals(tokenIssuedAt))
@@ -67,9 +81,11 @@ public class ForgotResetPasswordServiceImpl implements ForgotResetPasswordServic
         if (!UserUtils.isPasswordMatching(password, confirmPassword)) {
             throw new IllegalArgumentException("Passwords do not match");
         }
-        UserUtils.setPasswordEncoder(user);
         user.setPasswordUpdateDate(LocalDateTime.now());
+        user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
+        userToken.setAccess(null);
+        userToken.setRefresh(null);
         userToken.setResetPassword(null);
         tokenRepository.save(userToken);
         return "Password reset successfully";

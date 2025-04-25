@@ -21,9 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
-@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
-@FilterDef(name = "deletedUserFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
-@Filter(name = "deletedUserFilter", condition = "is_deleted = :isDeleted")
+//@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

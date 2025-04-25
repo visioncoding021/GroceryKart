@@ -1,7 +1,9 @@
 package com.ecommerce.utils.service_utils;
 
 import com.ecommerce.dto.response_dto.category_dto.CategoryMetadataFieldResponseDto;
+import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
+import com.ecommerce.models.category.Category;
 import com.ecommerce.models.category.CategoryMetadataField;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,18 @@ import org.springframework.http.HttpStatus;
 import java.util.*;
 
 public final class CategoryUtils {
+
+    public static PaginatedResponseDto<List<CategoryResponseDto>> getCategoryPaginatedResponse(List<CategoryResponseDto> data, Page<Category> page) {
+        return new PaginatedResponseDto<>(
+                HttpStatus.OK.value(),
+                "All Categories are fetched successfully",
+                data,
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getSize(),
+                page.getNumber()
+        );
+    }
 
     public static Map<String, Object> parseQuery(String query) {
         Map<String, Object> filters = new HashMap<>();

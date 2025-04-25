@@ -2,12 +2,14 @@ package com.ecommerce.service.category_service;
 
 import com.ecommerce.dto.request_dto.category_dto.MetaDataValuesRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.*;
+import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.models.category.Category;
 import com.ecommerce.models.category.CategoryMetadataField;
 import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import com.ecommerce.repository.category_repos.CategoryMetadataFieldRepository;
 import com.ecommerce.repository.category_repos.CategoryMetadataFieldValuesRepository;
 import com.ecommerce.repository.category_repos.CategoryRepository;
+import com.ecommerce.utils.service_utils.CategoryUtils;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
@@ -96,7 +98,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public List<CategoryResponseDto> getAllCategories(int max, int offset, String sort, String order, Map<String,Object> filters){
+    public PaginatedResponseDto<List<CategoryResponseDto>> getAllCategories(int max, int offset, String sort, String order, Map<String,Object> filters){
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, max, Sort.by(direction, sort));
 
@@ -115,7 +117,7 @@ public class CategoryServiceImpl implements CategoryService{
 
             categoryResponseDtoList.add(categoryResponseDto);
         }
-        return categoryResponseDtoList;
+        return CategoryUtils.getCategoryPaginatedResponse(categoryResponseDtoList,listOfCategory);
     }
 
     @Override
@@ -149,14 +151,11 @@ public class CategoryServiceImpl implements CategoryService{
         }
 
         Category category = categoryRepository.findById(categoryId).get();
-
         categoryValidator.validateMetadataNotAssignedInHierarchy(category, metaDataValuesRequestDtos);
 
         for (MetaDataValuesRequestDto metaDataValuesRequestDto : metaDataValuesRequestDtos){
-
             UUID metadataFieldId = metaDataValuesRequestDto.getMetadataFieldId();
             List<String> value = metaDataValuesRequestDto.getValue();
-
             CategoryMetadataField categoryMetadataField = categoryMetadataFieldRepository.findById(metadataFieldId).get();
 
             CategoryMetadataFieldValues categoryMetadataFieldValues = new CategoryMetadataFieldValues();

@@ -10,6 +10,7 @@ import com.ecommerce.utils.jwt_utils.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -36,6 +37,7 @@ public class ActivationTokenService {
     @Autowired
     private MessageSource messageSource;
 
+    @Transactional
     public String activateUser(String token) throws MessagingException {
 
         Locale locale = LocaleContextHolder.getLocale();
@@ -79,10 +81,9 @@ public class ActivationTokenService {
             return messageSource.getMessage("response.activation.expired", null, locale);
         }
 
-        user.setIsActive(true);
+        userRepository.activateUser(user.getId());
         userToken.setActivation(null);
         tokenRepository.save(userToken);
-        userRepository.save(user);
 
         emailService.sendEmail("ininsde15@gmail.com",  messageSource.getMessage("email.activation.success.subject", null, locale),
                 messageSource.getMessage("email.activation.success.body", null, locale));

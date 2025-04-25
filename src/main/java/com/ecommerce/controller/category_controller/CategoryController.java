@@ -6,6 +6,7 @@ import com.ecommerce.dto.request_dto.category_dto.MetaDataValuesRequestDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.ApiResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.service.category_service.CategoryService;
 import com.ecommerce.utils.service_utils.CategoryUtils;
 import jakarta.validation.Valid;
@@ -43,7 +44,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllCategories(
+    public ResponseEntity<PaginatedResponseDto<?>> getAllCategories(
             @RequestParam(value = "max", defaultValue = "10") int max,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "sort", defaultValue = "id") String sort,
@@ -60,11 +61,9 @@ public class CategoryController {
         }
 
         Map<String, Object> filters = CategoryUtils.parseQuery(query);
-        return ResponseEntity.ok().body(new ApiResponseDto<>(
-                HttpStatus.OK.value(),
-                "Categories List",
+        return ResponseEntity.ok().body(
                 categoryService.getAllCategories(max,offset,sort,order,filters)
-        ));
+        );
     }
 
     @PutMapping("/{categoryId}")

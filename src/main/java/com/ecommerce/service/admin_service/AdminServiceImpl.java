@@ -5,7 +5,8 @@ import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.AllCustomersResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.AllSellersResponseDto;
 import com.ecommerce.exception.user.UserNotFoundException;
-import com.ecommerce.models.product.Product;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.ecommerce.models.user.Customer;
 import com.ecommerce.models.user.Role;
 import com.ecommerce.models.user.Seller;
@@ -30,6 +31,8 @@ import java.util.UUID;
 @Service
 public class AdminServiceImpl implements AdminService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
+
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -50,12 +53,14 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public PaginatedResponseDto<List<AllCustomersResponseDto>> getAllCustomers(UserListRequestDto customerListRequestDto) {
+        logger.info("Fetching all customers with request: {}", customerListRequestDto);
         int pageSize = customerListRequestDto.getPageSize();
         int pageOffset = customerListRequestDto.getPageOffset();
         String emailFilter = customerListRequestDto.getEmailFilter();
         String sort = customerListRequestDto.getSort();
         PageRequest pageRequest = PageRequest.of(pageOffset, pageSize, Sort.by(sort));
         if (emailFilter != null && !emailFilter.isEmpty()) {
+            logger.debug("Applying email filter: {}", emailFilter);
             Page<Customer> customerPage = customerRepository.findByEmailContainingIgnoreCase(emailFilter, pageRequest);
             return UserUtils.getCustomerPaginatedResponse(customerPage);
         }
@@ -64,6 +69,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public PaginatedResponseDto<List<AllSellersResponseDto>> getAllSellers(UserListRequestDto sellerListRequestDto) {
+        logger.info("Fetching all sellers with request: {}", sellerListRequestDto);
         int pageSize = sellerListRequestDto.getPageSize();
         int pageOffset = sellerListRequestDto.getPageOffset();
         String emailFilter = sellerListRequestDto.getEmailFilter();
@@ -71,6 +77,7 @@ public class AdminServiceImpl implements AdminService {
 
         PageRequest pageRequest = PageRequest.of(pageOffset, pageSize, Sort.by(sort));
         if (emailFilter != null && !emailFilter.isEmpty()) {
+            logger.debug("Applying email filter: {}", emailFilter);
             Page<Seller> sellerPage = sellerRepository.findByEmailContainingIgnoreCase(emailFilter, pageRequest);
             return UserUtils.getSellerPaginatedResponse(sellerPage);
         }
@@ -79,13 +86,17 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public String activateUser(UUID userId) throws BadRequestException {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            logger.error("User not found with ID: {}", userId);
+            return new UserNotFoundException();
+        });
         Role role = user.getRole();
         String authority = role.getAuthority().replace("ROLE_", "").toLowerCase();
 
         if (authority.equals("ROLE_ADMIN".toLowerCase()))
             throw new UnsupportedOperationException("Admin cant be updated");
         if (user.getIsActive()) {
+            logger.warn("User {} is already active", userId);
             throw new BadRequestException(authority + " with id " + userId + " is already active");
         }
         user.setIsActive(true);
@@ -101,6 +112,7 @@ public class AdminServiceImpl implements AdminService {
 
         if (authority.equals("ROLE_ADMIN".toLowerCase())) return "Admin cant be updated";
         if (!user.getIsActive()) {
+            logger.warn("User {} is already inactive", userId);
             throw new BadRequestException(authority + " with id " + userId + " is already active");
         }
         user.setIsActive(false);
@@ -115,7 +127,10 @@ public class AdminServiceImpl implements AdminService {
         String authority = role.getAuthority();
 
         if (authority.equals("ROLE_ADMIN")) throw new BadRequestException("Admin cant be updated");
+        if(!user.getIsDeleted())
+            throw new BadRequestException("User Not found");
         if (!user.getIsLocked()) {
+            logger.warn("User {} is already unlocked", userId);
             throw new BadRequestException(authority + " with id " + userId + " is already unlocked");
         }
         user.setIsLocked(false);

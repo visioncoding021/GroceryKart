@@ -5,6 +5,7 @@ import com.ecommerce.dto.response_dto.category_dto.CategoryFiltersResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryNameResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.CategoryResponseDto;
 import com.ecommerce.dto.response_dto.category_dto.LeafCategoryResponseDto;
+import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import org.apache.coyote.BadRequestException;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface CategoryService {
 
     public CategoryResponseDto getCategoryById(UUID id);
 
-    public List<CategoryResponseDto> getAllCategories(int max, int offset, String sort, String order, Map<String,Object> filters);
+    public PaginatedResponseDto<List<CategoryResponseDto>> getAllCategories(int max, int offset, String sort, String order, Map<String,Object> filters);
 
     public String updateCategory(UUID categoryId,String categoryName) throws BadRequestException;
 

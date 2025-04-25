@@ -37,7 +37,7 @@ public class UserExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponseDto> handleBadCredentials(BadCredentialsException exception) {
-        return buildErrorResponse("Invalid credentials", "Invalid username or password", HttpStatus.UNAUTHORIZED);
+        return buildErrorResponse("Invalid credentials", exception.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(BadRequestException.class)

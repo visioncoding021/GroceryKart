@@ -20,4 +20,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     boolean existsByIdAndIsActive(UUID productId, boolean b);
 
     boolean existsByIdAndIsDeleted(UUID productId, boolean b);
+
+    List<Product> findAllByIsDeletedTrue();
 }

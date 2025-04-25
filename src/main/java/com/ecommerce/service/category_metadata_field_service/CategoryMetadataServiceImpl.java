@@ -4,6 +4,7 @@ import com.ecommerce.dto.request_dto.category_dto.CategoryMetadataFieldRequestDt
 import com.ecommerce.dto.response_dto.category_dto.CategoryMetadataFieldResponseDto;
 import com.ecommerce.models.category.CategoryMetadataField;
 import com.ecommerce.repository.category_repos.CategoryMetadataFieldRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ public class CategoryMetadataServiceImpl implements CategoryMetadataService{
     private CategoryMetadataFieldRepository categoryMetadataFieldRepository;
 
     @Override
+    @Transactional
     public CategoryMetadataFieldResponseDto addMetadataField(CategoryMetadataFieldRequestDto categoryMetadataFieldRequestDto) {
         if (categoryMetadataFieldRepository.existsByNameIgnoreCase(categoryMetadataFieldRequestDto.getName().trim())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Metadata field name already exists with name +" + categoryMetadataFieldRequestDto.getName());

@@ -19,9 +19,14 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class LoginLogoutServiceImpl implements LoginLogoutService {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoginLogoutServiceImpl.class);
+
     @Autowired
     private UserRepository userRepository;
 
@@ -55,6 +60,7 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
         if(request.getHeader("Cookie") != null) {
             String cookie = request.getHeader("Cookie");
             if (cookie.contains("refresh=")) {
+                logger.warn("Login session already exists for email: {}", email);
                 String refreshToken = cookie.split("refresh=")[1].split(";")[0];
                 throw new BadCredentialsException("There is already a login session");
             }
@@ -140,6 +146,9 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
             User user = userRepository.findByEmail(JwtUtil.extractEmail(authHeader)).orElseThrow(UserNotFoundException::new);
             Token userToken = user.getToken();
             Long accessIssuedAt = userToken.getAccess();
+            if (accessIssuedAt == null) {
+                throw new BadCredentialsException("No Login Session found");
+            }
             if (!accessIssuedAt.equals(JwtUtil.extractIssuedAt(authHeader))) {
                 throw new IllegalArgumentException("Invalid Access token");
             }
@@ -159,6 +168,9 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
             User user = userRepository.findByEmail(JwtUtil.extractEmail(cookie)).orElseThrow(UserNotFoundException::new);
             Token userToken = user.getToken();
             Long refreshIssuedAt = userToken.getRefresh();
+            if (refreshIssuedAt == null) {
+                throw new BadCredentialsException("No Login Session found");
+            }
             if (!refreshIssuedAt.equals(JwtUtil.extractIssuedAt(cookie))) {
                 throw new IllegalArgumentException("Invalid refresh token");
             }

@@ -150,6 +150,9 @@ public class ProductVariationServiceImpl implements ProductVariationService{
         if(!product.getSeller().getId().equals(sellerId))
             throw new BadRequestException("Product variation not found with ID: " + productVariationId);
 
+        if(!product.getIsActive())
+            throw new BadRequestException("Product is not active. So variation can't be updated");
+
         if(!productVariation.getIsActive())
             throw new BadRequestException("Product variation is not active. So it can't be updated");
 

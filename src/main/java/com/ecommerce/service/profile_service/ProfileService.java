@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,10 +64,14 @@ public class ProfileService {
     }
 
     public String uploadProfileImage(String email, MultipartFile file) throws IOException {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setUpdatedAt(LocalDateTime.now());
         return profileImageService.uploadProfileImage(email, file);
     }
 
     public String deleteProfileImage(String email) throws FileNotFoundException {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setUpdatedAt(LocalDateTime.now());
         return profileImageService.deleteProfileImage(email);
     }
 

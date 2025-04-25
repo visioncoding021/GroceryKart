@@ -13,4 +13,6 @@ import java.util.UUID;
 public interface ProductVariationRepository extends JpaRepository<ProductVariation, UUID> {
 
     Page<ProductVariation> findAll(Specification<ProductVariation> specification, Pageable pageable);
+
+    void deleteAllByProductId(UUID id);
 }

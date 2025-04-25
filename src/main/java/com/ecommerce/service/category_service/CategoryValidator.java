@@ -2,6 +2,7 @@ package com.ecommerce.service.category_service;
 
 import com.ecommerce.dto.request_dto.category_dto.MetaDataValuesRequestDto;
 import com.ecommerce.models.category.Category;
+import com.ecommerce.models.category.CategoryMetadataFieldValues;
 import com.ecommerce.repository.category_repos.CategoryMetadataFieldValuesRepository;
 import com.ecommerce.repository.category_repos.CategoryRepository;
 import org.apache.coyote.BadRequestException;
@@ -90,6 +91,21 @@ public class CategoryValidator {
                 }
             }
             current = current.getParent();
+        }
+        checkMetadataInChildNodesOfCategory(category, metaDataValuesRequestDtos);
+    }
+
+    private void checkMetadataInChildNodesOfCategory(Category category,List<MetaDataValuesRequestDto> metaDataValuesRequestDtos) throws BadRequestException {
+        if(!category.getCategoryMetadataFieldValues().isEmpty()){
+            for (MetaDataValuesRequestDto dto : metaDataValuesRequestDtos) {
+                UUID metadataFieldId = dto.getMetadataFieldId();
+                if (metadataFieldValuesRepository.existsByCategoryMetadataField_IdAndCategory_Id(metadataFieldId, category.getId())) {
+                    throw new BadRequestException("Relation already exists between metadata and category (or its parent) for metadata field id: " + metadataFieldId);
+                }
+            }
+        }
+        for(Category child : category.getSubCategories()){
+            checkMetadataInChildNodesOfCategory(child,metaDataValuesRequestDtos);
         }
     }
 

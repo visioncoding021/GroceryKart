@@ -56,7 +56,7 @@ public class EmailServiceImpl implements EmailService{
     public void sendResetPasswordEmail(String to, String subject, String text, String token) throws MessagingException {
         Locale locale = LocaleContextHolder.getLocale();
         String resetLink = "http://localhost:8080/api/auth/reset-password?token=" + token;
-        sendEmail(to, subject, text + "\n\n" + messageSource.getMessage("email.resetPassword.linkText", null, locale) + resetLink);
+        sendEmail(to, subject, text + "\n\n" + "Reset Password link :  \n" + resetLink);
     }
 
 }

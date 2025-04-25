@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +72,8 @@ public class RegisterService {
                 tokenService.saveActivationToken(user,  messageSource.getMessage("email.resendActivationToken.subject",null, locale));
             }
             throw new UserAlreadyRegistered(messageSource.getMessage("response.activation.alreadyActivated",null, locale));
+        } else if (customerRepository.existsByContact(customerRequestDTO.getContact())) {
+            throw new UserAlreadyRegistered(messageSource.getMessage("error.phone.exists", null, locale));
         }
 
         if(!UserUtils.isPasswordMatching(customerRequestDTO.getPassword(), customerRequestDTO.getConfirmPassword())) {
@@ -140,6 +143,21 @@ public class RegisterService {
         emailService.sendEmail("ininsde15@gmail.com", messageSource.getMessage("email.sellerPendingApproval.subject", null, locale),
                 messageSource.getMessage("email.sellerPendingApproval.body", null, locale));
         return seller;
+    }
+
+    @Scheduled(fixedRate = 86400000)
+    public void sendEmailToAdminForActivationOfUsers(){
+        List<String> pendingUsers = userRepository.findAllByIsActiveFalse().stream().map(User::getEmail).toList();
+        System.out.println(pendingUsers.toString());
+        try {
+            emailService.sendEmail(
+                    "ininsde15@gmail.com",
+                    "Daily Active Users Report",
+                    "This is your scheduled report on active users." + "\nPending Users: " + pendingUsers.toString()
+            );
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 
 }

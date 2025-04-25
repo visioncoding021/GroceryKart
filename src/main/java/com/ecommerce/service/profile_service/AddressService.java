@@ -10,13 +10,16 @@ import com.ecommerce.repository.user_repos.UserRepository;
 import com.ecommerce.service.email_service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +42,7 @@ public class AddressService {
     @Autowired
     private EmailService emailService;
 
+    @Transactional
     public String updateAddress(UUID addressId, AddressRequestDto addressRequestDto, HttpServletResponse response) throws BadRequestException, MessagingException {
         Address address = addressRepository.findById(addressId).orElseThrow(() -> new BadRequestException("Address not found"));
         BeanUtils.copyProperties(addressRequestDto, address);
@@ -52,6 +56,7 @@ public class AddressService {
             token.setAccess(null);
             token.setRefresh(null);
             user.setIsLocked(true);
+            user.setUpdatedAt(LocalDateTime.now());
 
             userRepository.save(user);
             tokenRepository.save(token);
@@ -115,7 +120,8 @@ public class AddressService {
         if (!user.getAddress().contains(address)) {
             throw new BadRequestException("Address does not belong to the user");
         }
-        addressRepository.delete(address);
+        address.setIsDeleted(true);
+        addressRepository.save(address);
         List<Address> listOfAddresses = user.getAddress();
         listOfAddresses.remove(address);
         user.setAddress(listOfAddresses);
@@ -123,4 +129,14 @@ public class AddressService {
 
         return "Address deleted successfully";
     }
+
+//    @Scheduled(fixedRate = 60000)
+//    public void deleteAddress() {
+//        List<Address> address = addressRepository.findAll();
+//        for (Address address1 : address) {
+//            if (address1.getIsDeleted()) {
+//                addressRepository.delete(address1);
+//            }
+//        }
+//    }
 }

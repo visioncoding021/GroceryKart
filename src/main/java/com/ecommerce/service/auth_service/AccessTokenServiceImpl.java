@@ -10,10 +10,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class AccessTokenServiceImpl implements AccessTokenService{
+
+    private static final Logger logger = LoggerFactory.getLogger(AccessTokenServiceImpl.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -29,15 +32,27 @@ public class AccessTokenServiceImpl implements AccessTokenService{
         }
         refreshToken = refreshToken.replace("refresh=", "");
         refreshToken = refreshToken.replace(";", "");
-        if(!JwtUtil.isTokenValid(refreshToken) && !JwtUtil.extractType(refreshToken).equals("refresh")) throw new BadRequestException("Refresh token is not valid");
+        if(refreshToken.isEmpty()) {
+            logger.warn("No refresh token found in cookies");
+            throw new BadRequestException("No refresh token found in cookies");
+        }
+        if(!JwtUtil.isTokenValid(refreshToken) && !JwtUtil.extractType(refreshToken).equals("refresh")){
+            logger.warn("No refresh token found in cookies");
+            throw new BadRequestException("Refresh token is not valid");
+        }
+
+        String userEmail = JwtUtil.extractEmail(refreshToken);
+        logger.debug("Extracted user email from refresh token: {}", userEmail);
 
         User user = userRepository.findByEmail(JwtUtil.extractEmail(refreshToken)).orElseThrow(UserNotFoundException::new);
         Token userToken = user.getToken();
         Long refreshIssuedAt = userToken.getRefresh();
         if (refreshIssuedAt == null) {
+            logger.warn("No refresh issue time found for user: {}", userEmail);
             throw new BadRequestException("No Login Session found");
         }
         if(!refreshIssuedAt.equals(JwtUtil.extractIssuedAt(refreshToken))) {
+            logger.warn("Refresh token issue time mismatch for user: {}", userEmail);
             throw new BadRequestException("Refresh token is not valid");
         }
 

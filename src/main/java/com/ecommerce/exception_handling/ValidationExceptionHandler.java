@@ -1,6 +1,7 @@
 package com.ecommerce.exception_handling;
 
 import com.ecommerce.dto.response_dto.message_dto.ErrorResponseDto;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

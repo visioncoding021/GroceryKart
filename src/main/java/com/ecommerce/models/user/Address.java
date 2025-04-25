@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.util.UUID;
 
@@ -14,6 +16,8 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE addresses SET is_deleted = false WHERE id = ?")
+@Where(clause = "is_deleted = false")
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -40,5 +44,8 @@ public class Address {
 
     @Column(nullable = false)
     private String label;
+
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
 }

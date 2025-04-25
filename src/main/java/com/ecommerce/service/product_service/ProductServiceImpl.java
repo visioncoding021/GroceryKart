@@ -28,6 +28,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -259,6 +260,15 @@ public class ProductServiceImpl implements ProductService{
         }
         return ProductUtils.getProductPaginatedResponse(productResponseDtos,products);
     }
+
+//    @Scheduled(fixedRate = 36000000)
+//    public void deleteProductsWithIsDeletedTrue() {
+//        List<Product> products = productRepository.findAllByIsDeletedTrue();
+//        for (Product product : products) {
+//            productVariationRepository.deleteAllByProductId(product.getId());
+//            productRepository.deleteById(product.getId());
+//        }
+//    }
 
     private LeafCategoryResponseDto getCategoryResponse(Category category){
         LeafCategoryResponseDto categoryResponseDto = new LeafCategoryResponseDto();
