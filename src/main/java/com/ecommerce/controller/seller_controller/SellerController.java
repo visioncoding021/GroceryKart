@@ -14,6 +14,7 @@ import com.ecommerce.service.product_service.ProductService;
 import com.ecommerce.service.product_variation_service.ProductVariationService;
 import com.ecommerce.utils.service_utils.ProductUtils;
 import com.ecommerce.utils.user_utils.CurrentUserUtils;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class SellerController {
     }
 
     @PostMapping("/add-product")
-    public ResponseEntity<String> addProduct(@Valid @RequestBody ProductRequestDto productRequestDto) throws BadRequestException {
+    public ResponseEntity<String> addProduct(@Valid @RequestBody ProductRequestDto productRequestDto) throws BadRequestException, MessagingException {
         return ResponseEntity.ok().body(
             productService.addProduct(productRequestDto,currentUserUtils.getUserId())
         );

@@ -100,7 +100,7 @@ public class CategoryValidator {
             for (MetaDataValuesRequestDto dto : metaDataValuesRequestDtos) {
                 UUID metadataFieldId = dto.getMetadataFieldId();
                 if (metadataFieldValuesRepository.existsByCategoryMetadataField_IdAndCategory_Id(metadataFieldId, category.getId())) {
-                    throw new BadRequestException("Relation already exists between metadata and category (or its parent) for metadata field id: " + metadataFieldId);
+                    throw new BadRequestException("Relation already exists between metadata and category (or in its Child ) for metadata field id: " + metadataFieldId);
                 }
             }
         }

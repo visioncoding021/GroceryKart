@@ -15,9 +15,11 @@ import com.ecommerce.repository.product_repos.ProductRepository;
 import com.ecommerce.repository.product_repos.ProductVariationRepository;
 import com.ecommerce.repository.user_repos.SellerRepository;
 import com.ecommerce.service.category_service.CategoryMapper;
+import com.ecommerce.service.email_service.EmailService;
 import com.ecommerce.service.image_service.ImageService;
 import com.ecommerce.utils.service_utils.ProductUtils;
 import com.ecommerce.utils.service_utils.ProductVariationUtils;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
@@ -58,12 +60,15 @@ public class ProductServiceImpl implements ProductService{
     @Autowired
     private ImageService imageService;
 
+    @Autowired
+    private EmailService emailService;
+
     @Value("${base.path}")
     private String basePath;
 
     @Override
     @Transactional
-    public String addProduct(ProductRequestDto productRequestDto, UUID sellerId) throws BadRequestException {
+    public String addProduct(ProductRequestDto productRequestDto, UUID sellerId) throws BadRequestException, MessagingException {
         Seller seller = sellerRepository.findById(sellerId).get();
         String name = productRequestDto.getName().trim();
         String brand = productRequestDto.getBrand();
@@ -82,6 +87,9 @@ public class ProductServiceImpl implements ProductService{
         product.setCategory(category);
         product.setSeller(seller);
         product.setIsActive(false);
+
+        emailService.sendEmail("New product added with name: "+product.getName()+" and id: "+product.getId(), "Product Added", "ininsde15@gmail.com");
+
         productRepository.save(product);
 
         return "Product added successfully and Product ID is "+product.getId();
@@ -91,6 +99,11 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public String deleteProduct(UUID productId, UUID sellerId) throws BadRequestException {
         Product product = productRepository.findByIdAndSellerId(productId,sellerId).orElseThrow(() -> new BadRequestException("Product not found with ID: " + productId));
+
+        System.out.println("Delete product: "+product.getId());
+        if(product.getIsActive()==false)
+            throw new BadRequestException("Product with id " + productId + " is not active");
+
         if(product.getIsDeleted()==true)
             throw new BadRequestException("Product with id " + productId + " doesn't exists");
 
