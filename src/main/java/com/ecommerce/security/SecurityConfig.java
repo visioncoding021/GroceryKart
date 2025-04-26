@@ -25,7 +25,9 @@ public class SecurityConfig {
     private PasswordEncoder passwordEncoder;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter, ExceptionHandlerFilter exceptionHandlerFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter,
+            ExceptionHandlerFilter exceptionHandlerFilter, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
@@ -37,6 +39,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/profile/**").hasAnyRole("CUSTOMER", "SELLER")
                         .requestMatchers("/api/product/**").hasAnyRole("CUSTOMER","ADMIN")
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)  // 🔥 Add this line
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

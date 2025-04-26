@@ -1,12 +1,11 @@
 package com.ecommerce.dto.request_dto.profile_dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -24,4 +23,6 @@ public class CustomerProfileRequestDto {
 
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Contact must be a valid phone number")
     private String contact;
+
+    private MultipartFile profileImage;
 }

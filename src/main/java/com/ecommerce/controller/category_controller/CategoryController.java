@@ -26,11 +26,14 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public ApiResponseDto<String> addCategory(@Valid @RequestBody CategoryRequestDto categoryRequestDto){
-        return new ApiResponseDto<>(
-                HttpStatus.CREATED.value(),
-                "Category Added SuccessFully",
-                categoryService.addCategory(categoryRequestDto.getName(),categoryRequestDto.getParentId())
+    public ResponseEntity<ApiResponseDto<String>> addCategory(@Valid @RequestBody CategoryRequestDto categoryRequestDto){
+        return new ResponseEntity<>(
+                new ApiResponseDto<>(
+                        HttpStatus.CREATED.value(),
+                        "Category Added SuccessFully",
+                        categoryService.addCategory(categoryRequestDto.getName(),categoryRequestDto.getParentId())
+                ),
+                HttpStatus.CREATED
         );
     }
 
@@ -75,7 +78,7 @@ public class CategoryController {
     }
 
     @PostMapping("/category-metadata")
-    public MessageResponseDto addMetadataFieldsToCategory(@Valid @RequestBody CategoryMetadataFieldValueRequestDto categoryMetadataFieldValueRequestDto) throws BadRequestException {
+    public ResponseEntity<MessageResponseDto> addMetadataFieldsToCategory(@Valid @RequestBody CategoryMetadataFieldValueRequestDto categoryMetadataFieldValueRequestDto) throws BadRequestException {
         UUID categoryId = categoryMetadataFieldValueRequestDto.getCategoryId();
         List<MetaDataValuesRequestDto> metaDataValuesRequestDtos = categoryMetadataFieldValueRequestDto.getMetadataFields();
 
@@ -88,10 +91,12 @@ public class CategoryController {
                 list.add(el);
             }
         }
-
-        return new MessageResponseDto(
-            HttpStatus.OK.value(),
-            categoryService.addMetadataFieldWithValues(categoryId,metaDataValuesRequestDtos)
+        return new ResponseEntity<>(
+                new MessageResponseDto(
+                        HttpStatus.CREATED.value(),
+                        categoryService.addMetadataFieldWithValues(categoryId,metaDataValuesRequestDtos)
+                ),
+                HttpStatus.CREATED
         );
     }
 

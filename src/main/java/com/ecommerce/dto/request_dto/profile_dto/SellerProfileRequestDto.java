@@ -1,5 +1,6 @@
 package com.ecommerce.dto.request_dto.profile_dto;
 
+import jakarta.mail.Multipart;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -28,4 +30,6 @@ public class SellerProfileRequestDto {
 
     @Pattern(regexp = "^[a-zA-Z\\s-]+$", message = "Company name must contain only letters, spaces, or hyphens")
     private String companyName;
+
+    private MultipartFile profileImage;
 }

@@ -5,7 +5,6 @@ import com.ecommerce.dto.response_dto.user_dto.AllCustomersResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.MessageResponseDto;
 import com.ecommerce.dto.response_dto.message_dto.PaginatedResponseDto;
 import com.ecommerce.dto.response_dto.user_dto.AllSellersResponseDto;
-import com.ecommerce.models.user.Token;
 import com.ecommerce.repository.user_repos.TokenRepository;
 import com.ecommerce.service.admin_service.AdminService;
 import com.ecommerce.service.product_service.ProductService;

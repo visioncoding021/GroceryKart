@@ -116,7 +116,7 @@ public class ProfileController {
     }
 
     @PatchMapping("/update")
-    public ResponseEntity<ApiResponseDto<?>> updateProfile(HttpServletRequest request, @RequestBody UserProfileRequestDto userProfileRequestDto) throws BadRequestException, FileNotFoundException {
+    public ResponseEntity<ApiResponseDto<?>> updateProfile(HttpServletRequest request, @RequestBody UserProfileRequestDto userProfileRequestDto) throws IOException {
         String email = getEmailFromToken(request);
         String role = getRoleFromToken(request);
         ApiResponseDto apiResponseDto;
@@ -145,7 +145,7 @@ public class ProfileController {
     }
 
     @PostMapping("/add-address")
-    public ResponseEntity<ApiResponseDto<?>> addAddress(@Valid @RequestBody AddressRequestDto addressRequestDto, HttpServletRequest request) throws BadRequestException {
+    public ResponseEntity addAddress(@Valid @RequestBody AddressRequestDto addressRequestDto, HttpServletRequest request) throws BadRequestException {
         String email = getEmailFromToken(request);
         String role = getRoleFromToken(request);
         if(!role.equals("ROLE_CUSTOMER")) {
@@ -156,7 +156,7 @@ public class ProfileController {
                 "Address added successfully",
                 profileService.addAddress(addressRequestDto, email)
         );
-        return ResponseEntity.ok(apiResponseDto);
+        return new ResponseEntity<>(apiResponseDto, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete-address/{addressId}")

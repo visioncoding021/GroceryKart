@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class LoginLogoutServiceImpl implements LoginLogoutService {
@@ -150,10 +152,11 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
                 throw new BadCredentialsException("No Login Session found");
             }
             if (!accessIssuedAt.equals(JwtUtil.extractIssuedAt(authHeader))) {
-                throw new IllegalArgumentException("Invalid Access token");
+                throw new ResponseStatusException(HttpStatusCode.valueOf(401),"Invalid Access token");
             }
             return true;
-        }else throw new IllegalArgumentException("Invalid Access token");
+        }
+        throw new ResponseStatusException(HttpStatusCode.valueOf(401),"Invalid Access token");
     }
 
 
@@ -172,9 +175,10 @@ public class LoginLogoutServiceImpl implements LoginLogoutService {
                 throw new BadCredentialsException("No Login Session found");
             }
             if (!refreshIssuedAt.equals(JwtUtil.extractIssuedAt(cookie))) {
-                throw new IllegalArgumentException("Invalid refresh token");
+                throw new ResponseStatusException(HttpStatusCode.valueOf(401),"Invalid Access token");
             }
             return true;
-        }else throw new IllegalArgumentException("Invalid Access token");
+        }
+        throw new ResponseStatusException(HttpStatusCode.valueOf(401),"Invalid Access token");
     }
 }

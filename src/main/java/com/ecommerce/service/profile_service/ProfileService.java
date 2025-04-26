@@ -85,23 +85,27 @@ public class ProfileService {
         return addressService.getAllAddresses(customerId);
     }
 
-    public CustomerProfileResponseDto updateCustomerProfile(String email,CustomerProfileRequestDto customerProfileRequestDto) throws FileNotFoundException, BadRequestException {
+    public CustomerProfileResponseDto updateCustomerProfile(String email,CustomerProfileRequestDto customerProfileRequestDto) throws IOException {
         Customer customer = customerRepository.findByEmail(email).get();
         if(customerRepository.existsByContact(customerProfileRequestDto.getContact())){
             throw new BadRequestException("Contact already exists");
         }
         BeanUtils.copyProperties(customerProfileRequestDto,customer);
         customerRepository.save(customer);
+        if(customerProfileRequestDto.getProfileImage()!=null)
+            uploadProfileImage(customer.getEmail(),customerProfileRequestDto.getProfileImage());
         return userProfileService.getCustomerProfile(email);
     }
 
-    public SellerProfileResponseDto updateSellerProfile(String email,SellerProfileRequestDto sellerProfileRequestDto) throws FileNotFoundException, BadRequestException {
+    public SellerProfileResponseDto updateSellerProfile(String email,SellerProfileRequestDto sellerProfileRequestDto) throws IOException {
         Seller seller = sellerRepository.findByEmail(email).get();
         BeanUtils.copyProperties(sellerProfileRequestDto,seller);
         if(sellerRepository.existsByCompanyContact(sellerProfileRequestDto.getCompanyContact())){
             throw new BadRequestException("Contact already exists");
         }
         sellerRepository.save(seller);
+        if(sellerProfileRequestDto.getProfileImage()!=null)
+            uploadProfileImage(seller.getEmail(),sellerProfileRequestDto.getProfileImage());
         return userProfileService.getSellerProfile(email);
     }
 

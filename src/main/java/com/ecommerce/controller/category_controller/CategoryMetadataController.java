@@ -32,7 +32,7 @@ public class CategoryMetadataController {
                 "New Category Metadata Field Created",
                 categoryMetadataService.addMetadataField(categoryMetadataFieldRequestDto)
         );
-        return ResponseEntity.ok(apiResponseDto);
+        return new ResponseEntity<>(apiResponseDto,HttpStatus.CREATED);
     }
 
     @GetMapping

@@ -55,8 +55,9 @@ public class SellerController {
 
     @PostMapping("/add-product")
     public ResponseEntity<String> addProduct(@Valid @RequestBody ProductRequestDto productRequestDto) throws BadRequestException, MessagingException {
-        return ResponseEntity.ok().body(
-            productService.addProduct(productRequestDto,currentUserUtils.getUserId())
+        return new ResponseEntity<>(
+            productService.addProduct(productRequestDto,currentUserUtils.getUserId()),
+            HttpStatus.CREATED
         );
     }
 
@@ -77,7 +78,7 @@ public class SellerController {
                 HttpStatus.OK.value(),
                 productVariationService.addProductVariation(currentUserUtils.getUserId(),requestDto,metadata)
         );
-        return ResponseEntity.ok().body(messageResponseDto);
+        return new ResponseEntity<>(messageResponseDto, HttpStatus.CREATED);
     }
 
     @PutMapping("/product-variation/{variationId}")
